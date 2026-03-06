@@ -20,9 +20,7 @@
     --error: #EF4444;
     --white: #FFFFFF;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Sora', sans-serif;
     background: var(--navy);
@@ -30,8 +28,6 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* Animated background */
   body::before {
     content: '';
     position: fixed;
@@ -42,7 +38,6 @@
     pointer-events: none;
     z-index: 0;
   }
-
   .container {
     position: relative;
     z-index: 1;
@@ -50,349 +45,259 @@
     margin: 0 auto;
     padding: 40px 20px 60px;
   }
-
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-
+  .header { text-align: center; margin-bottom: 40px; }
   .emblem {
-    width: 56px;
-    height: 56px;
+    width: 60px; height: 60px;
     margin: 0 auto 16px;
     background: linear-gradient(135deg, var(--saffron), #FF9A3C);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
     box-shadow: 0 0 32px var(--saffron-glow), 0 8px 24px rgba(0,0,0,0.4);
     animation: pulse-glow 3s ease-in-out infinite;
   }
-
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 32px var(--saffron-glow), 0 8px 24px rgba(0,0,0,0.4); }
+    0%,100% { box-shadow: 0 0 32px var(--saffron-glow), 0 8px 24px rgba(0,0,0,0.4); }
     50% { box-shadow: 0 0 56px rgba(255,107,0,0.35), 0 8px 24px rgba(0,0,0,0.4); }
   }
-
   .header h1 {
-    font-size: clamp(22px, 5vw, 30px);
+    font-size: clamp(20px, 5vw, 28px);
     font-weight: 700;
-    letter-spacing: -0.5px;
     background: linear-gradient(90deg, var(--saffron), #FFB347, var(--white));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-
-  .header p {
+  .header p { margin-top: 8px; color: var(--text-muted); font-size: 13px; }
+  .free-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #22C55E, #16A34A);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
     margin-top: 8px;
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 300;
+    letter-spacing: 1px;
   }
-
   .tricolor-bar {
-    display: flex;
-    gap: 0;
-    height: 3px;
-    width: 120px;
-    margin: 16px auto 0;
-    border-radius: 2px;
-    overflow: hidden;
+    display: flex; height: 3px; width: 120px;
+    margin: 14px auto 0; border-radius: 2px; overflow: hidden;
   }
   .tricolor-bar span { flex: 1; }
   .tricolor-bar span:nth-child(1) { background: var(--saffron); }
   .tricolor-bar span:nth-child(2) { background: var(--white); }
   .tricolor-bar span:nth-child(3) { background: var(--green); }
 
-  /* Steps indicator */
-  .steps {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 36px;
-  }
+  /* Steps */
+  .steps-wrapper { display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; }
+  .steps-row { display: flex; align-items: center; }
   .step-dot {
-    width: 32px; height: 32px;
-    border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 600;
     border: 2px solid var(--navy-border);
-    background: var(--navy-card);
-    color: var(--text-muted);
+    background: var(--navy-card); color: var(--text-muted);
     transition: all 0.3s;
-    position: relative;
-    z-index: 1;
   }
   .step-dot.active { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-glow); }
-  .step-dot.done { border-color: var(--success); color: var(--white); background: var(--success); }
+  .step-dot.done { border-color: var(--success); color: white; background: var(--success); }
   .step-line { width: 48px; height: 2px; background: var(--navy-border); transition: background 0.3s; }
   .step-line.done { background: var(--success); }
-  .step-label {
-    font-size: 11px; color: var(--text-muted); text-align: center;
-    margin-top: 6px; font-weight: 400;
-  }
-  .steps-wrapper { display: flex; flex-direction: column; align-items: center; }
-  .steps-row { display: flex; align-items: center; }
 
-  /* Cards */
-  .card {
-    background: var(--navy-card);
-    border: 1px solid var(--navy-border);
-    border-radius: 20px;
-    padding: 32px;
-    margin-bottom: 24px;
-    transition: border-color 0.3s;
-    display: none;
-  }
-  .card.active { display: block; animation: fadeUp 0.4s ease; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .card-title {
-    font-size: 18px; font-weight: 600; margin-bottom: 8px;
-  }
-  .card-sub {
-    font-size: 13px; color: var(--text-muted); margin-bottom: 24px;
-  }
-
-  /* Upload zone */
-  .upload-zone {
-    border: 2px dashed var(--navy-border);
-    border-radius: 14px;
-    padding: 36px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    background: rgba(255,255,255,0.01);
-  }
-  .upload-zone:hover, .upload-zone.drag-over {
-    border-color: var(--saffron);
-    background: var(--saffron-glow);
-  }
-  .upload-zone input[type="file"] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .upload-icon { font-size: 40px; margin-bottom: 12px; }
-  .upload-zone h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-  .upload-zone p { font-size: 12px; color: var(--text-muted); }
-
-  .preview-container {
-    margin-top: 16px;
-    border-radius: 10px;
-    overflow: hidden;
-    display: none;
-    position: relative;
-  }
-  .preview-container img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: contain;
-    border-radius: 10px;
-    background: #000;
-  }
-  .preview-badge {
-    position: absolute; top: 8px; right: 8px;
-    background: var(--success); color: white;
-    font-size: 11px; font-weight: 600;
-    padding: 4px 10px; border-radius: 20px;
-  }
-
-  /* Scanning animation */
-  .scan-overlay {
-    position: absolute; inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(10,15,30,0.85);
-    border-radius: 10px;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 5;
-  }
-  .scan-overlay.active { display: flex; }
-  .scan-line {
-    position: absolute;
-    left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--saffron), transparent);
-    animation: scan 1.5s ease-in-out infinite;
-    box-shadow: 0 0 12px var(--saffron);
-  }
-  @keyframes scan {
-    0% { top: 10%; }
-    50% { top: 85%; }
-    100% { top: 10%; }
-  }
-  .scan-text { font-size: 13px; color: var(--saffron); font-weight: 600; margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 14px 28px; border-radius: 12px;
-    font-family: 'Sora', sans-serif;
-    font-size: 15px; font-weight: 600;
-    border: none; cursor: pointer; transition: all 0.2s;
-    text-decoration: none;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--saffron), var(--saffron-light));
-    color: white;
-    box-shadow: 0 4px 20px rgba(255,107,0,0.3);
-    width: 100%;
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,0,0.45); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .btn-secondary {
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid var(--navy-border);
-    width: 100%;
-    margin-top: 10px;
-  }
-  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
-
-  /* Results card */
-  .results-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 20px;
-  }
-  .result-item {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--navy-border);
-    border-radius: 10px;
-    padding: 12px 14px;
-  }
-  .result-item.full { grid-column: 1 / -1; }
-  .result-label {
-    font-size: 10px; font-weight: 600; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
-  }
-  .result-value {
-    font-size: 14px; font-weight: 600; color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    word-break: break-all;
-  }
-  .result-value.aadhaar {
-    color: var(--saffron); letter-spacing: 2px;
-  }
-
-  /* Status messages */
-  .status-msg {
-    padding: 12px 16px; border-radius: 10px;
-    font-size: 13px; font-weight: 500;
-    margin-top: 16px; display: none;
-  }
-  .status-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; }
-  .status-msg.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86EFAC; }
-  .status-msg.info { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: #FED7AA; }
-
-  /* Config section */
+  /* Config */
   .config-box {
     background: rgba(255,107,0,0.04);
-    border: 1px dashed rgba(255,107,0,0.25);
-    border-radius: 12px;
+    border: 1px dashed rgba(255,107,0,0.3);
+    border-radius: 14px;
     padding: 20px;
     margin-bottom: 24px;
   }
-  .config-box label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .config-box label {
+    font-size: 11px; color: var(--text-muted);
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; margin-bottom: 8px; display: block;
+  }
   .config-box input {
     width: 100%;
     background: var(--navy);
     border: 1px solid var(--navy-border);
     border-radius: 8px;
-    padding: 10px 14px;
+    padding: 11px 14px;
     color: var(--text);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
+    font-size: 12px;
     outline: none;
     transition: border-color 0.2s;
   }
   .config-box input:focus { border-color: var(--saffron); }
   .config-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 
-  /* Progress loader */
-  .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  /* Cards */
+  .card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .card.active { display: block; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .card-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
 
-  /* Privacy notice */
+  /* Upload */
+  .upload-zone {
+    border: 2px dashed var(--navy-border);
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .upload-zone:hover { border-color: var(--saffron); background: var(--saffron-glow); }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { font-size: 38px; margin-bottom: 10px; }
+  .upload-zone h3 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+  .upload-zone p { font-size: 12px; color: var(--text-muted); }
+
+  .preview-container {
+    margin-top: 14px; border-radius: 10px;
+    overflow: hidden; display: none; position: relative;
+  }
+  .preview-container img {
+    width: 100%; max-height: 200px;
+    object-fit: contain; background: #000; border-radius: 10px;
+  }
+  .preview-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--success); color: white;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .scan-overlay {
+    position: absolute; inset: 0; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(10,15,30,0.88);
+    border-radius: 10px; flex-direction: column; gap: 10px; z-index: 5;
+  }
+  .scan-overlay.active { display: flex; }
+  .scan-line {
+    position: absolute; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--saffron), transparent);
+    animation: scan 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px var(--saffron);
+  }
+  @keyframes scan { 0%{top:10%} 50%{top:85%} 100%{top:10%} }
+  .scan-text { font-size: 12px; color: var(--saffron); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 24px; border-radius: 12px;
+    font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.2s; width: 100%;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--saffron), var(--saffron-light));
+    color: white; box-shadow: 0 4px 18px rgba(255,107,0,0.3);
+    margin-top: 18px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(255,107,0,0.45); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: transparent; color: var(--text-muted);
+    border: 1px solid var(--navy-border); margin-top: 10px;
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* Status */
+  .status-msg {
+    padding: 11px 15px; border-radius: 10px;
+    font-size: 13px; font-weight: 500;
+    margin-top: 14px; display: none;
+  }
+  .status-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; }
+  .status-msg.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86EFAC; }
+  .status-msg.info { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: #FED7AA; }
+
+  /* Results */
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+  .result-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--navy-border);
+    border-radius: 10px; padding: 11px 13px;
+  }
+  .result-item.full { grid-column: 1 / -1; }
+  .result-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .result-value { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; word-break: break-all; }
+  .result-value.aadhaar { color: var(--saffron); letter-spacing: 2px; }
+
+  /* Privacy */
   .privacy-note {
     display: flex; align-items: flex-start; gap: 10px;
     background: rgba(19,136,8,0.06);
     border: 1px solid rgba(19,136,8,0.2);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 12px; color: var(--text-muted);
-    margin-top: 20px;
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 12px; color: var(--text-muted); margin-top: 18px;
   }
-  .privacy-note .shield { font-size: 18px; flex-shrink: 0; }
 
-  /* Success state */
-  .success-state {
-    text-align: center; padding: 20px 0;
-  }
+  /* Success */
+  .success-state { text-align: center; padding: 16px 0; }
   .success-icon {
-    width: 72px; height: 72px;
+    width: 70px; height: 70px;
     background: linear-gradient(135deg, var(--success), #16A34A);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 36px; margin: 0 auto 20px;
-    box-shadow: 0 0 32px rgba(34,197,94,0.3);
+    font-size: 34px; margin: 0 auto 18px;
+    box-shadow: 0 0 28px rgba(34,197,94,0.3);
     animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1);
   }
-  @keyframes pop-in { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
+  @keyframes pop-in { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
   .masked-badge {
-    background: var(--navy);
-    border: 1px solid var(--navy-border);
-    border-radius: 8px;
-    padding: 8px 16px;
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    letter-spacing: 3px;
-    color: var(--saffron);
-    margin: 12px 0;
+    background: var(--navy); border: 1px solid var(--navy-border);
+    border-radius: 8px; padding: 8px 18px;
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 16px; letter-spacing: 3px; color: var(--saffron); margin: 10px 0;
   }
+  .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
 
-  @media (max-width: 480px) {
-    .results-grid { grid-template-columns: 1fr; }
-    .result-item.full { grid-column: 1; }
-    .card { padding: 20px; }
+  @media(max-width:480px){
+    .results-grid{grid-template-columns:1fr;}
+    .result-item.full{grid-column:1;}
+    .card{padding:18px;}
   }
 </style>
 </head>
 <body>
-
 <div class="container">
 
   <!-- Header -->
   <div class="header">
     <div class="emblem">🇮🇳</div>
     <h1>Aadhaar Verification Portal</h1>
-    <p>Secure · OCR-Powered · Google Sheets Integration</p>
-    <div class="tricolor-bar">
-      <span></span><span></span><span></span>
-    </div>
+    <div class="free-badge">✅ 100% FREE — Powered by Gemini AI</div>
+    <p style="margin-top:10px;">Google Sheets · Apps Script · GitHub Pages</p>
+    <div class="tricolor-bar"><span></span><span></span><span></span></div>
   </div>
 
-  <!-- Config Box (shown on first load) -->
-  <div class="config-box" id="configBox">
-    <label>⚙️ Google Apps Script Web App URL</label>
-    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" />
-    <p class="config-hint">Paste your deployed Apps Script URL here. This is saved in your browser for future use.</p>
+  <!-- Config -->
+  <div class="config-box">
+    <label>⚙️ Apps Script Web App URL</label>
+    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" />
+    <p class="config-hint">💡 Paste your deployed Apps Script URL. Saved automatically in your browser.</p>
   </div>
 
   <!-- Steps -->
-  <div class="steps-wrapper" style="margin-bottom:32px;">
+  <div class="steps-wrapper">
     <div class="steps-row">
       <div class="step-dot active" id="step1dot">1</div>
       <div class="step-line" id="line1"></div>
@@ -402,80 +307,62 @@
     </div>
   </div>
 
-  <!-- STEP 1: Front Image -->
+  <!-- STEP 1: Front -->
   <div class="card active" id="card1">
-    <div class="card-title">📷 Upload Aadhaar Front</div>
-    <div class="card-sub">Upload the front side of the Aadhaar card containing name, photo, and date of birth.</div>
-
+    <div class="card-title">📷 Step 1 — Upload Aadhaar Front</div>
+    <div class="card-sub">The front side has your Name, Photo, DOB, and Aadhaar number.</div>
     <div class="upload-zone" id="frontZone">
       <input type="file" id="frontInput" accept="image/*" capture="environment"/>
       <div class="upload-icon">🪪</div>
-      <h3>Tap to Upload / Take Photo</h3>
-      <p>Front side with name, DOB, and photo</p>
+      <h3>Tap to Upload or Take Photo</h3>
+      <p>Front side of Aadhaar card</p>
     </div>
-
     <div class="preview-container" id="frontPreview">
-      <img id="frontImg" src="" alt="Front preview"/>
+      <img id="frontImg" src="" alt="Front"/>
       <div class="preview-badge">✓ Front</div>
       <div class="scan-overlay" id="frontScanOverlay">
         <div class="scan-line"></div>
-        <div class="scan-text">⚡ Scanning front...</div>
+        <div class="scan-text">🔍 Scanning with Gemini AI...</div>
       </div>
     </div>
-
     <div class="status-msg" id="frontStatus"></div>
-
-    <button class="btn btn-primary" id="frontNext" style="margin-top:20px;" disabled>
-      Continue to Back Side →
-    </button>
+    <button class="btn btn-primary" id="frontNext" disabled>Continue to Back Side →</button>
   </div>
 
-  <!-- STEP 2: Back Image -->
+  <!-- STEP 2: Back -->
   <div class="card" id="card2">
-    <div class="card-title">📋 Upload Aadhaar Back</div>
-    <div class="card-sub">Upload the back side containing the address and QR code.</div>
-
+    <div class="card-title">📋 Step 2 — Upload Aadhaar Back</div>
+    <div class="card-sub">The back side has your full Address and Pincode.</div>
     <div class="upload-zone" id="backZone">
       <input type="file" id="backInput" accept="image/*" capture="environment"/>
       <div class="upload-icon">🏠</div>
-      <h3>Tap to Upload / Take Photo</h3>
-      <p>Back side with full address details</p>
+      <h3>Tap to Upload or Take Photo</h3>
+      <p>Back side of Aadhaar card</p>
     </div>
-
     <div class="preview-container" id="backPreview">
-      <img id="backImg" src="" alt="Back preview"/>
+      <img id="backImg" src="" alt="Back"/>
       <div class="preview-badge">✓ Back</div>
       <div class="scan-overlay" id="backScanOverlay">
         <div class="scan-line"></div>
-        <div class="scan-text">⚡ Scanning back...</div>
+        <div class="scan-text">🔍 Scanning with Gemini AI...</div>
       </div>
     </div>
-
     <div class="status-msg" id="backStatus"></div>
-
-    <button class="btn btn-primary" id="backNext" style="margin-top:20px;" disabled>
-      Extract & Submit Data →
-    </button>
+    <button class="btn btn-primary" id="backNext" disabled>Review & Submit →</button>
     <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
   </div>
 
-  <!-- STEP 3: Results -->
+  <!-- STEP 3: Review -->
   <div class="card" id="card3">
-    <div class="card-title">✅ Extracted Data</div>
-    <div class="card-sub">Review the information extracted from your Aadhaar card before it is saved.</div>
-
+    <div class="card-title">✅ Step 3 — Review Extracted Data</div>
+    <div class="card-sub">Check the details below before saving to Google Sheet.</div>
     <div id="extractedResults"></div>
-
     <div class="privacy-note">
-      <span class="shield">🛡️</span>
-      <span>Your Aadhaar images are <strong>not stored</strong>. Only the extracted text data is submitted to the Google Sheet. The Aadhaar number is masked showing only the last 4 digits.</span>
+      <span style="font-size:18px;flex-shrink:0;">🛡️</span>
+      <span>Your Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Aadhaar number is masked (last 4 digits only).</span>
     </div>
-
     <div class="status-msg" id="submitStatus"></div>
-
-    <button class="btn btn-primary" id="submitBtn" style="margin-top:20px;">
-      Submit to Google Sheet 📊
-    </button>
+    <button class="btn btn-primary" id="submitBtn">💾 Save to Google Sheet</button>
     <button class="btn btn-secondary" onclick="resetAll()">Start Over</button>
   </div>
 
@@ -483,122 +370,103 @@
   <div class="card" id="card4">
     <div class="success-state">
       <div class="success-icon">✓</div>
-      <h2 style="font-size:22px; margin-bottom:8px;">Data Submitted!</h2>
-      <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">
-        The extracted Aadhaar data has been saved to your Google Sheet.
-      </p>
+      <h2 style="font-size:21px;margin-bottom:8px;">Saved Successfully!</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Data has been added to your Google Sheet.</p>
       <div class="masked-badge" id="maskedDisplay">XXXX XXXX ????</div>
-      <p style="color:var(--text-muted); font-size:12px;">Masked Aadhaar Number</p>
+      <p style="color:var(--text-muted);font-size:12px;">Masked Aadhaar Number</p>
     </div>
-    <button class="btn btn-primary" style="margin-top:24px;" onclick="resetAll()">
-      Verify Another Card 🔄
-    </button>
+    <button class="btn btn-primary" style="margin-top:22px;" onclick="resetAll()">🔄 Verify Another Card</button>
   </div>
 
 </div>
 
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
-const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
-// NOTE: For production, the API key should be in your Apps Script backend.
-// This demo uses Claude via the Anthropic API for OCR (proxy through Apps Script recommended).
-
-let frontBase64 = null;
-let backBase64 = null;
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
 let extractedData = {};
 
-// Load saved script URL
+// Load saved URL
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('aadhaar_script_url');
   if (saved) document.getElementById('scriptUrl').value = saved;
 });
-
-document.getElementById('scriptUrl').addEventListener('change', (e) => {
+document.getElementById('scriptUrl').addEventListener('input', e => {
   localStorage.setItem('aadhaar_script_url', e.target.value.trim());
 });
 
-// ============================================================
+// ─────────────────────────────────────────
 // STEP NAVIGATION
-// ============================================================
+// ─────────────────────────────────────────
 function goToStep(n) {
-  [1,2,3,4].forEach(i => {
-    document.getElementById('card'+i).classList.remove('active');
-  });
+  [1,2,3,4].forEach(i => document.getElementById('card'+i).classList.remove('active'));
   document.getElementById('card'+n).classList.add('active');
-
-  // Update step dots
   [1,2,3].forEach(i => {
     const dot = document.getElementById('step'+i+'dot');
     dot.classList.remove('active','done');
-    if (i < n) dot.classList.add('done'), dot.textContent = '✓';
-    else if (i === n) dot.classList.add('active'), dot.textContent = i;
+    if (i < n) { dot.classList.add('done'); dot.textContent = '✓'; }
+    else if (i === n) { dot.classList.add('active'); dot.textContent = i; }
     else dot.textContent = i;
   });
-  ['line1','line2'].forEach((id,i) => {
-    const el = document.getElementById(id);
-    el.classList.toggle('done', n > i+1);
-  });
+  document.getElementById('line1').classList.toggle('done', n > 1);
+  document.getElementById('line2').classList.toggle('done', n > 2);
+  window.scrollTo(0, 0);
 }
 
-// ============================================================
-// FILE UPLOAD HANDLERS
-// ============================================================
-function handleFileUpload(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  const input = document.getElementById(inputId);
-  input.addEventListener('change', async (e) => {
+// ─────────────────────────────────────────
+// FILE UPLOAD & OCR
+// ─────────────────────────────────────────
+function setupUpload(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  document.getElementById(inputId).addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      showStatus(statusId, 'Please upload a valid image file.', 'error');
+      showStatus(statusId, '❌ Please upload a valid image file.', 'error');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const base64Full = ev.target.result;
-      const base64Data = base64Full.split(',')[1];
+    // Compress image to reduce payload size
+    const base64 = await compressImage(file);
 
-      // Show preview
-      document.getElementById(previewId).style.display = 'block';
-      document.getElementById(imgId).src = base64Full;
+    // Show preview
+    document.getElementById(previewId).style.display = 'block';
+    document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
 
-      if (side === 'front') frontBase64 = base64Data;
-      else backBase64 = base64Data;
+    // Show scan animation
+    const overlay = document.getElementById(overlayId);
+    overlay.classList.add('active');
+    showStatus(statusId, '🔍 Scanning with Gemini AI (free)...', 'info');
+    document.getElementById(nextBtnId).disabled = true;
 
-      // Show scanning animation
-      const overlay = document.getElementById(overlayId);
-      overlay.classList.add('active');
-      showStatus(statusId, '🔍 Classifying image...', 'info');
+    try {
+      const scriptUrl = getScriptUrl();
+      const response = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'ocr', image: base64, side: side })
+      });
 
-      try {
-        // Classify + OCR using Claude API (via Apps Script proxy)
-        const result = await extractAadhaarData(base64Data, side);
+      const result = await response.json();
+      overlay.classList.remove('active');
 
-        overlay.classList.remove('active');
-
-        if (result.error) {
-          showStatus(statusId, '❌ ' + result.error, 'error');
-          document.getElementById(nextBtnId).disabled = true;
-        } else {
-          // Store result
-          Object.assign(extractedData, result);
-          showStatus(statusId, '✅ Data extracted successfully!', 'success');
-          document.getElementById(nextBtnId).disabled = false;
-        }
-      } catch (err) {
-        overlay.classList.remove('active');
-        showStatus(statusId, '❌ Extraction failed: ' + err.message, 'error');
+      if (result.error) {
+        showStatus(statusId, '❌ ' + result.error, 'error');
+        document.getElementById(nextBtnId).disabled = true;
+      } else {
+        Object.assign(extractedData, result.data);
+        showStatus(statusId, '✅ Successfully scanned!', 'success');
+        document.getElementById(nextBtnId).disabled = false;
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      document.getElementById(overlayId).classList.remove('active');
+      showStatus(statusId, '❌ Error: ' + err.message + '. Check your Apps Script URL.', 'error');
+    }
   });
 }
 
-handleFileUpload('frontInput','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
-handleFileUpload('backInput','backPreview','backImg','backScanOverlay','backStatus','backNext','back');
+setupUpload('frontInput','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+setupUpload('backInput','backPreview','backImg','backScanOverlay','backStatus','backNext','back');
 
 document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
 document.getElementById('backNext').addEventListener('click', () => {
@@ -606,97 +474,54 @@ document.getElementById('backNext').addEventListener('click', () => {
   goToStep(3);
 });
 
-// ============================================================
-// CLAUDE OCR VIA APPS SCRIPT PROXY
-// ============================================================
-async function extractAadhaarData(base64, side) {
-  const scriptUrl = document.getElementById('scriptUrl').value.trim();
-  if (!scriptUrl) {
-    throw new Error('Please enter your Apps Script URL in the configuration box above.');
-  }
-
-  const prompt = side === 'front'
-    ? `You are an Aadhaar card OCR expert. Analyze this Aadhaar card FRONT image carefully.
-Extract ONLY these fields in valid JSON (no markdown, no explanation):
-{
-  "is_aadhaar": true/false,
-  "name": "full name as on card",
-  "dob": "DD/MM/YYYY",
-  "gender": "Male/Female/Transgender",
-  "aadhaar_number": "12 digit number",
-  "relationship": "S/O or W/O or D/O followed by parent/spouse name, or empty string"
-}
-If this is NOT an Aadhaar card, set is_aadhaar: false and all other fields as empty strings.`
-    : `You are an Aadhaar card OCR expert. Analyze this Aadhaar card BACK image carefully.
-Extract ONLY these fields in valid JSON (no markdown, no explanation):
-{
-  "is_aadhaar": true/false,
-  "address_full": "complete address text",
-  "district": "district name",
-  "state": "state name",
-  "pincode": "6 digit pincode",
-  "village_block": "village or block name"
-}
-If this is NOT an Aadhaar card back, set is_aadhaar: false.`;
-
-  // Call Apps Script proxy using no-cors compatible approach
-  const response = await fetch(scriptUrl, {
-    method: 'POST',
-    mode: 'cors',
-    headers: { 'Content-Type': 'text/plain' }, // text/plain avoids CORS preflight
-    body: JSON.stringify({
-      action: 'ocr',
-      image: base64,
-      prompt: prompt
-    })
+// ─────────────────────────────────────────
+// COMPRESS IMAGE (keeps quality, reduces size)
+// ─────────────────────────────────────────
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const MAX = 1200;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        resolve(dataUrl.split(',')[1]);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   });
-
-  if (!response.ok) throw new Error('Server error: ' + response.status);
-  const data = await response.json();
-
-  if (data.error) throw new Error(data.error);
-
-  // Parse Claude's JSON response
-  let parsed;
-  try {
-    const clean = data.result.replace(/```json|```/g, '').trim();
-    parsed = JSON.parse(clean);
-  } catch(e) {
-    throw new Error('Could not parse OCR result. Please try a clearer image.');
-  }
-
-  if (!parsed.is_aadhaar) {
-    return { error: 'This does not appear to be an Aadhaar card. Please upload a valid Aadhaar card image.' };
-  }
-
-  return parsed;
 }
 
-// ============================================================
-// RENDER EXTRACTED RESULTS
-// ============================================================
+// ─────────────────────────────────────────
+// RENDER RESULTS
+// ─────────────────────────────────────────
 function renderResults() {
   const d = extractedData;
+  const raw = (d.aadhaar_number || '').replace(/\D/g,'');
+  const masked = raw.length >= 4 ? 'XXXX XXXX ' + raw.slice(-4) : 'XXXX XXXX XXXX';
 
-  // Mask Aadhaar: show only last 4 digits
-  const raw = (d.aadhaar_number || '').replace(/\s/g,'');
-  const masked = raw.length >= 4
-    ? 'XXXX XXXX ' + raw.slice(-4)
-    : 'XXXX XXXX XXXX';
-
-  const html = `
+  document.getElementById('extractedResults').innerHTML = `
     <div class="results-grid">
       <div class="result-item full">
         <div class="result-label">Full Name</div>
-        <div class="result-value">${esc(d.name || '—')}</div>
+        <div class="result-value">${esc(d.name||'—')}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Date of Birth</div>
-        <div class="result-value">${esc(d.dob || '—')}</div>
+        <div class="result-value">${esc(d.dob||'—')}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Gender</div>
-        <div class="result-value">${esc(d.gender || '—')}</div>
+        <div class="result-value">${esc(d.gender||'—')}</div>
       </div>
       <div class="result-item full">
         <div class="result-label">Aadhaar Number (Masked)</div>
@@ -704,70 +529,60 @@ function renderResults() {
       </div>
       <div class="result-item full">
         <div class="result-label">Relationship</div>
-        <div class="result-value">${esc(d.relationship || '—')}</div>
+        <div class="result-value">${esc(d.relationship||'—')}</div>
       </div>
       <div class="result-item full">
         <div class="result-label">Full Address</div>
-        <div class="result-value">${esc(d.address_full || '—')}</div>
+        <div class="result-value">${esc(d.address_full||'—')}</div>
       </div>
       <div class="result-item">
         <div class="result-label">District</div>
-        <div class="result-value">${esc(d.district || '—')}</div>
+        <div class="result-value">${esc(d.district||'—')}</div>
       </div>
       <div class="result-item">
         <div class="result-label">State</div>
-        <div class="result-value">${esc(d.state || '—')}</div>
+        <div class="result-value">${esc(d.state||'—')}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Village / Block</div>
-        <div class="result-value">${esc(d.village_block || '—')}</div>
+        <div class="result-value">${esc(d.village_block||'—')}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Pincode</div>
-        <div class="result-value">${esc(d.pincode || '—')}</div>
+        <div class="result-value">${esc(d.pincode||'—')}</div>
       </div>
-    </div>
-  `;
-  document.getElementById('extractedResults').innerHTML = html;
+    </div>`;
 }
 
-// ============================================================
+// ─────────────────────────────────────────
 // SUBMIT TO GOOGLE SHEET
-// ============================================================
+// ─────────────────────────────────────────
 document.getElementById('submitBtn').addEventListener('click', async () => {
-  const scriptUrl = document.getElementById('scriptUrl').value.trim();
-  if (!scriptUrl) {
-    showStatus('submitStatus', 'Please enter your Apps Script URL above.', 'error');
-    return;
-  }
-
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Saving...';
 
-  const raw = (extractedData.aadhaar_number || '').replace(/\s/g,'');
+  const raw = (extractedData.aadhaar_number || '').replace(/\D/g,'');
   const masked = raw.length >= 4 ? 'XXXX XXXX ' + raw.slice(-4) : 'XXXX XXXX XXXX';
 
-  const payload = {
-    action: 'save',
-    name: extractedData.name || '',
-    dob: extractedData.dob || '',
-    gender: extractedData.gender || '',
-    aadhaar_masked: masked,
-    relationship: extractedData.relationship || '',
-    address_full: extractedData.address_full || '',
-    district: extractedData.district || '',
-    state: extractedData.state || '',
-    village_block: extractedData.village_block || '',
-    pincode: extractedData.pincode || '',
-    timestamp: new Date().toISOString()
-  };
-
   try {
+    const scriptUrl = getScriptUrl();
     const response = await fetch(scriptUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        action: 'save',
+        name: extractedData.name || '',
+        dob: extractedData.dob || '',
+        gender: extractedData.gender || '',
+        aadhaar_masked: masked,
+        relationship: extractedData.relationship || '',
+        address_full: extractedData.address_full || '',
+        district: extractedData.district || '',
+        state: extractedData.state || '',
+        village_block: extractedData.village_block || '',
+        pincode: extractedData.pincode || ''
+      })
     });
 
     const data = await response.json();
@@ -775,18 +590,24 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
       document.getElementById('maskedDisplay').textContent = masked;
       goToStep(4);
     } else {
-      throw new Error(data.error || 'Submission failed');
+      throw new Error(data.error || 'Save failed');
     }
   } catch (err) {
     showStatus('submitStatus', '❌ ' + err.message, 'error');
     btn.disabled = false;
-    btn.innerHTML = 'Submit to Google Sheet 📊';
+    btn.innerHTML = '💾 Save to Google Sheet';
   }
 });
 
-// ============================================================
-// UTILITIES
-// ============================================================
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+function getScriptUrl() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url) throw new Error('Please enter your Apps Script URL at the top of the page.');
+  return url;
+}
+
 function showStatus(id, msg, type) {
   const el = document.getElementById(id);
   el.className = 'status-msg ' + type;
@@ -800,34 +621,15 @@ function esc(str) {
 
 function resetAll() {
   extractedData = {};
-  frontBase64 = null;
-  backBase64 = null;
   ['frontInput','backInput'].forEach(id => document.getElementById(id).value = '');
   ['frontPreview','backPreview'].forEach(id => document.getElementById(id).style.display = 'none');
   ['frontStatus','backStatus','submitStatus'].forEach(id => {
-    const el = document.getElementById(id);
-    el.style.display = 'none';
+    document.getElementById(id).style.display = 'none';
   });
   ['frontNext','backNext'].forEach(id => document.getElementById(id).disabled = true);
   document.getElementById('extractedResults').innerHTML = '';
   goToStep(1);
 }
-
-// Drag and drop
-['frontZone','backZone'].forEach(zoneId => {
-  const zone = document.getElementById(zoneId);
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    const input = zone.querySelector('input[type="file"]');
-    const dt = new DataTransfer();
-    dt.items.add(e.dataTransfer.files[0]);
-    input.files = dt.files;
-    input.dispatchEvent(new Event('change'));
-  });
-});
 </script>
 </body>
 </html>
