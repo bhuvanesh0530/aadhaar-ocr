@@ -639,10 +639,11 @@ Extract ONLY these fields in valid JSON (no markdown, no explanation):
 }
 If this is NOT an Aadhaar card back, set is_aadhaar: false.`;
 
-  // Call our Apps Script proxy (which calls Claude API securely)
+  // Call Apps Script proxy using no-cors compatible approach
   const response = await fetch(scriptUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain' }, // text/plain avoids CORS preflight
     body: JSON.stringify({
       action: 'ocr',
       image: base64,
@@ -765,7 +766,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   try {
     const response = await fetch(scriptUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
 
