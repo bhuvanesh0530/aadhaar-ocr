@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aadhaar Verification Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --saffron: #FF6B00;
+    --saffron-light: #FF8C3A;
+    --saffron-glow: rgba(255,107,0,0.18);
+    --green: #138808;
+    --navy: #0A0F1E;
+    --navy-card: #111827;
+    --navy-border: #1E2A3A;
+    --text: #E8EDF5;
+    --text-muted: #7A8BA0;
+    --success: #22C55E;
+    --error: #EF4444;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(255,107,0,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 80% 80%, rgba(19,136,8,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .emblem {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--saffron), #FF9A3C);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 0 32px var(--saffron-glow), 0 8px 24px rgba(0,0,0,0.4);
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 32px var(--saffron-glow), 0 8px 24px rgba(0,0,0,0.4); }
+    50% { box-shadow: 0 0 56px rgba(255,107,0,0.35), 0 8px 24px rgba(0,0,0,0.4); }
+  }
+
+  .header h1 {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, var(--saffron), #FFB347, var(--white));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  .tricolor-bar {
+    display: flex;
+    gap: 0;
+    height: 3px;
+    width: 120px;
+    margin: 16px auto 0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .tricolor-bar span { flex: 1; }
+  .tricolor-bar span:nth-child(1) { background: var(--saffron); }
+  .tricolor-bar span:nth-child(2) { background: var(--white); }
+  .tricolor-bar span:nth-child(3) { background: var(--green); }
+
+  /* Steps indicator */
+  .steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 36px;
+  }
+  .step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+    border: 2px solid var(--navy-border);
+    background: var(--navy-card);
+    color: var(--text-muted);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+  .step-dot.active { border-color: var(--saffron); color: var(--saffron); background: var(--saffron-glow); }
+  .step-dot.done { border-color: var(--success); color: var(--white); background: var(--success); }
+  .step-line { width: 48px; height: 2px; background: var(--navy-border); transition: background 0.3s; }
+  .step-line.done { background: var(--success); }
+  .step-label {
+    font-size: 11px; color: var(--text-muted); text-align: center;
+    margin-top: 6px; font-weight: 400;
+  }
+  .steps-wrapper { display: flex; flex-direction: column; align-items: center; }
+  .steps-row { display: flex; align-items: center; }
+
+  /* Cards */
+  .card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    transition: border-color 0.3s;
+    display: none;
+  }
+  .card.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 18px; font-weight: 600; margin-bottom: 8px;
+  }
+  .card-sub {
+    font-size: 13px; color: var(--text-muted); margin-bottom: 24px;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 2px dashed var(--navy-border);
+    border-radius: 14px;
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    background: rgba(255,255,255,0.01);
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--saffron);
+    background: var(--saffron-glow);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-zone h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .upload-zone p { font-size: 12px; color: var(--text-muted); }
+
+  .preview-container {
+    margin-top: 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+    position: relative;
+  }
+  .preview-container img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: #000;
+  }
+  .preview-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--success); color: white;
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  /* Scanning animation */
+  .scan-overlay {
+    position: absolute; inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,15,30,0.85);
+    border-radius: 10px;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 5;
+  }
+  .scan-overlay.active { display: flex; }
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--saffron), transparent);
+    animation: scan 1.5s ease-in-out infinite;
+    box-shadow: 0 0 12px var(--saffron);
+  }
+  @keyframes scan {
+    0% { top: 10%; }
+    50% { top: 85%; }
+    100% { top: 10%; }
+  }
+  .scan-text { font-size: 13px; color: var(--saffron); font-weight: 600; margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 28px; border-radius: 12px;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--saffron), var(--saffron-light));
+    color: white;
+    box-shadow: 0 4px 20px rgba(255,107,0,0.3);
+    width: 100%;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,0,0.45); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--navy-border);
+    width: 100%;
+    margin-top: 10px;
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* Results card */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .result-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--navy-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .result-item.full { grid-column: 1 / -1; }
+  .result-label {
+    font-size: 10px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .result-value {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-all;
+  }
+  .result-value.aadhaar {
+    color: var(--saffron); letter-spacing: 2px;
+  }
+
+  /* Status messages */
+  .status-msg {
+    padding: 12px 16px; border-radius: 10px;
+    font-size: 13px; font-weight: 500;
+    margin-top: 16px; display: none;
+  }
+  .status-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; }
+  .status-msg.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86EFAC; }
+  .status-msg.info { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: #FED7AA; }
+
+  /* Config section */
+  .config-box {
+    background: rgba(255,107,0,0.04);
+    border: 1px dashed rgba(255,107,0,0.25);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .config-box label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .config-box input {
+    width: 100%;
+    background: var(--navy);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .config-box input:focus { border-color: var(--saffron); }
+  .config-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+  /* Progress loader */
+  .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Privacy notice */
+  .privacy-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(19,136,8,0.06);
+    border: 1px solid rgba(19,136,8,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px; color: var(--text-muted);
+    margin-top: 20px;
+  }
+  .privacy-note .shield { font-size: 18px; flex-shrink: 0; }
+
+  /* Success state */
+  .success-state {
+    text-align: center; padding: 20px 0;
+  }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--success), #16A34A);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; margin: 0 auto 20px;
+    box-shadow: 0 0 32px rgba(34,197,94,0.3);
+    animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop-in { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .masked-badge {
+    background: var(--navy);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--saffron);
+    margin: 12px 0;
+  }
+
+  @media (max-width: 480px) {
+    .results-grid { grid-template-columns: 1fr; }
+    .result-item.full { grid-column: 1; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="emblem">🇮🇳</div>
+    <h1>Aadhaar Verification Portal</h1>
+    <p>Secure · OCR-Powered · Google Sheets Integration</p>
+    <div class="tricolor-bar">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- Config Box (shown on first load) -->
+  <div class="config-box" id="configBox">
+    <label>⚙️ Google Apps Script Web App URL</label>
+    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" />
+    <p class="config-hint">Paste your deployed Apps Script URL here. This is saved in your browser for future use.</p>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps-wrapper" style="margin-bottom:32px;">
+    <div class="steps-row">
+      <div class="step-dot active" id="step1dot">1</div>
+      <div class="step-line" id="line1"></div>
+      <div class="step-dot" id="step2dot">2</div>
+      <div class="step-line" id="line2"></div>
+      <div class="step-dot" id="step3dot">3</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Front Image -->
+  <div class="card active" id="card1">
+    <div class="card-title">📷 Upload Aadhaar Front</div>
+    <div class="card-sub">Upload the front side of the Aadhaar card containing name, photo, and date of birth.</div>
+
+    <div class="upload-zone" id="frontZone">
+      <input type="file" id="frontInput" accept="image/*" capture="environment"/>
+      <div class="upload-icon">🪪</div>
+      <h3>Tap to Upload / Take Photo</h3>
+      <p>Front side with name, DOB, and photo</p>
+    </div>
+
+    <div class="preview-container" id="frontPreview">
+      <img id="frontImg" src="" alt="Front preview"/>
+      <div class="preview-badge">✓ Front</div>
+      <div class="scan-overlay" id="frontScanOverlay">
+        <div class="scan-line"></div>
+        <div class="scan-text">⚡ Scanning front...</div>
+      </div>
+    </div>
+
+    <div class="status-msg" id="frontStatus"></div>
+
+    <button class="btn btn-primary" id="frontNext" style="margin-top:20px;" disabled>
+      Continue to Back Side →
+    </button>
+  </div>
+
+  <!-- STEP 2: Back Image -->
+  <div class="card" id="card2">
+    <div class="card-title">📋 Upload Aadhaar Back</div>
+    <div class="card-sub">Upload the back side containing the address and QR code.</div>
+
+    <div class="upload-zone" id="backZone">
+      <input type="file" id="backInput" accept="image/*" capture="environment"/>
+      <div class="upload-icon">🏠</div>
+      <h3>Tap to Upload / Take Photo</h3>
+      <p>Back side with full address details</p>
+    </div>
+
+    <div class="preview-container" id="backPreview">
+      <img id="backImg" src="" alt="Back preview"/>
+      <div class="preview-badge">✓ Back</div>
+      <div class="scan-overlay" id="backScanOverlay">
+        <div class="scan-line"></div>
+        <div class="scan-text">⚡ Scanning back...</div>
+      </div>
+    </div>
+
+    <div class="status-msg" id="backStatus"></div>
+
+    <button class="btn btn-primary" id="backNext" style="margin-top:20px;" disabled>
+      Extract & Submit Data →
+    </button>
+    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+  </div>
+
+  <!-- STEP 3: Results -->
+  <div class="card" id="card3">
+    <div class="card-title">✅ Extracted Data</div>
+    <div class="card-sub">Review the information extracted from your Aadhaar card before it is saved.</div>
+
+    <div id="extractedResults"></div>
+
+    <div class="privacy-note">
+      <span class="shield">🛡️</span>
+      <span>Your Aadhaar images are <strong>not stored</strong>. Only the extracted text data is submitted to the Google Sheet. The Aadhaar number is masked showing only the last 4 digits.</span>
+    </div>
+
+    <div class="status-msg" id="submitStatus"></div>
+
+    <button class="btn btn-primary" id="submitBtn" style="margin-top:20px;">
+      Submit to Google Sheet 📊
+    </button>
+    <button class="btn btn-secondary" onclick="resetAll()">Start Over</button>
+  </div>
+
+  <!-- STEP 4: Success -->
+  <div class="card" id="card4">
+    <div class="success-state">
+      <div class="success-icon">✓</div>
+      <h2 style="font-size:22px; margin-bottom:8px;">Data Submitted!</h2>
+      <p style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">
+        The extracted Aadhaar data has been saved to your Google Sheet.
+      </p>
+      <div class="masked-badge" id="maskedDisplay">XXXX XXXX ????</div>
+      <p style="color:var(--text-muted); font-size:12px;">Masked Aadhaar Number</p>
+    </div>
+    <button class="btn btn-primary" style="margin-top:24px;" onclick="resetAll()">
+      Verify Another Card 🔄
+    </button>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
+// NOTE: For production, the API key should be in your Apps Script backend.
+// This demo uses Claude via the Anthropic API for OCR (proxy through Apps Script recommended).
+
+let frontBase64 = null;
+let backBase64 = null;
+let extractedData = {};
+
+// Load saved script URL
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('aadhaar_script_url');
+  if (saved) document.getElementById('scriptUrl').value = saved;
+});
+
+document.getElementById('scriptUrl').addEventListener('change', (e) => {
+  localStorage.setItem('aadhaar_script_url', e.target.value.trim());
+});
+
+// ============================================================
+// STEP NAVIGATION
+// ============================================================
+function goToStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('card'+i).classList.remove('active');
+  });
+  document.getElementById('card'+n).classList.add('active');
+
+  // Update step dots
+  [1,2,3].forEach(i => {
+    const dot = document.getElementById('step'+i+'dot');
+    dot.classList.remove('active','done');
+    if (i < n) dot.classList.add('done'), dot.textContent = '✓';
+    else if (i === n) dot.classList.add('active'), dot.textContent = i;
+    else dot.textContent = i;
+  });
+  ['line1','line2'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('done', n > i+1);
+  });
+}
+
+// ============================================================
+// FILE UPLOAD HANDLERS
+// ============================================================
+function handleFileUpload(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  const input = document.getElementById(inputId);
+  input.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showStatus(statusId, 'Please upload a valid image file.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64Full = ev.target.result;
+      const base64Data = base64Full.split(',')[1];
+
+      // Show preview
+      document.getElementById(previewId).style.display = 'block';
+      document.getElementById(imgId).src = base64Full;
+
+      if (side === 'front') frontBase64 = base64Data;
+      else backBase64 = base64Data;
+
+      // Show scanning animation
+      const overlay = document.getElementById(overlayId);
+      overlay.classList.add('active');
+      showStatus(statusId, '🔍 Classifying image...', 'info');
+
+      try {
+        // Classify + OCR using Claude API (via Apps Script proxy)
+        const result = await extractAadhaarData(base64Data, side);
+
+        overlay.classList.remove('active');
+
+        if (result.error) {
+          showStatus(statusId, '❌ ' + result.error, 'error');
+          document.getElementById(nextBtnId).disabled = true;
+        } else {
+          // Store result
+          Object.assign(extractedData, result);
+          showStatus(statusId, '✅ Data extracted successfully!', 'success');
+          document.getElementById(nextBtnId).disabled = false;
+        }
+      } catch (err) {
+        overlay.classList.remove('active');
+        showStatus(statusId, '❌ Extraction failed: ' + err.message, 'error');
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+handleFileUpload('frontInput','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+handleFileUpload('backInput','backPreview','backImg','backScanOverlay','backStatus','backNext','back');
+
+document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
+document.getElementById('backNext').addEventListener('click', () => {
+  renderResults();
+  goToStep(3);
+});
+
+// ============================================================
+// CLAUDE OCR VIA APPS SCRIPT PROXY
+// ============================================================
+async function extractAadhaarData(base64, side) {
+  const scriptUrl = document.getElementById('scriptUrl').value.trim();
+  if (!scriptUrl) {
+    throw new Error('Please enter your Apps Script URL in the configuration box above.');
+  }
+
+  const prompt = side === 'front'
+    ? `You are an Aadhaar card OCR expert. Analyze this Aadhaar card FRONT image carefully.
+Extract ONLY these fields in valid JSON (no markdown, no explanation):
+{
+  "is_aadhaar": true/false,
+  "name": "full name as on card",
+  "dob": "DD/MM/YYYY",
+  "gender": "Male/Female/Transgender",
+  "aadhaar_number": "12 digit number",
+  "relationship": "S/O or W/O or D/O followed by parent/spouse name, or empty string"
+}
+If this is NOT an Aadhaar card, set is_aadhaar: false and all other fields as empty strings.`
+    : `You are an Aadhaar card OCR expert. Analyze this Aadhaar card BACK image carefully.
+Extract ONLY these fields in valid JSON (no markdown, no explanation):
+{
+  "is_aadhaar": true/false,
+  "address_full": "complete address text",
+  "district": "district name",
+  "state": "state name",
+  "pincode": "6 digit pincode",
+  "village_block": "village or block name"
+}
+If this is NOT an Aadhaar card back, set is_aadhaar: false.`;
+
+  // Call our Apps Script proxy (which calls Claude API securely)
+  const response = await fetch(scriptUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'ocr',
+      image: base64,
+      prompt: prompt
+    })
+  });
+
+  if (!response.ok) throw new Error('Server error: ' + response.status);
+  const data = await response.json();
+
+  if (data.error) throw new Error(data.error);
+
+  // Parse Claude's JSON response
+  let parsed;
+  try {
+    const clean = data.result.replace(/```json|```/g, '').trim();
+    parsed = JSON.parse(clean);
+  } catch(e) {
+    throw new Error('Could not parse OCR result. Please try a clearer image.');
+  }
+
+  if (!parsed.is_aadhaar) {
+    return { error: 'This does not appear to be an Aadhaar card. Please upload a valid Aadhaar card image.' };
+  }
+
+  return parsed;
+}
+
+// ============================================================
+// RENDER EXTRACTED RESULTS
+// ============================================================
+function renderResults() {
+  const d = extractedData;
+
+  // Mask Aadhaar: show only last 4 digits
+  const raw = (d.aadhaar_number || '').replace(/\s/g,'');
+  const masked = raw.length >= 4
+    ? 'XXXX XXXX ' + raw.slice(-4)
+    : 'XXXX XXXX XXXX';
+
+  const html = `
+    <div class="results-grid">
+      <div class="result-item full">
+        <div class="result-label">Full Name</div>
+        <div class="result-value">${esc(d.name || '—')}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Date of Birth</div>
+        <div class="result-value">${esc(d.dob || '—')}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Gender</div>
+        <div class="result-value">${esc(d.gender || '—')}</div>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Aadhaar Number (Masked)</div>
+        <div class="result-value aadhaar">${masked}</div>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Relationship</div>
+        <div class="result-value">${esc(d.relationship || '—')}</div>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Full Address</div>
+        <div class="result-value">${esc(d.address_full || '—')}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">District</div>
+        <div class="result-value">${esc(d.district || '—')}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">State</div>
+        <div class="result-value">${esc(d.state || '—')}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Village / Block</div>
+        <div class="result-value">${esc(d.village_block || '—')}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Pincode</div>
+        <div class="result-value">${esc(d.pincode || '—')}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('extractedResults').innerHTML = html;
+}
+
+// ============================================================
+// SUBMIT TO GOOGLE SHEET
+// ============================================================
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  const scriptUrl = document.getElementById('scriptUrl').value.trim();
+  if (!scriptUrl) {
+    showStatus('submitStatus', 'Please enter your Apps Script URL above.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Saving...';
+
+  const raw = (extractedData.aadhaar_number || '').replace(/\s/g,'');
+  const masked = raw.length >= 4 ? 'XXXX XXXX ' + raw.slice(-4) : 'XXXX XXXX XXXX';
+
+  const payload = {
+    action: 'save',
+    name: extractedData.name || '',
+    dob: extractedData.dob || '',
+    gender: extractedData.gender || '',
+    aadhaar_masked: masked,
+    relationship: extractedData.relationship || '',
+    address_full: extractedData.address_full || '',
+    district: extractedData.district || '',
+    state: extractedData.state || '',
+    village_block: extractedData.village_block || '',
+    pincode: extractedData.pincode || '',
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const response = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      document.getElementById('maskedDisplay').textContent = masked;
+      goToStep(4);
+    } else {
+      throw new Error(data.error || 'Submission failed');
+    }
+  } catch (err) {
+    showStatus('submitStatus', '❌ ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Submit to Google Sheet 📊';
+  }
+});
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function esc(str) {
+  return String(str).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function resetAll() {
+  extractedData = {};
+  frontBase64 = null;
+  backBase64 = null;
+  ['frontInput','backInput'].forEach(id => document.getElementById(id).value = '');
+  ['frontPreview','backPreview'].forEach(id => document.getElementById(id).style.display = 'none');
+  ['frontStatus','backStatus','submitStatus'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.display = 'none';
+  });
+  ['frontNext','backNext'].forEach(id => document.getElementById(id).disabled = true);
+  document.getElementById('extractedResults').innerHTML = '';
+  goToStep(1);
+}
+
+// Drag and drop
+['frontZone','backZone'].forEach(zoneId => {
+  const zone = document.getElementById(zoneId);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const input = zone.querySelector('input[type="file"]');
+    const dt = new DataTransfer();
+    dt.items.add(e.dataTransfer.files[0]);
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+  });
+});
+</script>
+</body>
+</html>
