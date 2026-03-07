@@ -42,8 +42,7 @@
   .card-title{font-size:17px;font-weight:600;margin-bottom:6px;}
   .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px;}
   .upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
-  .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;position:relative;overflow:hidden;}
-  .upload-btn input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:100px;}
+  .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;}
   .btn-camera{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 14px rgba(255,107,0,0.3);}
   .btn-gallery{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--navy-border);}
   .btn-camera:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,0,0.4);}
@@ -69,51 +68,36 @@
   .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
   .result-item{background:rgba(255,255,255,0.03);border:1px solid var(--navy-border);border-radius:10px;padding:11px 13px;}
   .result-item.full{grid-column:1/-1;}
-  .result-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
-  .result-value{font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;word-break:break-all;}
-  .result-value.aadhaar{color:var(--saffron);letter-spacing:2px;}
+  .result-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+  .result-value.aadhaar{color:var(--saffron);letter-spacing:3px;font-size:18px;font-family:'JetBrains Mono',monospace;font-weight:700;}
   .privacy-note{display:flex;align-items:flex-start;gap:10px;background:rgba(19,136,8,0.06);border:1px solid rgba(19,136,8,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-muted);margin-top:16px;}
   .success-state{text-align:center;padding:16px 0;}
   .success-icon{width:70px;height:70px;background:linear-gradient(135deg,var(--success),#16A34A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px;box-shadow:0 0 28px rgba(34,197,94,0.3);animation:pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1);}
   @keyframes pop-in{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-  .masked-badge{background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:8px 18px;display:inline-block;font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;color:var(--saffron);margin:10px 0;}
+  .masked-badge{background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:8px 18px;display:inline-block;font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:3px;color:var(--saffron);margin:10px 0;}
   .loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
+  .edit-field{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,0,0.25);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;outline:none;transition:border-color 0.2s,background 0.2s;}
+  .edit-field:focus{border-color:var(--saffron);background:rgba(255,107,0,0.07);}
+  .edit-field::placeholder{color:var(--text-muted);font-weight:400;font-size:12px;}
   @media(max-width:480px){.results-grid{grid-template-columns:1fr;}.result-item.full{grid-column:1;}.card{padding:18px;}.upload-options{grid-template-columns:1fr;}}
-
-  /* Editable fields in Step 3 */
-  .edit-field {
-    width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,107,0,0.25);
-    border-radius: 8px;
-    padding: 8px 10px;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .edit-field:focus {
-    border-color: var(--saffron);
-    background: rgba(255,107,0,0.07);
-  }
-  .edit-field::placeholder { color: var(--text-muted); font-weight: 400; font-size: 12px; }
 </style>
 </head>
 <body>
 <div class="container">
+
   <div class="header">
     <div class="emblem">&#127470;&#127475;</div>
     <h1>Aadhaar Verification Portal</h1>
     <div class="tricolor-bar"><span></span><span></span><span></span></div>
   </div>
+
   <div class="config-box">
     <label>Apps Script Web App URL</label>
-    <input type="text" id="scriptUrl"/>
+    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"/>
     <p class="config-hint">Paste your deployed Apps Script URL here.</p>
   </div>
+
   <div class="steps-wrapper">
     <div class="steps-row">
       <div class="step-dot active" id="step1dot">1</div>
@@ -128,7 +112,6 @@
   <div class="card active" id="card1">
     <div class="card-title">&#128247; Step 1 — Aadhaar Front Side</div>
     <div class="card-sub">Front contains Name, DOB, Gender, Relation and Aadhaar number.</div>
-    <!-- Hidden file inputs -->
     <input type="file" id="frontCamera" accept="image/*" capture="environment" style="display:none"/>
     <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
@@ -138,7 +121,10 @@
     <div class="preview-container" id="frontPreview">
       <img id="frontImg" src="" alt="Front"/>
       <div class="preview-badge">&#10003; Front</div>
-      <div class="scan-overlay" id="frontScanOverlay"><div class="scan-line"></div><div class="scan-text">Reading card...</div></div>
+      <div class="scan-overlay" id="frontScanOverlay">
+        <div class="scan-line"></div>
+        <div class="scan-text">Reading card...</div>
+      </div>
     </div>
     <div class="status-msg" id="frontStatus"></div>
     <button class="btn btn-primary" id="frontNext" disabled>Continue to Back Side &#8594;</button>
@@ -148,7 +134,6 @@
   <div class="card" id="card2">
     <div class="card-title">&#128203; Step 2 — Aadhaar Back Side</div>
     <div class="card-sub">Back contains Address, District, State and Pincode.</div>
-    <!-- Hidden file inputs -->
     <input type="file" id="backCamera" accept="image/*" capture="environment" style="display:none"/>
     <input type="file" id="backGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
@@ -158,7 +143,10 @@
     <div class="preview-container" id="backPreview">
       <img id="backImg" src="" alt="Back"/>
       <div class="preview-badge">&#10003; Back</div>
-      <div class="scan-overlay" id="backScanOverlay"><div class="scan-line"></div><div class="scan-text">Reading card...</div></div>
+      <div class="scan-overlay" id="backScanOverlay">
+        <div class="scan-line"></div>
+        <div class="scan-text">Reading card...</div>
+      </div>
     </div>
     <div class="status-msg" id="backStatus"></div>
     <button class="btn btn-primary" id="backNext" disabled>Review Extracted Data &#8594;</button>
@@ -168,11 +156,11 @@
   <!-- STEP 3 -->
   <div class="card" id="card3">
     <div class="card-title">&#10003; Step 3 — Review and Save</div>
-    <div class="card-sub">Check all details before saving to Google Sheet.</div>
+    <div class="card-sub">Auto-filled from Aadhaar. Edit any field only if incorrect.</div>
     <div id="extractedResults"></div>
     <div class="privacy-note">
       <span style="font-size:18px;flex-shrink:0;">&#128737;</span>
-      <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits of Aadhaar number are shown.</span>
+      <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits of Aadhaar shown.</span>
     </div>
     <div class="status-msg" id="submitStatus"></div>
     <button class="btn btn-primary" id="submitBtn">&#128190; Save to Google Sheet</button>
@@ -184,17 +172,18 @@
     <div class="success-state">
       <div class="success-icon">&#10003;</div>
       <h2 style="font-size:21px;margin-bottom:8px;">Saved Successfully!</h2>
-      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Data has been saved to your Google Sheet.</p>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Data saved to your Google Sheet.</p>
       <div class="masked-badge" id="maskedDisplay">---- ----</div>
-      <p style="color:var(--text-muted);font-size:12px;">Aadhaar Number (First 4 digits masked)</p>
+      <p style="color:var(--text-muted);font-size:12px;">Aadhaar Last 8 Digits</p>
     </div>
     <button class="btn btn-primary" style="margin-top:20px;" onclick="resetAll()">&#128260; Verify Another Card</button>
   </div>
-</div>
 
+</div>
 <script>
 let extractedData = {};
 
+// ── LOAD SAVED URL ───────────────────────────────────────────────
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('aadhaar_script_url');
   if (saved) document.getElementById('scriptUrl').value = saved;
@@ -203,21 +192,23 @@ document.getElementById('scriptUrl').addEventListener('input', e => {
   localStorage.setItem('aadhaar_script_url', e.target.value.trim());
 });
 
+// ── STEP NAVIGATION ──────────────────────────────────────────────
 function goToStep(n) {
   [1,2,3,4].forEach(i => document.getElementById('card'+i).classList.remove('active'));
   document.getElementById('card'+n).classList.add('active');
   [1,2,3].forEach(i => {
     const dot = document.getElementById('step'+i+'dot');
     dot.classList.remove('active','done');
-    if (i < n) { dot.classList.add('done'); dot.textContent = '\u2713'; }
-    else if (i === n) { dot.classList.add('active'); dot.textContent = i; }
-    else dot.textContent = i;
+    if (i < n)      { dot.classList.add('done');   dot.textContent = '\u2713'; }
+    else if (i ===n){ dot.classList.add('active'); dot.textContent = i; }
+    else              dot.textContent = i;
   });
   document.getElementById('line1').classList.toggle('done', n > 1);
   document.getElementById('line2').classList.toggle('done', n > 2);
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 }
 
+// ── IMAGE COMPRESSION ────────────────────────────────────────────
 function compressImage(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -229,16 +220,12 @@ function compressImage(file) {
         const MAX = 800;
         if (w > MAX || h > MAX) {
           if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else { w = Math.round(w * MAX / h); h = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
         }
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        // Try quality 0.7 first, if still too big reduce more
         let dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        // If base64 is bigger than 500KB, compress further
-        if (dataUrl.length > 700000) {
-          dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-        }
+        if (dataUrl.length > 700000) dataUrl = canvas.toDataURL('image/jpeg', 0.5);
         resolve(dataUrl.split(',')[1]);
       };
       img.src = e.target.result;
@@ -247,42 +234,54 @@ function compressImage(file) {
   });
 }
 
-// Mask: show last 8 digits, hide first 4
-// Show only last 8 digits - no XXXX prefix
+// ── AADHAAR MASKING — show last 8 digits only ────────────────────
 function maskAadhaar(raw) {
-  const digits = raw.replace(/\D/g, '');
-  if (digits.length === 12) {
-    return digits.slice(4, 8) + ' ' + digits.slice(8);
-  } else if (digits.length >= 8) {
-    return digits.slice(-8);
-  }
+  const digits = (raw || '').replace(/\D/g, '');
+  if (digits.length === 12) return digits.slice(4, 8) + ' ' + digits.slice(8);
+  if (digits.length >= 8)   return digits.slice(-8);
   return 'Not found';
 }
 
-// Process image file
+// ── RELATION FULL FORM ───────────────────────────────────────────
+function relationFullForm(code) {
+  const map = { 'S/O':'Son of', 'D/O':'Daughter of', 'W/O':'Wife of', 'C/O':'Care of' };
+  return map[(code || '').toUpperCase().trim()] || code || '';
+}
+
+// ── PROCESS FILE — called on change ─────────────────────────────
 async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  if (!file) { showStatus(statusId, 'No file selected. Please try again.', 'error'); return; }
-  if (!file.type.startsWith('image/')) { showStatus(statusId, 'Please select a JPG or PNG image.', 'error'); return; }
-  showStatus(statusId, 'Reading image...', 'info');
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showStatus(statusId, 'Please select a valid image file.', 'error'); return;
+  }
+  showStatus(statusId, 'Preparing image...', 'info');
   try {
     const base64 = await compressImage(file);
+    // Show preview
     document.getElementById(previewId).style.display = 'block';
     document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
+    // Start scan animation
     document.getElementById(overlayId).classList.add('active');
-    showStatus(statusId, 'Scanning with OCR...', 'info');
+    showStatus(statusId, 'Scanning with OCR... please wait', 'info');
     document.getElementById(nextBtnId).disabled = true;
-    const scriptUrl = getScriptUrl();
-    const response = await fetch(scriptUrl, {
+
+    const response = await fetch(getScriptUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'ocr', image: base64, side: side })
     });
     const result = await response.json();
     document.getElementById(overlayId).classList.remove('active');
+
     if (result.error) {
       showStatus(statusId, '❌ ' + result.error, 'error');
     } else {
+      // Merge all returned fields into extractedData
       Object.assign(extractedData, result.data);
+      // Auto-convert relation_type code → full form
+      if (extractedData.relation_type) {
+        extractedData.relation_type_full = relationFullForm(extractedData.relation_type);
+      }
       showStatus(statusId, '✅ Scanned successfully!', 'success');
       document.getElementById(nextBtnId).disabled = false;
     }
@@ -292,78 +291,164 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
   }
 }
 
+// ── FILE INPUT LISTENERS (proven working method) ─────────────────
 function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
   const el = document.getElementById(inputId);
   if (!el) return;
   el.addEventListener('change', function() {
     const file = this.files[0];
+    this.value = ''; // reset so same file can be picked again
     if (file) processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side);
-    this.value = '';
   });
 }
 
-setupInput('frontCamera','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+setupInput('frontCamera', 'frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
 setupInput('frontGallery','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
-setupInput('backCamera','backPreview','backImg','backScanOverlay','backStatus','backNext','back');
-setupInput('backGallery','backPreview','backImg','backScanOverlay','backStatus','backNext','back');
+setupInput('backCamera',  'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
+setupInput('backGallery', 'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
 
 document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
 document.getElementById('backNext').addEventListener('click', () => { renderResults(); goToStep(3); });
 
+// ── RENDER STEP 3 — auto-filled editable fields ──────────────────
 function renderResults() {
   const d = extractedData;
-  const masked = maskAadhaar(d.aadhaar_number || '');
+  const masked   = maskAadhaar(d.aadhaar_number || '');
+  const relFull  = d.relation_type_full || relationFullForm(d.relation_type || '');
 
   document.getElementById('extractedResults').innerHTML = `
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; Auto-filled from Aadhaar. Edit any field only if incorrect.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; Auto-filled from Aadhaar. Click any field to correct if needed.</p>
     <div class="results-grid">
       <div class="result-item full">
         <div class="result-label">Full Name</div>
-        <input class="edit-field" id="f_name" value="${esc(d.name||'')}"/>
+        <input class="edit-field" id="f_name" value="${esc(d.name||'')}" placeholder="Not extracted"/>
       </div>
       <div class="result-item">
         <div class="result-label">Date of Birth</div>
-        <input class="edit-field" id="f_dob" value="${esc(d.dob||'')}"/>
+        <input class="edit-field" id="f_dob" value="${esc(d.dob||'')}" placeholder="DD/MM/YYYY"/>
       </div>
       <div class="result-item">
         <div class="result-label">Gender</div>
-        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}"/>
+        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}" placeholder="Male / Female / Transgender"/>
       </div>
       <div class="result-item full">
         <div class="result-label">Aadhaar Number (Last 8 Digits)</div>
-        <div class="result-value aadhaar" style="padding:8px 0;font-size:18px;">${masked}</div>
+        <div class="result-value aadhaar" style="padding:8px 0;">${masked}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Type</div>
-        <input class="edit-field" id="f_relation_type_full" value="${esc(d.relation_type_full||'')}"/>
+        <input class="edit-field" id="f_relation_type" value="${esc(relFull)}" placeholder="Daughter of / Son of"/>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Name</div>
-        <input class="edit-field" id="f_relation_name" value="${esc(d.relation_name||'')}"/>
+        <input class="edit-field" id="f_relation_name" value="${esc(d.relation_name||'')}" placeholder="Father / Husband name"/>
       </div>
       <div class="result-item full">
         <div class="result-label">Address</div>
-        <input class="edit-field" id="f_address" value="${esc(d.address||'')}"/>
+        <input class="edit-field" id="f_address" value="${esc(d.address||'')}" placeholder="House No, Street"/>
       </div>
       <div class="result-item">
         <div class="result-label">Village / Locality</div>
-        <input class="edit-field" id="f_village" value="${esc(d.village||'')}"/>
+        <input class="edit-field" id="f_village" value="${esc(d.village||'')}" placeholder="Village / Area"/>
       </div>
       <div class="result-item">
         <div class="result-label">Block / Taluk</div>
-        <input class="edit-field" id="f_block" value="${esc(d.block||'')}"/>
+        <input class="edit-field" id="f_block" value="${esc(d.block||'')}" placeholder="Block / Taluk"/>
       </div>
       <div class="result-item">
         <div class="result-label">District</div>
-        <input class="edit-field" id="f_district" value="${esc(d.district||'')}"/>
+        <input class="edit-field" id="f_district" value="${esc(d.district||'')}" placeholder="District"/>
       </div>
       <div class="result-item">
         <div class="result-label">State</div>
-        <input class="edit-field" id="f_state" value="${esc(d.state||'')}"/>
+        <input class="edit-field" id="f_state" value="${esc(d.state||'')}" placeholder="State"/>
       </div>
       <div class="result-item">
         <div class="result-label">Pincode</div>
-        <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}"/>
+        <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}" placeholder="6 digit pincode"/>
       </div>
     </div>`;
 }
+
+// ── SAVE TO GOOGLE SHEET ─────────────────────────────────────────
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Saving...';
+
+  const masked = maskAadhaar(extractedData.aadhaar_number || '');
+  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  try {
+    const response = await fetch(getScriptUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action:         'save',
+        name:           getVal('f_name'),
+        dob:            getVal('f_dob'),
+        gender:         getVal('f_gender'),
+        aadhaar_masked: masked,
+        relation_type:  getVal('f_relation_type'),
+        relation_name:  getVal('f_relation_name'),
+        address:        getVal('f_address'),
+        village:        getVal('f_village'),
+        block:          getVal('f_block'),
+        district:       getVal('f_district'),
+        state:          getVal('f_state'),
+        pincode:        getVal('f_pincode')
+      })
+    });
+    const data = await response.json();
+    if (data.success) {
+      document.getElementById('maskedDisplay').textContent = masked;
+      goToStep(4);
+    } else {
+      throw new Error(data.error || 'Save failed');
+    }
+  } catch (err) {
+    showStatus('submitStatus', '❌ ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '&#128190; Save to Google Sheet';
+  }
+});
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function getScriptUrl() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url) throw new Error('Please paste your Apps Script URL in the box at the top.');
+  return url;
+}
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+function resetAll() {
+  extractedData = {};
+  ['frontCamera','frontGallery','backCamera','backGallery'].forEach(id => {
+    try { document.getElementById(id).value = ''; } catch(e) {}
+  });
+  ['frontPreview','backPreview'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  ['frontStatus','backStatus','submitStatus'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  ['frontNext','backNext'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+  document.getElementById('extractedResults').innerHTML = '';
+  goToStep(1);
+}
+</script>
+</body>
+</html>
