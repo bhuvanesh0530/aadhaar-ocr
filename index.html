@@ -199,9 +199,9 @@ function goToStep(n) {
   [1,2,3].forEach(i => {
     const dot = document.getElementById('step'+i+'dot');
     dot.classList.remove('active','done');
-    if (i < n)      { dot.classList.add('done');   dot.textContent = '\u2713'; }
-    else if (i ===n){ dot.classList.add('active'); dot.textContent = i; }
-    else              dot.textContent = i;
+    if (i < n)       { dot.classList.add('done');   dot.textContent = '\u2713'; }
+    else if (i === n){ dot.classList.add('active'); dot.textContent = i; }
+    else               dot.textContent = i;
   });
   document.getElementById('line1').classList.toggle('done', n > 1);
   document.getElementById('line2').classList.toggle('done', n > 2);
@@ -242,13 +242,7 @@ function maskAadhaar(raw) {
   return 'Not found';
 }
 
-// ── RELATION FULL FORM ───────────────────────────────────────────
-function relationFullForm(code) {
-  const map = { 'S/O':'Son of', 'D/O':'Daughter of', 'W/O':'Wife of', 'C/O':'Care of' };
-  return map[(code || '').toUpperCase().trim()] || code || '';
-}
-
-// ── PROCESS FILE — called on change ─────────────────────────────
+// ── PROCESS FILE ─────────────────────────────────────────────────
 async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -257,10 +251,8 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
   showStatus(statusId, 'Preparing image...', 'info');
   try {
     const base64 = await compressImage(file);
-    // Show preview
     document.getElementById(previewId).style.display = 'block';
     document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
-    // Start scan animation
     document.getElementById(overlayId).classList.add('active');
     showStatus(statusId, 'Scanning with OCR... please wait', 'info');
     document.getElementById(nextBtnId).disabled = true;
@@ -276,12 +268,9 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
     if (result.error) {
       showStatus(statusId, '❌ ' + result.error, 'error');
     } else {
-      // Merge all returned fields into extractedData
+      // ✅ Merge ALL returned fields into extractedData
       Object.assign(extractedData, result.data);
-      // Auto-convert relation_type code → full form
-      if (extractedData.relation_type) {
-        extractedData.relation_type_full = relationFullForm(extractedData.relation_type);
-      }
+      console.log('Extracted data after ' + side + ':', JSON.stringify(extractedData));
       showStatus(statusId, '✅ Scanned successfully!', 'success');
       document.getElementById(nextBtnId).disabled = false;
     }
@@ -291,13 +280,13 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
   }
 }
 
-// ── FILE INPUT LISTENERS (proven working method) ─────────────────
+// ── FILE INPUT LISTENERS ─────────────────────────────────────────
 function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
   const el = document.getElementById(inputId);
   if (!el) return;
   el.addEventListener('change', function() {
     const file = this.files[0];
-    this.value = ''; // reset so same file can be picked again
+    this.value = '';
     if (file) processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side);
   });
 }
@@ -310,11 +299,17 @@ setupInput('backGallery', 'backPreview', 'backImg', 'backScanOverlay', 'backStat
 document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
 document.getElementById('backNext').addEventListener('click', () => { renderResults(); goToStep(3); });
 
-// ── RENDER STEP 3 — auto-filled editable fields ──────────────────
+// ── RENDER STEP 3 ────────────────────────────────────────────────
+// ✅ KEY FIX: reads relation_type_full and gender correctly from extractedData
 function renderResults() {
   const d = extractedData;
-  const masked   = maskAadhaar(d.aadhaar_number || '');
-  const relFull  = d.relation_type_full || relationFullForm(d.relation_type || '');
+
+  // ✅ relation_type_full is set by server; fallback conversion if needed
+  const relMap = { 'S/O':'Son of', 'D/O':'Daughter of', 'W/O':'Wife of', 'C/O':'Care of' };
+  const relationDisplay = d.relation_type_full ||
+    (d.relation_type ? (relMap[d.relation_type.toUpperCase().trim()] || d.relation_type) : '');
+
+  const masked = maskAadhaar(d.aadhaar_number || '');
 
   document.getElementById('extractedResults').innerHTML = `
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; Auto-filled from Aadhaar. Click any field to correct if needed.</p>
@@ -337,7 +332,7 @@ function renderResults() {
       </div>
       <div class="result-item">
         <div class="result-label">Relation Type</div>
-        <input class="edit-field" id="f_relation_type" value="${esc(relFull)}" placeholder="Daughter of / Son of"/>
+        <input class="edit-field" id="f_relation_type" value="${esc(relationDisplay)}" placeholder="Daughter of / Son of"/>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Name</div>
@@ -389,7 +384,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         dob:            getVal('f_dob'),
         gender:         getVal('f_gender'),
         aadhaar_masked: masked,
-        relation_type:  getVal('f_relation_type'),
+        relation_type:  getVal('f_relation_type'),   // ✅ sends full form "Daughter of"
         relation_name:  getVal('f_relation_name'),
         address:        getVal('f_address'),
         village:        getVal('f_village'),
