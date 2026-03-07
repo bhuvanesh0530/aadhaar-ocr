@@ -111,12 +111,12 @@
   <!-- STEP 1 -->
   <div class="card active" id="card1">
     <div class="card-title">&#128247; Step 1 — Aadhaar Front Side</div>
-    <div class="card-sub">Front contains Name, DOB, Gender, Relation and Aadhaar number.</div>
+    <div class="card-sub">Front contains Name, DOB, Gender and Aadhaar number.</div>
     <input type="file" id="frontCamera" accept="image/*" capture="environment" style="display:none"/>
     <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <button class="upload-btn btn-camera" onclick="document.getElementById('frontCamera').click()">&#128248; Take Live Photo</button>
-      <button class="upload-btn btn-gallery" onclick="document.getElementById('frontGallery').click()">&#128444; Upload from Gallery</button>
+      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('frontCamera').click()">&#128248; Take Live Photo</button>
+      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('frontGallery').click()">&#128444; Upload from Gallery</button>
     </div>
     <div class="preview-container" id="frontPreview">
       <img id="frontImg" src="" alt="Front"/>
@@ -127,18 +127,18 @@
       </div>
     </div>
     <div class="status-msg" id="frontStatus"></div>
-    <button class="btn btn-primary" id="frontNext" disabled>Continue to Back Side &#8594;</button>
+    <button class="btn btn-primary" type="button" id="frontNext" disabled>Continue to Back Side &#8594;</button>
   </div>
 
   <!-- STEP 2 -->
   <div class="card" id="card2">
     <div class="card-title">&#128203; Step 2 — Aadhaar Back Side</div>
-    <div class="card-sub">Back contains Address, District, State and Pincode.</div>
+    <div class="card-sub">Back contains Relation, Address, District, State and Pincode.</div>
     <input type="file" id="backCamera" accept="image/*" capture="environment" style="display:none"/>
     <input type="file" id="backGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <button class="upload-btn btn-camera" onclick="document.getElementById('backCamera').click()">&#128248; Take Live Photo</button>
-      <button class="upload-btn btn-gallery" onclick="document.getElementById('backGallery').click()">&#128444; Upload from Gallery</button>
+      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('backCamera').click()">&#128248; Take Live Photo</button>
+      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('backGallery').click()">&#128444; Upload from Gallery</button>
     </div>
     <div class="preview-container" id="backPreview">
       <img id="backImg" src="" alt="Back"/>
@@ -149,8 +149,8 @@
       </div>
     </div>
     <div class="status-msg" id="backStatus"></div>
-    <button class="btn btn-primary" id="backNext" disabled>Review Extracted Data &#8594;</button>
-    <button class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button>
+    <button class="btn btn-primary" type="button" id="backNext" disabled>Review Extracted Data &#8594;</button>
+    <button class="btn btn-secondary" type="button" onclick="goToStep(1)">&#8592; Back</button>
   </div>
 
   <!-- STEP 3 -->
@@ -163,8 +163,9 @@
       <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits of Aadhaar shown.</span>
     </div>
     <div class="status-msg" id="submitStatus"></div>
-    <button class="btn btn-primary" id="submitBtn">&#128190; Save to Google Sheet</button>
-    <button class="btn btn-secondary" onclick="resetAll()">&#8617; Start Over</button>
+    <!-- ✅ FIX: type="button" prevents any accidental form submit -->
+    <button class="btn btn-primary" type="button" id="submitBtn">&#128190; Save to Google Sheet</button>
+    <button class="btn btn-secondary" type="button" onclick="resetAll()">&#8617; Start Over</button>
   </div>
 
   <!-- STEP 4 -->
@@ -176,12 +177,13 @@
       <div class="masked-badge" id="maskedDisplay">---- ----</div>
       <p style="color:var(--text-muted);font-size:12px;">Aadhaar Last 8 Digits</p>
     </div>
-    <button class="btn btn-primary" style="margin-top:20px;" onclick="resetAll()">&#128260; Verify Another Card</button>
+    <button class="btn btn-primary" type="button" style="margin-top:20px;" onclick="resetAll()">&#128260; Verify Another Card</button>
   </div>
 
 </div>
 <script>
 let extractedData = {};
+let isSaving = false; // ✅ FIX: guard flag to prevent duplicate/auto saves
 
 // ── LOAD SAVED URL ───────────────────────────────────────────────
 window.addEventListener('load', () => {
@@ -234,7 +236,7 @@ function compressImage(file) {
   });
 }
 
-// ── AADHAAR MASKING — show last 8 digits only ────────────────────
+// ── AADHAAR MASKING ──────────────────────────────────────────────
 function maskAadhaar(raw) {
   const digits = (raw || '').replace(/\D/g, '');
   if (digits.length === 12) return digits.slice(4, 8) + ' ' + digits.slice(8);
@@ -268,9 +270,8 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
     if (result.error) {
       showStatus(statusId, '❌ ' + result.error, 'error');
     } else {
-      // ✅ Merge ALL returned fields into extractedData
       Object.assign(extractedData, result.data);
-      console.log('Extracted data after ' + side + ':', JSON.stringify(extractedData));
+      console.log('Extracted after ' + side + ':', JSON.stringify(extractedData));
       showStatus(statusId, '✅ Scanned successfully!', 'success');
       document.getElementById(nextBtnId).disabled = false;
     }
@@ -299,16 +300,12 @@ setupInput('backGallery', 'backPreview', 'backImg', 'backScanOverlay', 'backStat
 document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
 document.getElementById('backNext').addEventListener('click', () => { renderResults(); goToStep(3); });
 
-// ── RENDER STEP 3 ────────────────────────────────────────────────
-// ✅ KEY FIX: reads relation_type_full and gender correctly from extractedData
+// ── RENDER STEP 3 ─────────────────────────────────────────────────
 function renderResults() {
   const d = extractedData;
-
-  // ✅ relation_type_full is set by server; fallback conversion if needed
-  const relMap = { 'S/O':'Son of', 'D/O':'Daughter of', 'W/O':'Wife of', 'C/O':'Care of' };
+  const relMap = {'S/O':'Son of','D/O':'Daughter of','W/O':'Wife of','C/O':'Care of'};
   const relationDisplay = d.relation_type_full ||
     (d.relation_type ? (relMap[d.relation_type.toUpperCase().trim()] || d.relation_type) : '');
-
   const masked = maskAadhaar(d.aadhaar_number || '');
 
   document.getElementById('extractedResults').innerHTML = `
@@ -363,10 +360,24 @@ function renderResults() {
         <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}" placeholder="6 digit pincode"/>
       </div>
     </div>`;
+
+  // ✅ FIX: Reset save state every time Step 3 is rendered
+  isSaving = false;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.innerHTML = '&#128190; Save to Google Sheet';
+  document.getElementById('submitStatus').style.display = 'none';
 }
 
 // ── SAVE TO GOOGLE SHEET ─────────────────────────────────────────
-document.getElementById('submitBtn').addEventListener('click', async () => {
+// ✅ FIX: isSaving guard prevents double-click or accidental auto-save
+document.getElementById('submitBtn').addEventListener('click', async function(e) {
+  e.preventDefault();  // extra safety
+  e.stopPropagation();
+
+  if (isSaving) return; // prevent double trigger
+  isSaving = true;
+
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Saving...';
@@ -384,7 +395,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
         dob:            getVal('f_dob'),
         gender:         getVal('f_gender'),
         aadhaar_masked: masked,
-        relation_type:  getVal('f_relation_type'),   // ✅ sends full form "Daughter of"
+        relation_type:  getVal('f_relation_type'),
         relation_name:  getVal('f_relation_name'),
         address:        getVal('f_address'),
         village:        getVal('f_village'),
@@ -405,6 +416,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     showStatus('submitStatus', '❌ ' + err.message, 'error');
     btn.disabled = false;
     btn.innerHTML = '&#128190; Save to Google Sheet';
+    isSaving = false;
   }
 });
 
@@ -429,6 +441,7 @@ function esc(str) {
 }
 function resetAll() {
   extractedData = {};
+  isSaving = false;
   ['frontCamera','frontGallery','backCamera','backGallery'].forEach(id => {
     try { document.getElementById(id).value = ''; } catch(e) {}
   });
