@@ -43,7 +43,7 @@
   .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px;}
   .upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
   .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;position:relative;overflow:hidden;}
-  .upload-btn input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .upload-btn input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:100px;}
   .btn-camera{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 14px rgba(255,107,0,0.3);}
   .btn-gallery{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--navy-border);}
   .btn-camera:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,0,0.4);}
@@ -128,9 +128,12 @@
   <div class="card active" id="card1">
     <div class="card-title">&#128247; Step 1 — Aadhaar Front Side</div>
     <div class="card-sub">Front contains Name, DOB, Gender, Relation and Aadhaar number.</div>
+    <!-- Hidden file inputs -->
+    <input type="file" id="frontCamera" accept="image/*" capture="environment" style="display:none"/>
+    <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <label class="upload-btn btn-camera">&#128248; Take Live Photo<input type="file" id="frontCamera" accept="image/*" capture="environment"/></label>
-      <label class="upload-btn btn-gallery">&#128444; Upload from Gallery<input type="file" id="frontGallery" accept="image/*"/></label>
+      <button class="upload-btn btn-camera" onclick="document.getElementById('frontCamera').click()">&#128248; Take Live Photo</button>
+      <button class="upload-btn btn-gallery" onclick="document.getElementById('frontGallery').click()">&#128444; Upload from Gallery</button>
     </div>
     <div class="preview-container" id="frontPreview">
       <img id="frontImg" src="" alt="Front"/>
@@ -145,9 +148,12 @@
   <div class="card" id="card2">
     <div class="card-title">&#128203; Step 2 — Aadhaar Back Side</div>
     <div class="card-sub">Back contains Address, District, State and Pincode.</div>
+    <!-- Hidden file inputs -->
+    <input type="file" id="backCamera" accept="image/*" capture="environment" style="display:none"/>
+    <input type="file" id="backGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <label class="upload-btn btn-camera">&#128248; Take Live Photo<input type="file" id="backCamera" accept="image/*" capture="environment"/></label>
-      <label class="upload-btn btn-gallery">&#128444; Upload from Gallery<input type="file" id="backGallery" accept="image/*"/></label>
+      <button class="upload-btn btn-camera" onclick="document.getElementById('backCamera').click()">&#128248; Take Live Photo</button>
+      <button class="upload-btn btn-gallery" onclick="document.getElementById('backGallery').click()">&#128444; Upload from Gallery</button>
     </div>
     <div class="preview-container" id="backPreview">
       <img id="backImg" src="" alt="Back"/>
@@ -253,44 +259,46 @@ function maskAadhaar(raw) {
   return 'Not found';
 }
 
-function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  document.getElementById(inputId).addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { showStatus(statusId, 'Please upload a valid image.', 'error'); return; }
+// Process image file
+async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  if (!file) { showStatus(statusId, 'No file selected. Please try again.', 'error'); return; }
+  if (!file.type.startsWith('image/')) { showStatus(statusId, 'Please select a JPG or PNG image.', 'error'); return; }
+  showStatus(statusId, 'Reading image...', 'info');
+  try {
     const base64 = await compressImage(file);
     document.getElementById(previewId).style.display = 'block';
     document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
     document.getElementById(overlayId).classList.add('active');
-    showStatus(statusId, 'Scanning card...', 'info');
+    showStatus(statusId, 'Scanning with OCR...', 'info');
     document.getElementById(nextBtnId).disabled = true;
-    try {
-      const scriptUrl = getScriptUrl();
-      const response = await fetch(scriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'ocr', image: base64, side: side })
-      });
-      const result = await response.json();
-      document.getElementById(overlayId).classList.remove('active');
-      if (result.error) {
-        showStatus(statusId, result.error, 'error');
-      } else {
-        // Merge data — for relation fields, back side overrides if front had none
-        const incoming = result.data;
-        // Always merge all fields from incoming
-        Object.assign(extractedData, incoming);
-        // Always store relation_type_full from server
-        if (incoming.relation_type_full) {
-          extractedData.relation_type_full = incoming.relation_type_full;
-        }
-        showStatus(statusId, '✅ Scanned successfully!', 'success');
-        document.getElementById(nextBtnId).disabled = false;
-      }
-    } catch (err) {
-      document.getElementById(overlayId).classList.remove('active');
-      showStatus(statusId, err.message, 'error');
+    const scriptUrl = getScriptUrl();
+    const response = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'ocr', image: base64, side: side })
+    });
+    const result = await response.json();
+    document.getElementById(overlayId).classList.remove('active');
+    if (result.error) {
+      showStatus(statusId, '❌ ' + result.error, 'error');
+    } else {
+      Object.assign(extractedData, result.data);
+      showStatus(statusId, '✅ Scanned successfully!', 'success');
+      document.getElementById(nextBtnId).disabled = false;
     }
+  } catch (err) {
+    document.getElementById(overlayId).classList.remove('active');
+    showStatus(statusId, '❌ ' + err.message, 'error');
+  }
+}
+
+function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side);
+    this.value = '';
   });
 }
 
