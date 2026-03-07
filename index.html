@@ -111,7 +111,7 @@
   </div>
   <div class="config-box">
     <label>Apps Script Web App URL</label>
-    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"/>
+    <input type="text" id="scriptUrl"/>
     <p class="config-hint">Paste your deployed Apps Script URL here.</p>
   </div>
   <div class="steps-wrapper">
@@ -278,22 +278,13 @@ function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, s
       } else {
         // Merge data — for relation fields, back side overrides if front had none
         const incoming = result.data;
-        if (side === 'back') {
-          // Always take relation from back if back has it
-          if (incoming.relation_type) extractedData.relation_type = incoming.relation_type;
-          if (incoming.relation_name) extractedData.relation_name = incoming.relation_name;
-          // Take address fields from back
-          extractedData.address  = incoming.address  || extractedData.address  || '';
-          extractedData.village  = incoming.village  || extractedData.village  || '';
-          extractedData.block    = incoming.block    || extractedData.block    || '';
-          extractedData.district = incoming.district || extractedData.district || '';
-          extractedData.state    = incoming.state    || extractedData.state    || '';
-          extractedData.pincode  = incoming.pincode  || extractedData.pincode  || '';
-        } else {
-          Object.assign(extractedData, incoming);
+        // Always merge all fields from incoming
+        Object.assign(extractedData, incoming);
+        // Always store relation_type_full from server
+        if (incoming.relation_type_full) {
+          extractedData.relation_type_full = incoming.relation_type_full;
         }
-        const rawPreview = result.raw ? result.raw.substring(0,200) : '';
-        showStatus(statusId, 'Scanned! OCR read: ' + rawPreview, 'success');
+        showStatus(statusId, '✅ Scanned successfully!', 'success');
         document.getElementById(nextBtnId).disabled = false;
       }
     } catch (err) {
@@ -315,133 +306,56 @@ function renderResults() {
   const d = extractedData;
   const masked = maskAadhaar(d.aadhaar_number || '');
 
-  // Full forms for relation type
-  const relationFull = {
-    'S/O': 'Son of',
-    'D/O': 'Daughter of',
-    'W/O': 'Wife of',
-    'C/O': 'Care of'
-  };
-  const relDisplay = d.relation_type ? (relationFull[d.relation_type] || d.relation_type) : '';
-
   document.getElementById('extractedResults').innerHTML = `
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; All fields are auto-filled. Click any field to correct if needed.</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; Auto-filled from Aadhaar. Edit any field only if incorrect.</p>
     <div class="results-grid">
       <div class="result-item full">
         <div class="result-label">Full Name</div>
-        <input class="edit-field" id="f_name" value="${esc(d.name||'')}" placeholder="Not extracted"/>
+        <input class="edit-field" id="f_name" value="${esc(d.name||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">Date of Birth</div>
-        <input class="edit-field" id="f_dob" value="${esc(d.dob||'')}" placeholder="DD/MM/YYYY"/>
+        <input class="edit-field" id="f_dob" value="${esc(d.dob||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">Gender</div>
-        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}" placeholder="Male / Female / Transgender"/>
+        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}"/>
       </div>
       <div class="result-item full">
         <div class="result-label">Aadhaar Number (Last 8 Digits)</div>
-        <div class="result-value aadhaar" style="padding:6px 0;">${masked}</div>
+        <div class="result-value aadhaar" style="padding:8px 0;font-size:18px;">${masked}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Type</div>
-        <input class="edit-field" id="f_relation_type" value="${esc(relDisplay)}" placeholder="S/O / D/O / W/O / C/O"/>
+        <input class="edit-field" id="f_relation_type_full" value="${esc(d.relation_type_full||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Name</div>
-        <input class="edit-field" id="f_relation_name" value="${esc(d.relation_name||'')}" placeholder="Father / Husband name"/>
+        <input class="edit-field" id="f_relation_name" value="${esc(d.relation_name||'')}"/>
       </div>
       <div class="result-item full">
         <div class="result-label">Address</div>
-        <input class="edit-field" id="f_address" value="${esc(d.address||'')}" placeholder="House No, Street"/>
+        <input class="edit-field" id="f_address" value="${esc(d.address||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">Village / Locality</div>
-        <input class="edit-field" id="f_village" value="${esc(d.village||'')}" placeholder="Village / Area"/>
+        <input class="edit-field" id="f_village" value="${esc(d.village||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">Block / Taluk</div>
-        <input class="edit-field" id="f_block" value="${esc(d.block||'')}" placeholder="Block / Taluk"/>
+        <input class="edit-field" id="f_block" value="${esc(d.block||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">District</div>
-        <input class="edit-field" id="f_district" value="${esc(d.district||'')}" placeholder="District"/>
+        <input class="edit-field" id="f_district" value="${esc(d.district||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">State</div>
-        <input class="edit-field" id="f_state" value="${esc(d.state||'')}" placeholder="State"/>
+        <input class="edit-field" id="f_state" value="${esc(d.state||'')}"/>
       </div>
       <div class="result-item">
         <div class="result-label">Pincode</div>
-        <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}" placeholder="6 digit pincode"/>
+        <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}"/>
       </div>
     </div>`;
 }
-
-
-document.getElementById('submitBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loader"></span> Saving...';
-  const masked = maskAadhaar(extractedData.aadhaar_number || '');
-  // Read from editable fields (user may have corrected them)
-  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-
-  try {
-    const response = await fetch(getScriptUrl(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: 'save',
-        name:          getVal('f_name'),
-        dob:           getVal('f_dob'),
-        gender:        getVal('f_gender'),
-        aadhaar_masked: masked,
-        relation_type: getVal('f_relation_type'),
-        relation_name: getVal('f_relation_name'),
-        address:       getVal('f_address'),
-        village:       getVal('f_village'),
-        block:         getVal('f_block'),
-        district:      getVal('f_district'),
-        state:         getVal('f_state'),
-        pincode:       getVal('f_pincode')
-      })
-    });
-    const data = await response.json();
-    if (data.success) {
-      document.getElementById('maskedDisplay').textContent = masked;
-      goToStep(4);
-    } else {
-      throw new Error(data.error || 'Save failed');
-    }
-  } catch (err) {
-    showStatus('submitStatus', err.message, 'error');
-    btn.disabled = false;
-    btn.innerHTML = '&#128190; Save to Google Sheet';
-  }
-});
-
-function getScriptUrl() {
-  const url = document.getElementById('scriptUrl').value.trim();
-  if (!url) throw new Error('Please enter your Apps Script URL at the top.');
-  return url;
-}
-function showStatus(id, msg, type) {
-  const el = document.getElementById(id);
-  el.className = 'status-msg ' + type;
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-function esc(str) { return String(str).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function resetAll() {
-  extractedData = {};
-  ['frontCamera','frontGallery','backCamera','backGallery'].forEach(id => { try{document.getElementById(id).value='';}catch(e){} });
-  ['frontPreview','backPreview'].forEach(id => { document.getElementById(id).style.display='none'; });
-  ['frontStatus','backStatus','submitStatus'].forEach(id => { document.getElementById(id).style.display='none'; });
-  ['frontNext','backNext'].forEach(id => { document.getElementById(id).disabled=true; });
-  document.getElementById('extractedResults').innerHTML = '';
-  goToStep(1);
-}
-</script>
-</body>
-</html>
