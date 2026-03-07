@@ -164,7 +164,7 @@
     </div>
     <div class="status-msg" id="submitStatus"></div>
     <!-- ✅ FIX: type="button" prevents any accidental form submit -->
-    <button class="btn btn-primary" type="button" id="submitBtn">&#128190; Save to Google Sheet</button>
+    <button class="btn btn-primary" type="button" id="submitBtn" onclick="saveToSheet()">&#128190; Save to Google Sheet</button>
     <button class="btn btn-secondary" type="button" onclick="resetAll()">&#8617; Start Over</button>
   </div>
 
@@ -371,11 +371,9 @@ function renderResults() {
 
 // ── SAVE TO GOOGLE SHEET ─────────────────────────────────────────
 // ✅ FIX: isSaving guard prevents double-click or accidental auto-save
-document.getElementById('submitBtn').addEventListener('click', async function(e) {
-  e.preventDefault();  // extra safety
-  e.stopPropagation();
-
-  if (isSaving) return; // prevent double trigger
+// ── SAVE — plain named function, onclick in HTML, NEVER stacks listeners ──
+async function saveToSheet() {
+  if (isSaving) return;
   isSaving = true;
 
   const btn = document.getElementById('submitBtn');
@@ -418,7 +416,7 @@ document.getElementById('submitBtn').addEventListener('click', async function(e)
     btn.innerHTML = '&#128190; Save to Google Sheet';
     isSaving = false;
   }
-});
+}
 
 // ── HELPERS ──────────────────────────────────────────────────────
 function getScriptUrl() {
