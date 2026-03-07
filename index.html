@@ -80,6 +80,26 @@
   .loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
   @media(max-width:480px){.results-grid{grid-template-columns:1fr;}.result-item.full{grid-column:1;}.card{padding:18px;}.upload-options{grid-template-columns:1fr;}}
+
+  /* Editable fields in Step 3 */
+  .edit-field {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,107,0,0.25);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .edit-field:focus {
+    border-color: var(--saffron);
+    background: rgba(255,107,0,0.07);
+  }
+  .edit-field::placeholder { color: var(--text-muted); font-weight: 400; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -295,46 +315,96 @@ function renderResults() {
   const d = extractedData;
   const masked = maskAadhaar(d.aadhaar_number || '');
 
+  // Full forms for relation type
+  const relationFull = {
+    'S/O': 'Son of',
+    'D/O': 'Daughter of',
+    'W/O': 'Wife of',
+    'C/O': 'Care of'
+  };
+  const relDisplay = d.relation_type ? (relationFull[d.relation_type] || d.relation_type) : '';
+
   document.getElementById('extractedResults').innerHTML = `
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; All fields are auto-filled. Click any field to correct if needed.</p>
     <div class="results-grid">
-      <div class="result-item full"><div class="result-label">Full Name</div><div class="result-value">${esc(d.name||'Not found')}</div></div>
-      <div class="result-item"><div class="result-label">Date of Birth</div><div class="result-value">${esc(d.dob||'Not found')}</div></div>
-      <div class="result-item"><div class="result-label">Gender</div><div class="result-value">${esc(d.gender||'Not found')}</div></div>
-      <div class="result-item full"><div class="result-label">Aadhaar Number (Last 8 Digits)</div><div class="result-value aadhaar">${masked}</div></div>
-      <div class="result-item"><div class="result-label">Relation Type</div><div class="result-value">${esc(d.relation_type||'—')}</div></div>
-      <div class="result-item"><div class="result-label">Relation Name</div><div class="result-value">${esc(d.relation_name||'—')}</div></div>
-      <div class="result-item full"><div class="result-label">Address</div><div class="result-value">${esc(d.address||'Not found')}</div></div>
-      <div class="result-item"><div class="result-label">Village / Locality</div><div class="result-value">${esc(d.village||'—')}</div></div>
-      <div class="result-item"><div class="result-label">Block / Taluk</div><div class="result-value">${esc(d.block||'—')}</div></div>
-      <div class="result-item"><div class="result-label">District</div><div class="result-value">${esc(d.district||'Not found')}</div></div>
-      <div class="result-item"><div class="result-label">State</div><div class="result-value">${esc(d.state||'Not found')}</div></div>
-      <div class="result-item"><div class="result-label">Pincode</div><div class="result-value">${esc(d.pincode||'Not found')}</div></div>
+      <div class="result-item full">
+        <div class="result-label">Full Name</div>
+        <input class="edit-field" id="f_name" value="${esc(d.name||'')}" placeholder="Not extracted"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Date of Birth</div>
+        <input class="edit-field" id="f_dob" value="${esc(d.dob||'')}" placeholder="DD/MM/YYYY"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Gender</div>
+        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}" placeholder="Male / Female / Transgender"/>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Aadhaar Number (Last 8 Digits)</div>
+        <div class="result-value aadhaar" style="padding:6px 0;">${masked}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Relation Type</div>
+        <input class="edit-field" id="f_relation_type" value="${esc(relDisplay)}" placeholder="S/O / D/O / W/O / C/O"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Relation Name</div>
+        <input class="edit-field" id="f_relation_name" value="${esc(d.relation_name||'')}" placeholder="Father / Husband name"/>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Address</div>
+        <input class="edit-field" id="f_address" value="${esc(d.address||'')}" placeholder="House No, Street"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Village / Locality</div>
+        <input class="edit-field" id="f_village" value="${esc(d.village||'')}" placeholder="Village / Area"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Block / Taluk</div>
+        <input class="edit-field" id="f_block" value="${esc(d.block||'')}" placeholder="Block / Taluk"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">District</div>
+        <input class="edit-field" id="f_district" value="${esc(d.district||'')}" placeholder="District"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">State</div>
+        <input class="edit-field" id="f_state" value="${esc(d.state||'')}" placeholder="State"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Pincode</div>
+        <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}" placeholder="6 digit pincode"/>
+      </div>
     </div>`;
 }
+
 
 document.getElementById('submitBtn').addEventListener('click', async () => {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Saving...';
   const masked = maskAadhaar(extractedData.aadhaar_number || '');
+  // Read from editable fields (user may have corrected them)
+  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
   try {
     const response = await fetch(getScriptUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         action: 'save',
-        name:          extractedData.name          || '',
-        dob:           extractedData.dob           || '',
-        gender:        extractedData.gender        || '',
+        name:          getVal('f_name'),
+        dob:           getVal('f_dob'),
+        gender:        getVal('f_gender'),
         aadhaar_masked: masked,
-        relation_type: extractedData.relation_type || '',
-        relation_name: extractedData.relation_name || '',
-        address:       extractedData.address       || '',
-        village:       extractedData.village       || '',
-        block:         extractedData.block         || '',
-        district:      extractedData.district      || '',
-        state:         extractedData.state         || '',
-        pincode:       extractedData.pincode       || ''
+        relation_type: getVal('f_relation_type'),
+        relation_name: getVal('f_relation_name'),
+        address:       getVal('f_address'),
+        village:       getVal('f_village'),
+        block:         getVal('f_block'),
+        district:      getVal('f_district'),
+        state:         getVal('f_state'),
+        pincode:       getVal('f_pincode')
       })
     });
     const data = await response.json();
