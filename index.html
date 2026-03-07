@@ -256,8 +256,24 @@ function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, s
       if (result.error) {
         showStatus(statusId, result.error, 'error');
       } else {
-        Object.assign(extractedData, result.data);
-        showStatus(statusId, 'Scanned successfully!', 'success');
+        // Merge data — for relation fields, back side overrides if front had none
+        const incoming = result.data;
+        if (side === 'back') {
+          // Always take relation from back if back has it
+          if (incoming.relation_type) extractedData.relation_type = incoming.relation_type;
+          if (incoming.relation_name) extractedData.relation_name = incoming.relation_name;
+          // Take address fields from back
+          extractedData.address  = incoming.address  || extractedData.address  || '';
+          extractedData.village  = incoming.village  || extractedData.village  || '';
+          extractedData.block    = incoming.block    || extractedData.block    || '';
+          extractedData.district = incoming.district || extractedData.district || '';
+          extractedData.state    = incoming.state    || extractedData.state    || '';
+          extractedData.pincode  = incoming.pincode  || extractedData.pincode  || '';
+        } else {
+          Object.assign(extractedData, incoming);
+        }
+        const rawPreview = result.raw ? result.raw.substring(0,200) : '';
+        showStatus(statusId, 'Scanned! OCR read: ' + rawPreview, 'success');
         document.getElementById(nextBtnId).disabled = false;
       }
     } catch (err) {
