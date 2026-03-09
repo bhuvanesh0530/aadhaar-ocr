@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>Aadhaar Verification Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
@@ -41,20 +41,28 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
   .card-title{font-size:17px;font-weight:600;margin-bottom:6px;}
   .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px;}
+
+  /* ── CAMERA GUIDE BOX ── */
+  .camera-guide{background:rgba(255,107,0,0.06);border:1px solid rgba(255,107,0,0.2);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:8px;}
+  .camera-guide span.icon{font-size:18px;flex-shrink:0;}
+
   .upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
   .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;}
   .btn-camera{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 14px rgba(255,107,0,0.3);}
   .btn-gallery{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--navy-border);}
   .btn-camera:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,0,0.4);}
   .btn-gallery:hover{border-color:var(--saffron);color:var(--saffron);}
-  .preview-container{margin-top:14px;border-radius:10px;overflow:hidden;display:none;position:relative;}
-  .preview-container img{width:100%;max-height:200px;object-fit:contain;background:#000;border-radius:10px;}
-  .preview-badge{position:absolute;top:8px;right:8px;background:var(--success);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+
+  /* ── PREVIEW: fill frame, no black bars ── */
+  .preview-container{margin-top:14px;border-radius:10px;overflow:hidden;display:none;position:relative;width:100%;aspect-ratio:16/9;background:#000;}
+  .preview-container img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;}
+  .preview-badge{position:absolute;top:8px;right:8px;background:var(--success);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;z-index:2;}
   .scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,15,30,0.88);border-radius:10px;flex-direction:column;gap:10px;z-index:5;}
   .scan-overlay.active{display:flex;}
   .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:scan 1.5s ease-in-out infinite;box-shadow:0 0 10px var(--saffron);}
   @keyframes scan{0%{top:10%}50%{top:85%}100%{top:10%}}
   .scan-text{font-size:12px;color:var(--saffron);font-weight:600;font-family:'JetBrains Mono',monospace;}
+
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;width:100%;}
   .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 18px rgba(255,107,0,0.3);margin-top:16px;}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,107,0,0.45);}
@@ -112,11 +120,15 @@
   <div class="card active" id="card1">
     <div class="card-title">&#128247; Step 1 — Aadhaar Front Side</div>
     <div class="card-sub">Front contains Name, DOB, Gender and Aadhaar number.</div>
+    <div class="camera-guide">
+      <span class="icon">&#128161;</span>
+      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
+    </div>
     <input type="file" id="frontCamera" accept="image/*" capture="environment" style="display:none"/>
     <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('frontCamera').click()">&#128248; Take Live Photo</button>
-      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('frontGallery').click()">&#128444; Upload from Gallery</button>
+      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('frontCamera').click()">&#128248; Take Photo</button>
+      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('frontGallery').click()">&#128444; From Gallery</button>
     </div>
     <div class="preview-container" id="frontPreview">
       <img id="frontImg" src="" alt="Front"/>
@@ -134,11 +146,15 @@
   <div class="card" id="card2">
     <div class="card-title">&#128203; Step 2 — Aadhaar Back Side</div>
     <div class="card-sub">Back contains Relation, Address, District, State and Pincode.</div>
+    <div class="camera-guide">
+      <span class="icon">&#128161;</span>
+      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
+    </div>
     <input type="file" id="backCamera" accept="image/*" capture="environment" style="display:none"/>
     <input type="file" id="backGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('backCamera').click()">&#128248; Take Live Photo</button>
-      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('backGallery').click()">&#128444; Upload from Gallery</button>
+      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('backCamera').click()">&#128248; Take Photo</button>
+      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('backGallery').click()">&#128444; From Gallery</button>
     </div>
     <div class="preview-container" id="backPreview">
       <img id="backImg" src="" alt="Back"/>
@@ -163,7 +179,6 @@
       <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits of Aadhaar shown.</span>
     </div>
     <div class="status-msg" id="submitStatus"></div>
-    <!-- ✅ FIX: type="button" prevents any accidental form submit -->
     <button class="btn btn-primary" type="button" id="submitBtn" onclick="saveToSheet()">&#128190; Save to Google Sheet</button>
     <button class="btn btn-secondary" type="button" onclick="resetAll()">&#8617; Start Over</button>
   </div>
@@ -183,7 +198,7 @@
 </div>
 <script>
 let extractedData = {};
-let isSaving = false; // ✅ FIX: guard flag to prevent duplicate/auto saves
+let isSaving = false;
 
 // ── LOAD SAVED URL ───────────────────────────────────────────────
 window.addEventListener('load', () => {
@@ -210,29 +225,138 @@ function goToStep(n) {
   window.scrollTo(0, 0);
 }
 
-// ── IMAGE COMPRESSION ────────────────────────────────────────────
+// ================================================================
+// IMAGE PROCESSING — EXIF rotation + compress + no black bars
+// Fixes: landscape flip, portrait black bars, large file size
+// ================================================================
+
+// Read EXIF orientation tag from JPEG binary
+function getExifOrientation(buffer) {
+  const view = new DataView(buffer);
+  if (view.getUint16(0, false) !== 0xFFD8) return 1; // not JPEG
+  const length = view.byteLength;
+  let offset = 2;
+  while (offset < length) {
+    if (view.getUint16(offset, false) === 0xFFE1) {
+      offset += 4;
+      if (view.getUint32(offset, false) !== 0x45786966) return 1; // no Exif
+      const little = view.getUint16(offset += 6, false) === 0x4949;
+      offset += view.getUint32(offset + 4, little);
+      const tags = view.getUint16(offset, little);
+      offset += 2;
+      for (let i = 0; i < tags; i++) {
+        if (view.getUint16(offset + i * 12, little) === 0x0112) {
+          return view.getUint16(offset + i * 12 + 8, little);
+        }
+      }
+    } else if ((view.getUint16(offset, false) & 0xFF00) !== 0xFF00) {
+      break;
+    } else {
+      offset += 2 + view.getUint16(offset + 2, false);
+    }
+  }
+  return 1;
+}
+
+// Apply EXIF rotation to canvas context before drawing
+function applyExifRotation(canvas, ctx, orientation, imgW, imgH) {
+  if (orientation <= 1) return;
+  ctx.save();
+  if (orientation === 2) { ctx.translate(imgW, 0); ctx.scale(-1, 1); }
+  else if (orientation === 3) { ctx.translate(imgW, imgH); ctx.rotate(Math.PI); }
+  else if (orientation === 4) { ctx.translate(0, imgH); ctx.scale(1, -1); }
+  else if (orientation === 5) { ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1); }
+  else if (orientation === 6) { ctx.translate(imgH, 0); ctx.rotate(0.5 * Math.PI); }
+  else if (orientation === 7) { ctx.translate(imgH, imgW); ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1); }
+  else if (orientation === 8) { ctx.translate(0, imgW); ctx.rotate(-0.5 * Math.PI); }
+}
+
+// Main compress function — fixes rotation AND reduces size
 function compressImage(file) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const img = new Image();
+      const buffer = e.target.result;
+      const orientation = getExifOrientation(buffer);
+
+      // Convert buffer to blob URL for Image
+      const blob = new Blob([buffer], { type: file.type });
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        const MAX = 800;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else       { w = Math.round(w * MAX / h); h = MAX; }
+        URL.revokeObjectURL(url);
+
+        // Determine output dimensions after EXIF rotation
+        const swapped = orientation >= 5 && orientation <= 8;
+        let srcW = img.naturalWidth;
+        let srcH = img.naturalHeight;
+
+        // Target: max 700px on longest side (fast OCR, good quality)
+        const MAX = 700;
+        let outW, outH;
+        if (swapped) {
+          // After rotation, width and height swap
+          outH = srcW > srcH ? MAX : Math.round(srcW * MAX / srcH);
+          outW = srcH > srcW ? MAX : Math.round(srcH * MAX / srcW);
+        } else {
+          if (srcW >= srcH) {
+            outW = Math.min(srcW, MAX);
+            outH = Math.round(srcH * outW / srcW);
+          } else {
+            outH = Math.min(srcH, MAX);
+            outW = Math.round(srcW * outH / srcH);
+          }
         }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        let dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-        if (dataUrl.length > 700000) dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+
+        const canvas = document.createElement('canvas');
+        canvas.width  = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+
+        // White background (no black bars)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, outW, outH);
+
+        // Apply EXIF rotation transform
+        ctx.save();
+        if (orientation === 2) {
+          ctx.translate(outW, 0); ctx.scale(-1, 1);
+        } else if (orientation === 3) {
+          ctx.translate(outW, outH); ctx.rotate(Math.PI);
+        } else if (orientation === 4) {
+          ctx.translate(0, outH); ctx.scale(1, -1);
+        } else if (orientation === 5) {
+          ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1);
+        } else if (orientation === 6) {
+          ctx.translate(outW, 0); ctx.rotate(0.5 * Math.PI);
+        } else if (orientation === 7) {
+          ctx.translate(outW, outH); ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1);
+        } else if (orientation === 8) {
+          ctx.translate(0, outH); ctx.rotate(-0.5 * Math.PI);
+        }
+
+        // Draw image into rotated canvas
+        if (swapped) {
+          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, outH, outW);
+        } else {
+          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, outW, outH);
+        }
+        ctx.restore();
+
+        // Compress: try 0.75 quality, reduce if still too large
+        let dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        if (dataUrl.length > 600000) dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        if (dataUrl.length > 500000) dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+
         resolve(dataUrl.split(',')[1]);
       };
-      img.src = e.target.result;
+
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = url;
     };
-    reader.readAsDataURL(file);
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsArrayBuffer(file); // Must use ArrayBuffer to read EXIF
   });
 }
 
@@ -244,34 +368,69 @@ function maskAadhaar(raw) {
   return 'Not found';
 }
 
+// ================================================================
+// FETCH WITH MOBILE RETRY
+// "load failed" on mobile = network timeout or CORS preflight issue
+// Fix: use text/plain content-type (skips preflight), add timeout+retry
+// ================================================================
+async function fetchWithRetry(url, body, attempt) {
+  attempt = attempt || 1;
+  const controller = new AbortController();
+  // 40 second timeout per attempt
+  const timer = setTimeout(() => controller.abort(), 40000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      // text/plain avoids CORS preflight OPTIONS request on mobile
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: body,
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch(e) { throw new Error('Invalid response from server'); }
+  } catch (err) {
+    clearTimeout(timer);
+    if (attempt < 2 && (err.name === 'AbortError' || err.message.includes('fetch') || err.message.includes('Load') || err.message.includes('network'))) {
+      // Auto-retry once on network errors
+      await new Promise(r => setTimeout(r, 1500));
+      return fetchWithRetry(url, body, attempt + 1);
+    }
+    if (err.name === 'AbortError') throw new Error('Request timed out. Check your internet connection and try again.');
+    throw err;
+  }
+}
+
 // ── PROCESS FILE ─────────────────────────────────────────────────
 async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
   if (!file) return;
   if (!file.type.startsWith('image/')) {
     showStatus(statusId, 'Please select a valid image file.', 'error'); return;
   }
-  showStatus(statusId, 'Preparing image...', 'info');
+  showStatus(statusId, '⏳ Processing image...', 'info');
+  document.getElementById(nextBtnId).disabled = true;
+
   try {
     const base64 = await compressImage(file);
+
+    // Show rotated/corrected preview
     document.getElementById(previewId).style.display = 'block';
     document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
     document.getElementById(overlayId).classList.add('active');
-    showStatus(statusId, 'Scanning with OCR... please wait', 'info');
-    document.getElementById(nextBtnId).disabled = true;
+    showStatus(statusId, '🔍 Scanning... this takes ~10 seconds', 'info');
 
-    const response = await fetch(getScriptUrl(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'ocr', image: base64, side: side })
-    });
-    const result = await response.json();
+    const result = await fetchWithRetry(getScriptUrl(), JSON.stringify({
+      action: 'ocr', image: base64, side: side
+    }));
+
     document.getElementById(overlayId).classList.remove('active');
 
     if (result.error) {
       showStatus(statusId, '❌ ' + result.error, 'error');
     } else {
       Object.assign(extractedData, result.data);
-      console.log('Extracted after ' + side + ':', JSON.stringify(extractedData));
       showStatus(statusId, '✅ Scanned successfully!', 'success');
       document.getElementById(nextBtnId).disabled = false;
     }
@@ -361,7 +520,6 @@ function renderResults() {
       </div>
     </div>`;
 
-  // ✅ FIX: Reset save state every time Step 3 is rendered
   isSaving = false;
   const btn = document.getElementById('submitBtn');
   btn.disabled = false;
@@ -369,9 +527,7 @@ function renderResults() {
   document.getElementById('submitStatus').style.display = 'none';
 }
 
-// ── SAVE TO GOOGLE SHEET ─────────────────────────────────────────
-// ✅ FIX: isSaving guard prevents double-click or accidental auto-save
-// ── SAVE — plain named function, onclick in HTML, NEVER stacks listeners ──
+// ── SAVE TO GOOGLE SHEET — plain named function, never stacks ────
 async function saveToSheet() {
   if (isSaving) return;
   isSaving = true;
@@ -384,26 +540,22 @@ async function saveToSheet() {
   const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
 
   try {
-    const response = await fetch(getScriptUrl(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action:         'save',
-        name:           getVal('f_name'),
-        dob:            getVal('f_dob'),
-        gender:         getVal('f_gender'),
-        aadhaar_masked: masked,
-        relation_type:  getVal('f_relation_type'),
-        relation_name:  getVal('f_relation_name'),
-        address:        getVal('f_address'),
-        village:        getVal('f_village'),
-        block:          getVal('f_block'),
-        district:       getVal('f_district'),
-        state:          getVal('f_state'),
-        pincode:        getVal('f_pincode')
-      })
-    });
-    const data = await response.json();
+    const data = await fetchWithRetry(getScriptUrl(), JSON.stringify({
+      action:         'save',
+      name:           getVal('f_name'),
+      dob:            getVal('f_dob'),
+      gender:         getVal('f_gender'),
+      aadhaar_masked: masked,
+      relation_type:  getVal('f_relation_type'),
+      relation_name:  getVal('f_relation_name'),
+      address:        getVal('f_address'),
+      village:        getVal('f_village'),
+      block:          getVal('f_block'),
+      district:       getVal('f_district'),
+      state:          getVal('f_state'),
+      pincode:        getVal('f_pincode')
+    }));
+
     if (data.success) {
       document.getElementById('maskedDisplay').textContent = masked;
       goToStep(4);
@@ -432,10 +584,7 @@ function showStatus(id, msg, type) {
 }
 function esc(str) {
   return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function resetAll() {
   extractedData = {};
