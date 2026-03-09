@@ -2,50 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Aadhaar Demographic Data Capture Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --saffron:#FF6B00;--saffron-light:#FF8C3A;--saffron-glow:rgba(255,107,0,0.18);
-    --green:#138808;--navy:#0A0F1E;--navy-card:#111827;--navy-border:#1E2A3A;
-    --text:#E8EDF5;--text-muted:#7A8BA0;--success:#22C55E;--white:#FFFFFF;
-  }
+  :root{--saffron:#FF6B00;--saffron-light:#FF8C3A;--saffron-glow:rgba(255,107,0,0.18);--green:#138808;--navy:#0A0F1E;--navy-card:#111827;--navy-border:#1E2A3A;--text:#E8EDF5;--text-muted:#7A8BA0;--success:#22C55E;--white:#FFFFFF;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Sora',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(255,107,0,0.08) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 80% 80%,rgba(19,136,8,0.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
-  .container{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:40px 20px 60px;}
-  .header{text-align:center;margin-bottom:36px;}
-  .emblem{width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--saffron),#FF9A3C);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 32px var(--saffron-glow),0 8px 24px rgba(0,0,0,0.4);animation:pulse-glow 3s ease-in-out infinite;}
+  .container{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:32px 16px 60px;}
+  .header{text-align:center;margin-bottom:28px;}
+  .emblem{width:56px;height:56px;margin:0 auto 12px;background:linear-gradient(135deg,var(--saffron),#FF9A3C);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 32px var(--saffron-glow),0 8px 24px rgba(0,0,0,0.4);animation:pulse-glow 3s ease-in-out infinite;}
   @keyframes pulse-glow{0%,100%{box-shadow:0 0 32px var(--saffron-glow),0 8px 24px rgba(0,0,0,0.4);}50%{box-shadow:0 0 56px rgba(255,107,0,0.35),0 8px 24px rgba(0,0,0,0.4);}}
-  .header h1{font-size:clamp(20px,5vw,28px);font-weight:700;background:linear-gradient(90deg,var(--saffron),#FFB347,var(--white));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .tricolor-bar{display:flex;height:3px;width:120px;margin:14px auto 0;border-radius:2px;overflow:hidden;}
+  .header h1{font-size:clamp(17px,4.5vw,24px);font-weight:700;background:linear-gradient(90deg,var(--saffron),#FFB347,var(--white));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3;}
+  .tricolor-bar{display:flex;height:3px;width:100px;margin:12px auto 0;border-radius:2px;overflow:hidden;}
   .tricolor-bar span{flex:1;}
   .tricolor-bar span:nth-child(1){background:var(--saffron);}
   .tricolor-bar span:nth-child(2){background:var(--white);}
   .tricolor-bar span:nth-child(3){background:var(--green);}
-  .steps-wrapper{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;}
+  .steps-wrapper{display:flex;justify-content:center;margin-bottom:24px;}
   .steps-row{display:flex;align-items:center;}
-  .step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:2px solid var(--navy-border);background:var(--navy-card);color:var(--text-muted);transition:all 0.3s;}
+  .step-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid var(--navy-border);background:var(--navy-card);color:var(--text-muted);transition:all 0.3s;}
   .step-dot.active{border-color:var(--saffron);color:var(--saffron);background:var(--saffron-glow);}
   .step-dot.done{border-color:var(--success);color:white;background:var(--success);}
-  .step-line{width:48px;height:2px;background:var(--navy-border);transition:background 0.3s;}
+  .step-line{width:44px;height:2px;background:var(--navy-border);transition:background 0.3s;}
   .step-line.done{background:var(--success);}
-  .config-box{background:rgba(255,107,0,0.04);border:1px dashed rgba(255,107,0,0.3);border-radius:14px;padding:18px;margin-bottom:22px;}
-  .config-box label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;display:block;}
-  .config-box input{width:100%;background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;}
+  .config-box{background:rgba(255,107,0,0.04);border:1px dashed rgba(255,107,0,0.3);border-radius:14px;padding:16px;margin-bottom:18px;}
+  .config-box label{font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;display:block;}
+  .config-box input{width:100%;background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color 0.2s;}
   .config-box input:focus{border-color:var(--saffron);}
-  .config-hint{font-size:11px;color:var(--text-muted);margin-top:6px;}
-  .card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;padding:26px;margin-bottom:18px;display:none;}
+  .config-hint{font-size:10px;color:var(--text-muted);margin-top:5px;}
+  .card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:18px;padding:20px;margin-bottom:16px;display:none;}
   .card.active{display:block;animation:fadeUp 0.4s ease;}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-  .card-title{font-size:17px;font-weight:600;margin-bottom:6px;}
-  .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .card-title{font-size:16px;font-weight:600;margin-bottom:5px;}
+  .card-sub{font-size:12px;color:var(--text-muted);margin-bottom:14px;}
 
-  /* ── CAMERA GUIDE BOX ── */
-  .camera-guide{background:rgba(255,107,0,0.06);border:1px solid rgba(255,107,0,0.2);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:8px;}
-  .camera-guide span.icon{font-size:18px;flex-shrink:0;}
+  /* ══════════════════════════════════════
+     CAMERA VIEWFINDER WITH CARD FRAME
+  ══════════════════════════════════════ */
+  .camera-modal{display:none;position:fixed;inset:0;z-index:1000;background:#000;flex-direction:column;}
+  .camera-modal.open{display:flex;}
+  #cameraVideo{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 
+  /* Dark overlay outside the card frame */
+  .cam-overlay{position:absolute;inset:0;pointer-events:none;}
+  .cam-frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88%;max-width:420px;aspect-ratio:1.586/1;/* CR80 card ratio */border:3px solid var(--saffron);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,0.62);z-index:2;}
+
+  /* Animated corner brackets */
+  .cam-frame::before,.cam-frame::after{content:'';position:absolute;width:22px;height:22px;border-color:white;border-style:solid;}
+  .cam-frame::before{top:-3px;left:-3px;border-width:4px 0 0 4px;border-radius:6px 0 0 0;}
+  .cam-frame::after{top:-3px;right:-3px;border-width:4px 4px 0 0;border-radius:0 6px 0 0;}
+  .cam-frame-bl,.cam-frame-br{position:absolute;width:22px;height:22px;border-color:white;border-style:solid;}
+  .cam-frame-bl{bottom:-3px;left:-3px;border-width:0 0 4px 4px;border-radius:0 0 0 6px;}
+  .cam-frame-br{bottom:-3px;right:-3px;border-width:0 4px 4px 0;border-radius:0 0 6px 0;}
+
+  /* Scan line inside frame */
+  .cam-scan-line{position:absolute;left:3px;right:3px;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:cam-scan 2s ease-in-out infinite;box-shadow:0 0 8px var(--saffron);border-radius:2px;}
+  @keyframes cam-scan{0%{top:8px;opacity:0.7;}50%{opacity:1;}100%{top:calc(100% - 8px);opacity:0.7;}}
+
+  .cam-hint{position:absolute;bottom:calc(50% - (88vw * 0.63 / 2) - 46px);left:0;right:0;text-align:center;color:white;font-size:13px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,0.8);z-index:3;padding:0 16px;}
+  .cam-hint-top{position:absolute;top:calc(50% - (88vw * 0.63 / 2) - 38px);left:0;right:0;text-align:center;color:rgba(255,255,255,0.85);font-size:11px;z-index:3;padding:0 16px;}
+
+  /* Bottom controls */
+  .cam-controls{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:20px 24px 36px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);}
+  .cam-close{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .cam-shutter{width:68px;height:68px;border-radius:50%;background:white;border:5px solid rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(255,107,0,0.5);}
+  .cam-shutter-inner{width:50px;height:50px;border-radius:50%;background:var(--saffron);}
+  .cam-flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;z-index:20;transition:opacity 0.05s;}
+  .cam-flash.flash{opacity:0.9;}
+  .cam-gallery-mini{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:white;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;line-height:1.2;}
+
+  /* ══════════════════════════════════════
+     UPLOAD OPTION BUTTONS
+  ══════════════════════════════════════ */
   .upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
   .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;}
   .btn-camera{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 14px rgba(255,107,0,0.3);}
@@ -53,9 +83,8 @@
   .btn-camera:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,0,0.4);}
   .btn-gallery:hover{border-color:var(--saffron);color:var(--saffron);}
 
-  /* ── PREVIEW: fill frame, no black bars ── */
-  .preview-container{margin-top:14px;border-radius:10px;overflow:hidden;display:none;position:relative;width:100%;aspect-ratio:16/9;background:#000;}
-  .preview-container img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;}
+  .preview-container{margin-top:14px;border-radius:10px;overflow:hidden;display:none;position:relative;width:100%;aspect-ratio:16/10;background:#111;}
+  .preview-container img{width:100%;height:100%;object-fit:contain;display:block;}
   .preview-badge{position:absolute;top:8px;right:8px;background:var(--success);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;z-index:2;}
   .scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,15,30,0.88);border-radius:10px;flex-direction:column;gap:10px;z-index:5;}
   .scan-overlay.active{display:flex;}
@@ -64,39 +93,68 @@
   .scan-text{font-size:12px;color:var(--saffron);font-weight:600;font-family:'JetBrains Mono',monospace;}
 
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;width:100%;}
-  .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 18px rgba(255,107,0,0.3);margin-top:16px;}
+  .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 18px rgba(255,107,0,0.3);margin-top:14px;}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,107,0,0.45);}
   .btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
-  .btn-secondary{background:transparent;color:var(--text-muted);border:1px solid var(--navy-border);margin-top:10px;}
-  .btn-secondary:hover{border-color:var(--text-muted);color:var(--text);}
-  .status-msg{padding:11px 15px;border-radius:10px;font-size:13px;font-weight:500;margin-top:12px;display:none;}
+  .btn-secondary{background:transparent;color:var(--text-muted);border:1px solid var(--navy-border);margin-top:8px;}
+  .status-msg{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;margin-top:10px;display:none;}
   .status-msg.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;}
   .status-msg.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86EFAC;}
   .status-msg.info{background:rgba(255,107,0,0.1);border:1px solid rgba(255,107,0,0.3);color:#FED7AA;}
-  .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
-  .result-item{background:rgba(255,255,255,0.03);border:1px solid var(--navy-border);border-radius:10px;padding:11px 13px;}
+  .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;}
+  .result-item{background:rgba(255,255,255,0.03);border:1px solid var(--navy-border);border-radius:10px;padding:10px 12px;}
   .result-item.full{grid-column:1/-1;}
-  .result-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
-  .result-value.aadhaar{color:var(--saffron);letter-spacing:3px;font-size:18px;font-family:'JetBrains Mono',monospace;font-weight:700;}
-  .privacy-note{display:flex;align-items:flex-start;gap:10px;background:rgba(19,136,8,0.06);border:1px solid rgba(19,136,8,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-muted);margin-top:16px;}
-  .success-state{text-align:center;padding:16px 0;}
-  .success-icon{width:70px;height:70px;background:linear-gradient(135deg,var(--success),#16A34A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px;box-shadow:0 0 28px rgba(34,197,94,0.3);animation:pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+  .result-label{font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
+  .result-value.aadhaar{color:var(--saffron);letter-spacing:3px;font-size:17px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .privacy-note{display:flex;align-items:flex-start;gap:10px;background:rgba(19,136,8,0.06);border:1px solid rgba(19,136,8,0.2);border-radius:10px;padding:11px 13px;font-size:11px;color:var(--text-muted);margin-top:14px;}
+  .success-state{text-align:center;padding:14px 0;}
+  .success-icon{width:66px;height:66px;background:linear-gradient(135deg,var(--success),#16A34A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 14px;box-shadow:0 0 28px rgba(34,197,94,0.3);animation:pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1);}
   @keyframes pop-in{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-  .masked-badge{background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:8px 18px;display:inline-block;font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:3px;color:var(--saffron);margin:10px 0;}
-  .loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
+  .masked-badge{background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:7px 16px;display:inline-block;font-family:'JetBrains Mono',monospace;font-size:17px;letter-spacing:3px;color:var(--saffron);margin:8px 0;}
+  .loader{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .edit-field{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,0,0.25);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;outline:none;transition:border-color 0.2s,background 0.2s;}
+  .edit-field{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,0,0.25);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;outline:none;transition:border-color 0.2s,background 0.2s;}
   .edit-field:focus{border-color:var(--saffron);background:rgba(255,107,0,0.07);}
-  .edit-field::placeholder{color:var(--text-muted);font-weight:400;font-size:12px;}
-  @media(max-width:480px){.results-grid{grid-template-columns:1fr;}.result-item.full{grid-column:1;}.card{padding:18px;}.upload-options{grid-template-columns:1fr;}}
+  .edit-field::placeholder{color:var(--text-muted);font-weight:400;font-size:11px;}
+  @media(max-width:420px){.results-grid{grid-template-columns:1fr;}.result-item.full{grid-column:1;}.card{padding:15px;}}
 </style>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════
+     LIVE CAMERA MODAL WITH CARD FRAME
+══════════════════════════════════════ -->
+<div class="camera-modal" id="cameraModal">
+  <video id="cameraVideo" autoplay playsinline muted></video>
+  <div class="cam-overlay">
+    <div class="cam-frame" id="camFrame">
+      <div class="cam-frame-bl"></div>
+      <div class="cam-frame-br"></div>
+      <div class="cam-scan-line"></div>
+    </div>
+    <div class="cam-hint-top" id="camHintTop">📷 Align Aadhaar card inside the frame</div>
+    <div class="cam-hint" id="camHint">Keep card flat · Good lighting · Fill the frame</div>
+  </div>
+  <div class="cam-flash" id="camFlash"></div>
+  <div class="cam-controls">
+    <div class="cam-close" onclick="closeCamera()">✕</div>
+    <div class="cam-shutter" onclick="capturePhoto()" id="shutterBtn">
+      <div class="cam-shutter-inner"></div>
+    </div>
+    <!-- Gallery fallback inside camera modal -->
+    <label class="cam-gallery-mini" for="galleryFallback">📁<br>Gallery</label>
+    <input type="file" id="galleryFallback" accept="image/*" style="display:none"/>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN PAGE
+══════════════════════════════════════ -->
 <div class="container">
 
   <div class="header">
     <div class="emblem">&#127470;&#127475;</div>
-    <h1>Aadhaar Demographic Data Capture Portal</h1>
+    <h1>Aadhaar Demographic Data<br>Capture Portal</h1>
     <div class="tricolor-bar"><span></span><span></span><span></span></div>
   </div>
 
@@ -119,23 +177,18 @@
   <!-- STEP 1 -->
   <div class="card active" id="card1">
     <div class="card-title">&#128247; Step 1 — Aadhaar Front Side</div>
-    <div class="card-sub">Front contains Name, DOB, Gender and Aadhaar number.</div>
-    <div class="camera-guide">
-      <span class="icon">&#128161;</span>
-      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
-    </div>
-    <input type="file" id="frontCamera" accept="image/*" capture="environment" style="display:none"/>
+    <div class="card-sub">Name · DOB · Gender · Aadhaar Number</div>
     <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('frontCamera').click()">&#128248; Take Photo</button>
+      <button class="upload-btn btn-camera" type="button" onclick="openCamera('front')">&#128248; Take Photo</button>
       <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('frontGallery').click()">&#128444; From Gallery</button>
     </div>
     <div class="preview-container" id="frontPreview">
       <img id="frontImg" src="" alt="Front"/>
-      <div class="preview-badge">&#10003; Front</div>
+      <div class="preview-badge">&#10003; Front Captured</div>
       <div class="scan-overlay" id="frontScanOverlay">
         <div class="scan-line"></div>
-        <div class="scan-text">Reading card...</div>
+        <div class="scan-text">Reading Aadhaar...</div>
       </div>
     </div>
     <div class="status-msg" id="frontStatus"></div>
@@ -145,23 +198,18 @@
   <!-- STEP 2 -->
   <div class="card" id="card2">
     <div class="card-title">&#128203; Step 2 — Aadhaar Back Side</div>
-    <div class="card-sub">Back contains Relation, Address, District, State and Pincode.</div>
-    <div class="camera-guide">
-      <span class="icon">&#128161;</span>
-      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
-    </div>
-    <input type="file" id="backCamera" accept="image/*" capture="environment" style="display:none"/>
+    <div class="card-sub">Relation · Address · District · State · Pincode</div>
     <input type="file" id="backGallery" accept="image/*" style="display:none"/>
     <div class="upload-options">
-      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('backCamera').click()">&#128248; Take Photo</button>
+      <button class="upload-btn btn-camera" type="button" onclick="openCamera('back')">&#128248; Take Photo</button>
       <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('backGallery').click()">&#128444; From Gallery</button>
     </div>
     <div class="preview-container" id="backPreview">
       <img id="backImg" src="" alt="Back"/>
-      <div class="preview-badge">&#10003; Back</div>
+      <div class="preview-badge">&#10003; Back Captured</div>
       <div class="scan-overlay" id="backScanOverlay">
         <div class="scan-line"></div>
-        <div class="scan-text">Reading card...</div>
+        <div class="scan-text">Reading Aadhaar...</div>
       </div>
     </div>
     <div class="status-msg" id="backStatus"></div>
@@ -172,11 +220,11 @@
   <!-- STEP 3 -->
   <div class="card" id="card3">
     <div class="card-title">&#10003; Step 3 — Review and Save</div>
-    <div class="card-sub">Auto-filled from Aadhaar. Edit any field only if incorrect.</div>
+    <div class="card-sub">Auto-filled from Aadhaar. Edit only if incorrect.</div>
     <div id="extractedResults"></div>
     <div class="privacy-note">
-      <span style="font-size:18px;flex-shrink:0;">&#128737;</span>
-      <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits of Aadhaar shown.</span>
+      <span style="font-size:16px;flex-shrink:0;">&#128737;</span>
+      <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits shown.</span>
     </div>
     <div class="status-msg" id="submitStatus"></div>
     <button class="btn btn-primary" type="button" id="submitBtn" onclick="saveToSheet()">&#128190; Save to Google Sheet</button>
@@ -187,18 +235,21 @@
   <div class="card" id="card4">
     <div class="success-state">
       <div class="success-icon">&#10003;</div>
-      <h2 style="font-size:21px;margin-bottom:8px;">Saved Successfully!</h2>
-      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Data saved to your Google Sheet.</p>
+      <h2 style="font-size:20px;margin-bottom:7px;">Saved Successfully!</h2>
+      <p style="color:var(--text-muted);font-size:12px;margin-bottom:12px;">Data saved to your Google Sheet.</p>
       <div class="masked-badge" id="maskedDisplay">---- ----</div>
-      <p style="color:var(--text-muted);font-size:12px;">Aadhaar Last 8 Digits</p>
+      <p style="color:var(--text-muted);font-size:11px;">Aadhaar Last 8 Digits</p>
     </div>
-    <button class="btn btn-primary" type="button" style="margin-top:20px;" onclick="resetAll()">&#128260; Verify Another Card</button>
+    <button class="btn btn-primary" type="button" style="margin-top:18px;" onclick="resetAll()">&#128260; Verify Another Card</button>
   </div>
 
 </div>
+
 <script>
 let extractedData = {};
 let isSaving = false;
+let cameraStream = null;
+let activeSide = null; // 'front' or 'back'
 
 // ── LOAD SAVED URL ───────────────────────────────────────────────
 window.addEventListener('load', () => {
@@ -209,266 +260,315 @@ document.getElementById('scriptUrl').addEventListener('input', e => {
   localStorage.setItem('aadhaar_script_url', e.target.value.trim());
 });
 
-// ── STEP NAVIGATION ──────────────────────────────────────────────
-function goToStep(n) {
-  [1,2,3,4].forEach(i => document.getElementById('card'+i).classList.remove('active'));
-  document.getElementById('card'+n).classList.add('active');
-  [1,2,3].forEach(i => {
-    const dot = document.getElementById('step'+i+'dot');
-    dot.classList.remove('active','done');
-    if (i < n)       { dot.classList.add('done');   dot.textContent = '\u2713'; }
-    else if (i === n){ dot.classList.add('active'); dot.textContent = i; }
-    else               dot.textContent = i;
-  });
-  document.getElementById('line1').classList.toggle('done', n > 1);
-  document.getElementById('line2').classList.toggle('done', n > 2);
-  window.scrollTo(0, 0);
+// ── GALLERY FALLBACK inside camera modal ────────────────────────
+document.getElementById('galleryFallback').addEventListener('change', function() {
+  const file = this.files[0];
+  this.value = '';
+  if (file) {
+    closeCamera();
+    const side = activeSide;
+    const map = {
+      front: ['frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext'],
+      back:  ['backPreview','backImg','backScanOverlay','backStatus','backNext']
+    };
+    processFile(file, ...map[side], side);
+  }
+});
+
+// ── GALLERY inputs ───────────────────────────────────────────────
+document.getElementById('frontGallery').addEventListener('change', function() {
+  const f = this.files[0]; this.value = '';
+  if (f) processFile(f,'frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+});
+document.getElementById('backGallery').addEventListener('change', function() {
+  const f = this.files[0]; this.value = '';
+  if (f) processFile(f,'backPreview','backImg','backScanOverlay','backStatus','backNext','back');
+});
+
+// ══════════════════════════════════════════
+// CAMERA VIEWFINDER
+// ══════════════════════════════════════════
+async function openCamera(side) {
+  activeSide = side;
+  const modal = document.getElementById('cameraModal');
+  modal.classList.add('open');
+  document.getElementById('camHintTop').textContent =
+    side === 'front' ? '📷 FRONT — Align Aadhaar card inside the frame'
+                     : '📷 BACK — Align Aadhaar card inside the frame';
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'environment',
+        width:  { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+    document.getElementById('cameraVideo').srcObject = cameraStream;
+  } catch(err) {
+    closeCamera();
+    // Fallback: open gallery
+    const galleryId = side === 'front' ? 'frontGallery' : 'backGallery';
+    document.getElementById(galleryId).click();
+    alert('Camera access denied or not available. Please use Gallery to upload.');
+  }
 }
 
-// ================================================================
-// IMAGE PROCESSING — EXIF rotation + compress + no black bars
-// Fixes: landscape flip, portrait black bars, large file size
-// ================================================================
+function closeCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('cameraVideo').srcObject = null;
+  document.getElementById('cameraModal').classList.remove('open');
+}
 
-// Read EXIF orientation tag from JPEG binary
+function capturePhoto() {
+  const video = document.getElementById('cameraVideo');
+  if (!video.videoWidth) return;
+
+  // Flash effect
+  const flash = document.getElementById('camFlash');
+  flash.classList.add('flash');
+  setTimeout(() => flash.classList.remove('flash'), 150);
+
+  // Get the card frame position to crop exactly the card area
+  const frame = document.getElementById('camFrame');
+  const vRect = video.getBoundingClientRect();
+  const fRect = frame.getBoundingClientRect();
+
+  // Map frame position to actual video pixel coordinates
+  const scaleX = video.videoWidth  / vRect.width;
+  const scaleY = video.videoHeight / vRect.height;
+
+  // Add 5% padding around frame for safety
+  const pad = 0.05;
+  const fx = (fRect.left - vRect.left) * scaleX;
+  const fy = (fRect.top  - vRect.top)  * scaleY;
+  const fw = fRect.width  * scaleX;
+  const fh = fRect.height * scaleY;
+  const px = fx - fw * pad;
+  const py = fy - fh * pad;
+  const pw = fw * (1 + 2 * pad);
+  const ph = fh * (1 + 2 * pad);
+
+  // Target output size for OCR — 900x568 (good balance of quality vs speed)
+  const TARGET_W = 900;
+  const TARGET_H = Math.round(TARGET_W * (ph / pw));
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = TARGET_W;
+  canvas.height = TARGET_H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, TARGET_W, TARGET_H);
+
+  // Draw only the card frame region, scaled to fill canvas
+  ctx.drawImage(video,
+    Math.max(0, px), Math.max(0, py),
+    Math.min(pw, video.videoWidth  - px),
+    Math.min(ph, video.videoHeight - py),
+    0, 0, TARGET_W, TARGET_H
+  );
+
+  let dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+  if (dataUrl.length > 650000) dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+  if (dataUrl.length > 550000) dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+  const base64 = dataUrl.split(',')[1];
+
+  closeCamera();
+
+  // Process the cropped image
+  const side = activeSide;
+  const configs = {
+    front: ['frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext'],
+    back:  ['backPreview','backImg','backScanOverlay','backStatus','backNext']
+  };
+  processBase64(base64, ...configs[side], side);
+}
+
+// ══════════════════════════════════════════
+// IMAGE PROCESSING — for Gallery uploads (EXIF fix + compress)
+// ══════════════════════════════════════════
 function getExifOrientation(buffer) {
   const view = new DataView(buffer);
-  if (view.getUint16(0, false) !== 0xFFD8) return 1; // not JPEG
+  if (view.getUint16(0, false) !== 0xFFD8) return 1;
   const length = view.byteLength;
   let offset = 2;
   while (offset < length) {
     if (view.getUint16(offset, false) === 0xFFE1) {
       offset += 4;
-      if (view.getUint32(offset, false) !== 0x45786966) return 1; // no Exif
+      if (view.getUint32(offset, false) !== 0x45786966) return 1;
       const little = view.getUint16(offset += 6, false) === 0x4949;
       offset += view.getUint32(offset + 4, little);
       const tags = view.getUint16(offset, little);
       offset += 2;
       for (let i = 0; i < tags; i++) {
-        if (view.getUint16(offset + i * 12, little) === 0x0112) {
+        if (view.getUint16(offset + i * 12, little) === 0x0112)
           return view.getUint16(offset + i * 12 + 8, little);
-        }
       }
-    } else if ((view.getUint16(offset, false) & 0xFF00) !== 0xFF00) {
-      break;
-    } else {
-      offset += 2 + view.getUint16(offset + 2, false);
-    }
+    } else if ((view.getUint16(offset, false) & 0xFF00) !== 0xFF00) break;
+    else offset += 2 + view.getUint16(offset + 2, false);
   }
   return 1;
 }
 
-// Apply EXIF rotation to canvas context before drawing
-function applyExifRotation(canvas, ctx, orientation, imgW, imgH) {
-  if (orientation <= 1) return;
-  ctx.save();
-  if (orientation === 2) { ctx.translate(imgW, 0); ctx.scale(-1, 1); }
-  else if (orientation === 3) { ctx.translate(imgW, imgH); ctx.rotate(Math.PI); }
-  else if (orientation === 4) { ctx.translate(0, imgH); ctx.scale(1, -1); }
-  else if (orientation === 5) { ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1); }
-  else if (orientation === 6) { ctx.translate(imgH, 0); ctx.rotate(0.5 * Math.PI); }
-  else if (orientation === 7) { ctx.translate(imgH, imgW); ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1); }
-  else if (orientation === 8) { ctx.translate(0, imgW); ctx.rotate(-0.5 * Math.PI); }
-}
-
-// Main compress function — fixes rotation AND reduces size
 function compressImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const buffer = e.target.result;
       const orientation = getExifOrientation(buffer);
-
-      // Convert buffer to blob URL for Image
       const blob = new Blob([buffer], { type: file.type });
       const url  = URL.createObjectURL(blob);
       const img  = new Image();
-
       img.onload = () => {
         URL.revokeObjectURL(url);
-
-        // Determine output dimensions after EXIF rotation
         const swapped = orientation >= 5 && orientation <= 8;
-        let srcW = img.naturalWidth;
-        let srcH = img.naturalHeight;
-
-        // Target: max 700px on longest side (fast OCR, good quality)
-        const MAX = 700;
+        let srcW = img.naturalWidth, srcH = img.naturalHeight;
+        const MAX = 900;
         let outW, outH;
         if (swapped) {
-          // After rotation, width and height swap
-          outH = srcW > srcH ? MAX : Math.round(srcW * MAX / srcH);
           outW = srcH > srcW ? MAX : Math.round(srcH * MAX / srcW);
+          outH = srcW > srcH ? MAX : Math.round(srcW * MAX / srcH);
         } else {
-          if (srcW >= srcH) {
-            outW = Math.min(srcW, MAX);
-            outH = Math.round(srcH * outW / srcW);
-          } else {
-            outH = Math.min(srcH, MAX);
-            outW = Math.round(srcW * outH / srcH);
-          }
+          if (srcW >= srcH) { outW = Math.min(srcW,MAX); outH = Math.round(srcH*outW/srcW); }
+          else              { outH = Math.min(srcH,MAX); outW = Math.round(srcW*outH/srcH); }
         }
-
         const canvas = document.createElement('canvas');
-        canvas.width  = outW;
-        canvas.height = outH;
+        canvas.width = outW; canvas.height = outH;
         const ctx = canvas.getContext('2d');
-
-        // White background (no black bars)
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, outW, outH);
-
-        // Apply EXIF rotation transform
         ctx.save();
-        if (orientation === 2) {
-          ctx.translate(outW, 0); ctx.scale(-1, 1);
-        } else if (orientation === 3) {
-          ctx.translate(outW, outH); ctx.rotate(Math.PI);
-        } else if (orientation === 4) {
-          ctx.translate(0, outH); ctx.scale(1, -1);
-        } else if (orientation === 5) {
-          ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1);
-        } else if (orientation === 6) {
-          ctx.translate(outW, 0); ctx.rotate(0.5 * Math.PI);
-        } else if (orientation === 7) {
-          ctx.translate(outW, outH); ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1);
-        } else if (orientation === 8) {
-          ctx.translate(0, outH); ctx.rotate(-0.5 * Math.PI);
-        }
-
-        // Draw image into rotated canvas
-        if (swapped) {
-          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, outH, outW);
-        } else {
-          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, outW, outH);
-        }
+        if      (orientation===2){ctx.translate(outW,0);ctx.scale(-1,1);}
+        else if (orientation===3){ctx.translate(outW,outH);ctx.rotate(Math.PI);}
+        else if (orientation===4){ctx.translate(0,outH);ctx.scale(1,-1);}
+        else if (orientation===6){ctx.translate(outW,0);ctx.rotate(0.5*Math.PI);}
+        else if (orientation===8){ctx.translate(0,outH);ctx.rotate(-0.5*Math.PI);}
+        if (swapped) ctx.drawImage(img,0,0,srcW,srcH,0,0,outH,outW);
+        else         ctx.drawImage(img,0,0,srcW,srcH,0,0,outW,outH);
         ctx.restore();
-
-        // Compress: try 0.75 quality, reduce if still too large
-        let dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-        if (dataUrl.length > 600000) dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-        if (dataUrl.length > 500000) dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-
+        let dataUrl = canvas.toDataURL('image/jpeg',0.82);
+        if (dataUrl.length > 650000) dataUrl = canvas.toDataURL('image/jpeg',0.7);
+        if (dataUrl.length > 550000) dataUrl = canvas.toDataURL('image/jpeg',0.6);
         resolve(dataUrl.split(',')[1]);
       };
-
       img.onerror = () => reject(new Error('Image load failed'));
       img.src = url;
     };
     reader.onerror = () => reject(new Error('File read failed'));
-    reader.readAsArrayBuffer(file); // Must use ArrayBuffer to read EXIF
+    reader.readAsArrayBuffer(file);
   });
 }
 
-// ── AADHAAR MASKING ──────────────────────────────────────────────
+// ── MASK ─────────────────────────────────────────────────────────
 function maskAadhaar(raw) {
-  const digits = (raw || '').replace(/\D/g, '');
-  if (digits.length === 12) return digits.slice(4, 8) + ' ' + digits.slice(8);
-  if (digits.length >= 8)   return digits.slice(-8);
+  const d = (raw||'').replace(/\D/g,'');
+  if (d.length===12) return d.slice(4,8)+' '+d.slice(8);
+  if (d.length>=8)   return d.slice(-8);
   return 'Not found';
 }
 
-// ================================================================
-// FETCH WITH MOBILE RETRY
-// "load failed" on mobile = network timeout or CORS preflight issue
-// Fix: use text/plain content-type (skips preflight), add timeout+retry
-// ================================================================
+// ── FETCH WITH RETRY (mobile network fix) ────────────────────────
 async function fetchWithRetry(url, body, attempt) {
-  attempt = attempt || 1;
-  const controller = new AbortController();
-  // 40 second timeout per attempt
-  const timer = setTimeout(() => controller.abort(), 40000);
+  attempt = attempt||1;
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 45000);
   try {
     const res = await fetch(url, {
       method: 'POST',
-      // text/plain avoids CORS preflight OPTIONS request on mobile
       headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
       body: body,
-      signal: controller.signal
+      signal: ctrl.signal
     });
     clearTimeout(timer);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error('HTTP '+res.status);
     const text = await res.text();
     try { return JSON.parse(text); }
-    catch(e) { throw new Error('Invalid response from server'); }
-  } catch (err) {
+    catch(e) { throw new Error('Invalid server response'); }
+  } catch(err) {
     clearTimeout(timer);
-    if (attempt < 2 && (err.name === 'AbortError' || err.message.includes('fetch') || err.message.includes('Load') || err.message.includes('network'))) {
-      // Auto-retry once on network errors
-      await new Promise(r => setTimeout(r, 1500));
-      return fetchWithRetry(url, body, attempt + 1);
+    if (attempt < 2 && (err.name==='AbortError'||/fetch|load|network/i.test(err.message))) {
+      await new Promise(r=>setTimeout(r,2000));
+      return fetchWithRetry(url, body, attempt+1);
     }
-    if (err.name === 'AbortError') throw new Error('Request timed out. Check your internet connection and try again.');
+    if (err.name==='AbortError') throw new Error('Request timed out. Check internet and try again.');
     throw err;
   }
 }
 
-// ── PROCESS FILE ─────────────────────────────────────────────────
-async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    showStatus(statusId, 'Please select a valid image file.', 'error'); return;
-  }
-  showStatus(statusId, '⏳ Processing image...', 'info');
+// ── PROCESS BASE64 (from live camera) ────────────────────────────
+async function processBase64(base64, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  document.getElementById(previewId).style.display = 'block';
+  document.getElementById(imgId).src = 'data:image/jpeg;base64,'+base64;
+  document.getElementById(overlayId).classList.add('active');
+  showStatus(statusId, '🔍 Scanning... please wait (~10 sec)', 'info');
   document.getElementById(nextBtnId).disabled = true;
 
   try {
-    const base64 = await compressImage(file);
-
-    // Show rotated/corrected preview
-    document.getElementById(previewId).style.display = 'block';
-    document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
-    document.getElementById(overlayId).classList.add('active');
-    showStatus(statusId, '🔍 Scanning... this takes ~10 seconds', 'info');
-
     const result = await fetchWithRetry(getScriptUrl(), JSON.stringify({
       action: 'ocr', image: base64, side: side
     }));
-
     document.getElementById(overlayId).classList.remove('active');
-
     if (result.error) {
-      showStatus(statusId, '❌ ' + result.error, 'error');
+      showStatus(statusId, '❌ '+result.error, 'error');
     } else {
       Object.assign(extractedData, result.data);
       showStatus(statusId, '✅ Scanned successfully!', 'success');
       document.getElementById(nextBtnId).disabled = false;
     }
-  } catch (err) {
+  } catch(err) {
     document.getElementById(overlayId).classList.remove('active');
-    showStatus(statusId, '❌ ' + err.message, 'error');
+    showStatus(statusId, '❌ '+err.message, 'error');
   }
 }
 
-// ── FILE INPUT LISTENERS ─────────────────────────────────────────
-function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  const el = document.getElementById(inputId);
-  if (!el) return;
-  el.addEventListener('change', function() {
-    const file = this.files[0];
-    this.value = '';
-    if (file) processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side);
-  });
+// ── PROCESS FILE (from gallery) ──────────────────────────────────
+async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showStatus(statusId, 'Please select a valid image.', 'error'); return;
+  }
+  showStatus(statusId, '⏳ Processing image...', 'info');
+  document.getElementById(nextBtnId).disabled = true;
+  try {
+    const base64 = await compressImage(file);
+    processBase64(base64, previewId, imgId, overlayId, statusId, nextBtnId, side);
+  } catch(err) {
+    showStatus(statusId, '❌ '+err.message, 'error');
+  }
 }
 
-setupInput('frontCamera', 'frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
-setupInput('frontGallery','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
-setupInput('backCamera',  'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
-setupInput('backGallery', 'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
+// ── STEP NAVIGATION ──────────────────────────────────────────────
+function goToStep(n) {
+  [1,2,3,4].forEach(i=>document.getElementById('card'+i).classList.remove('active'));
+  document.getElementById('card'+n).classList.add('active');
+  [1,2,3].forEach(i=>{
+    const dot=document.getElementById('step'+i+'dot');
+    dot.classList.remove('active','done');
+    if(i<n){dot.classList.add('done');dot.textContent='\u2713';}
+    else if(i===n){dot.classList.add('active');dot.textContent=i;}
+    else dot.textContent=i;
+  });
+  document.getElementById('line1').classList.toggle('done',n>1);
+  document.getElementById('line2').classList.toggle('done',n>2);
+  window.scrollTo(0,0);
+}
 
-document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
-document.getElementById('backNext').addEventListener('click', () => { renderResults(); goToStep(3); });
+document.getElementById('frontNext').addEventListener('click',()=>goToStep(2));
+document.getElementById('backNext').addEventListener('click',()=>{renderResults();goToStep(3);});
 
 // ── RENDER STEP 3 ─────────────────────────────────────────────────
 function renderResults() {
   const d = extractedData;
   const relMap = {'S/O':'Son of','D/O':'Daughter of','W/O':'Wife of','C/O':'Care of'};
-  const relationDisplay = d.relation_type_full ||
-    (d.relation_type ? (relMap[d.relation_type.toUpperCase().trim()] || d.relation_type) : '');
-  const masked = maskAadhaar(d.aadhaar_number || '');
+  const rel = d.relation_type_full ||
+    (d.relation_type?(relMap[d.relation_type.toUpperCase().trim()]||d.relation_type):'');
+  const masked = maskAadhaar(d.aadhaar_number||'');
 
   document.getElementById('extractedResults').innerHTML = `
-    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; Auto-filled from Aadhaar. Click any field to correct if needed.</p>
+    <p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">&#9998; Click any field to correct if needed.</p>
     <div class="results-grid">
       <div class="result-item full">
         <div class="result-label">Full Name</div>
@@ -480,15 +580,15 @@ function renderResults() {
       </div>
       <div class="result-item">
         <div class="result-label">Gender</div>
-        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}" placeholder="Male / Female / Transgender"/>
+        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}" placeholder="Male/Female"/>
       </div>
       <div class="result-item full">
         <div class="result-label">Aadhaar Number (Last 8 Digits)</div>
-        <div class="result-value aadhaar" style="padding:8px 0;">${masked}</div>
+        <div class="result-value aadhaar" style="padding:7px 0;">${masked}</div>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Type</div>
-        <input class="edit-field" id="f_relation_type" value="${esc(relationDisplay)}" placeholder="Daughter of / Son of"/>
+        <input class="edit-field" id="f_relation_type" value="${esc(rel)}" placeholder="Son of / Daughter of"/>
       </div>
       <div class="result-item">
         <div class="result-label">Relation Name</div>
@@ -527,43 +627,29 @@ function renderResults() {
   document.getElementById('submitStatus').style.display = 'none';
 }
 
-// ── SAVE TO GOOGLE SHEET — plain named function, never stacks ────
+// ── SAVE ─────────────────────────────────────────────────────────
 async function saveToSheet() {
   if (isSaving) return;
   isSaving = true;
-
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Saving...';
-
-  const masked = maskAadhaar(extractedData.aadhaar_number || '');
-  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-
+  const masked = maskAadhaar(extractedData.aadhaar_number||'');
+  const v = (id)=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
   try {
     const data = await fetchWithRetry(getScriptUrl(), JSON.stringify({
-      action:         'save',
-      name:           getVal('f_name'),
-      dob:            getVal('f_dob'),
-      gender:         getVal('f_gender'),
-      aadhaar_masked: masked,
-      relation_type:  getVal('f_relation_type'),
-      relation_name:  getVal('f_relation_name'),
-      address:        getVal('f_address'),
-      village:        getVal('f_village'),
-      block:          getVal('f_block'),
-      district:       getVal('f_district'),
-      state:          getVal('f_state'),
-      pincode:        getVal('f_pincode')
+      action:'save', name:v('f_name'), dob:v('f_dob'), gender:v('f_gender'),
+      aadhaar_masked:masked, relation_type:v('f_relation_type'),
+      relation_name:v('f_relation_name'), address:v('f_address'),
+      village:v('f_village'), block:v('f_block'), district:v('f_district'),
+      state:v('f_state'), pincode:v('f_pincode')
     }));
-
     if (data.success) {
       document.getElementById('maskedDisplay').textContent = masked;
       goToStep(4);
-    } else {
-      throw new Error(data.error || 'Save failed');
-    }
-  } catch (err) {
-    showStatus('submitStatus', '❌ ' + err.message, 'error');
+    } else throw new Error(data.error||'Save failed');
+  } catch(err) {
+    showStatus('submitStatus','❌ '+err.message,'error');
     btn.disabled = false;
     btn.innerHTML = '&#128190; Save to Google Sheet';
     isSaving = false;
@@ -573,35 +659,29 @@ async function saveToSheet() {
 // ── HELPERS ──────────────────────────────────────────────────────
 function getScriptUrl() {
   const url = document.getElementById('scriptUrl').value.trim();
-  if (!url) throw new Error('Please paste your Apps Script URL in the box at the top.');
+  if (!url) throw new Error('Please paste your Apps Script URL at the top.');
   return url;
 }
 function showStatus(id, msg, type) {
   const el = document.getElementById(id);
-  el.className = 'status-msg ' + type;
+  el.className = 'status-msg '+type;
   el.textContent = msg;
   el.style.display = 'block';
 }
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function resetAll() {
   extractedData = {};
   isSaving = false;
-  ['frontCamera','frontGallery','backCamera','backGallery'].forEach(id => {
-    try { document.getElementById(id).value = ''; } catch(e) {}
+  closeCamera();
+  ['frontGallery','backGallery','galleryFallback'].forEach(id=>{
+    try{document.getElementById(id).value='';}catch(e){}
   });
-  ['frontPreview','backPreview'].forEach(id => {
-    document.getElementById(id).style.display = 'none';
-  });
-  ['frontStatus','backStatus','submitStatus'].forEach(id => {
-    document.getElementById(id).style.display = 'none';
-  });
-  ['frontNext','backNext'].forEach(id => {
-    document.getElementById(id).disabled = true;
-  });
-  document.getElementById('extractedResults').innerHTML = '';
+  ['frontPreview','backPreview'].forEach(id=>document.getElementById(id).style.display='none');
+  ['frontStatus','backStatus','submitStatus'].forEach(id=>document.getElementById(id).style.display='none');
+  ['frontNext','backNext'].forEach(id=>document.getElementById(id).disabled=true);
+  document.getElementById('extractedResults').innerHTML='';
   goToStep(1);
 }
 </script>
