@@ -694,6 +694,19 @@ function handleFile(file, side) {
 // SEND OCR
 // ═══════════════════════════════════════════════════════════════
 function sendOcr(b64, side) {
+  // Always show the preview image first so user sees their photo
+  document.getElementById("prev"+cap(side)).style.display = "block";
+  document.getElementById("img"+cap(side)).src = "data:image/jpeg;base64,"+b64;
+
+  // Guard: URL must be set
+  const scriptUrl = document.getElementById("scriptUrl").value.trim();
+  if (!scriptUrl) {
+    showMsg("msg"+cap(side), "❌ Please paste your Apps Script URL in the box at the top of the page, then tap Retry Scan.", "err");
+    document.getElementById("retry"+cap(side)).classList.add("show");
+    lastB64[side] = b64;
+    return;
+  }
+
   lastB64[side] = b64;
   const prevEl  = document.getElementById("prev"+cap(side));
   const imgEl   = document.getElementById("img"+cap(side));
@@ -703,8 +716,6 @@ function sendOcr(b64, side) {
   const retEl   = document.getElementById("retry"+cap(side));
   const tmEl    = document.getElementById("tm"+cap(side));
 
-  prevEl.style.display = "block";
-  imgEl.src = "data:image/jpeg;base64,"+b64;
   soEl.classList.add("on");
   nxtEl.disabled = true;
   retEl.classList.remove("show");
@@ -714,7 +725,7 @@ function sendOcr(b64, side) {
   let elapsed=0; tmEl.textContent="";
   timers[side] = setInterval(()=>{ elapsed++; tmEl.textContent=elapsed+"s elapsed…"; },1000);
 
-  fetchData(getUrl(), { action:"ocr", image:b64, side:side }, 1)
+  fetchData(scriptUrl, { action:"ocr", image:b64, side:side }, 1)
   .then(result => {
     clearInterval(timers[side]); tmEl.textContent="";
     soEl.classList.remove("on");
