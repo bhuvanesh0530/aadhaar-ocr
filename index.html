@@ -2,956 +2,818 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Aadhaar Data Capture Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Aadhaar Verification Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-/* ── TOKENS ──────────────────────────────────────────────────── */
-:root{
-  --saffron:#FF6B00; --saffron-lt:#FF8C3A; --saffron-glow:rgba(255,107,0,.18);
-  --green:#138808; --navy:#08101E; --navy-card:#111827; --navy-b:#1E2A3A;
-  --text:#E8EDF5; --muted:#7A8BA0; --ok:#22C55E; --err:#EF4444;
-}
-/* ── RESET + BASE ────────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Sora',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 60% 40% at 18% 8%,rgba(255,107,0,.08),transparent 60%),
-             radial-gradient(ellipse 50% 30% at 82% 82%,rgba(19,136,8,.06),transparent 60%);}
-.wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:28px 14px 70px;}
+  :root {
+    --saffron:#FF6B00;--saffron-light:#FF8C3A;--saffron-glow:rgba(255,107,0,0.18);
+    --green:#138808;--navy:#0A0F1E;--navy-card:#111827;--navy-border:#1E2A3A;
+    --text:#E8EDF5;--text-muted:#7A8BA0;--success:#22C55E;--white:#FFFFFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sora',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(255,107,0,0.08) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 80% 80%,rgba(19,136,8,0.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
+  .container{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:40px 20px 60px;}
+  .header{text-align:center;margin-bottom:36px;}
+  .emblem{width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--saffron),#FF9A3C);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 32px var(--saffron-glow),0 8px 24px rgba(0,0,0,0.4);animation:pulse-glow 3s ease-in-out infinite;}
+  @keyframes pulse-glow{0%,100%{box-shadow:0 0 32px var(--saffron-glow),0 8px 24px rgba(0,0,0,0.4);}50%{box-shadow:0 0 56px rgba(255,107,0,0.35),0 8px 24px rgba(0,0,0,0.4);}}
+  .header h1{font-size:clamp(20px,5vw,28px);font-weight:700;background:linear-gradient(90deg,var(--saffron),#FFB347,var(--white));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .tricolor-bar{display:flex;height:3px;width:120px;margin:14px auto 0;border-radius:2px;overflow:hidden;}
+  .tricolor-bar span{flex:1;}
+  .tricolor-bar span:nth-child(1){background:var(--saffron);}
+  .tricolor-bar span:nth-child(2){background:var(--white);}
+  .tricolor-bar span:nth-child(3){background:var(--green);}
+  .steps-wrapper{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;}
+  .steps-row{display:flex;align-items:center;}
+  .step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:2px solid var(--navy-border);background:var(--navy-card);color:var(--text-muted);transition:all 0.3s;}
+  .step-dot.active{border-color:var(--saffron);color:var(--saffron);background:var(--saffron-glow);}
+  .step-dot.done{border-color:var(--success);color:white;background:var(--success);}
+  .step-line{width:48px;height:2px;background:var(--navy-border);transition:background 0.3s;}
+  .step-line.done{background:var(--success);}
+  .config-box{background:rgba(255,107,0,0.04);border:1px dashed rgba(255,107,0,0.3);border-radius:14px;padding:18px;margin-bottom:22px;}
+  .config-box label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;display:block;}
+  .config-box input{width:100%;background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s;}
+  .config-box input:focus{border-color:var(--saffron);}
+  .config-hint{font-size:11px;color:var(--text-muted);margin-top:6px;}
+  .card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;padding:26px;margin-bottom:18px;display:none;}
+  .card.active{display:block;animation:fadeUp 0.4s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .card-title{font-size:17px;font-weight:600;margin-bottom:6px;}
+  .card-sub{font-size:13px;color:var(--text-muted);margin-bottom:18px;}
 
-/* ── HEADER ──────────────────────────────────────────────────── */
-.hdr{text-align:center;margin-bottom:20px;}
-.emblem{width:52px;height:52px;margin:0 auto 10px;background:linear-gradient(135deg,var(--saffron),#FF9A3C);
-  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;
-  box-shadow:0 0 28px var(--saffron-glow);animation:pglow 3s ease-in-out infinite;}
-@keyframes pglow{0%,100%{box-shadow:0 0 28px var(--saffron-glow);}50%{box-shadow:0 0 52px rgba(255,107,0,.32);}}
-.hdr h1{font-size:clamp(15px,4vw,22px);font-weight:700;line-height:1.3;
-  background:linear-gradient(90deg,var(--saffron),#FFB347,#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.tribar{display:flex;height:3px;width:88px;margin:10px auto 0;border-radius:2px;overflow:hidden;}
-.tribar span{flex:1;}
-.tribar span:nth-child(1){background:var(--saffron);}
-.tribar span:nth-child(2){background:#fff;}
-.tribar span:nth-child(3){background:var(--green);}
+  /* ── CAMERA GUIDE BOX ── */
+  .camera-guide{background:rgba(255,107,0,0.06);border:1px solid rgba(255,107,0,0.2);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:8px;}
+  .camera-guide span.icon{font-size:18px;flex-shrink:0;}
 
-/* ── URL CONFIG BOX ──────────────────────────────────────────── */
-.cfg{background:rgba(255,107,0,.04);border:1px dashed rgba(255,107,0,.28);border-radius:12px;padding:13px 14px;margin-bottom:15px;}
-.cfg label{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px;}
-.cfg input{width:100%;background:var(--navy);border:1px solid var(--navy-b);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .2s;}
-.cfg input:focus{border-color:var(--saffron);}
-.cfg-hint{font-size:9px;color:var(--muted);margin-top:4px;}
+  .upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
+  .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;}
+  .btn-camera{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 14px rgba(255,107,0,0.3);}
+  .btn-gallery{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--navy-border);}
+  .btn-camera:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,0,0.4);}
+  .btn-gallery:hover{border-color:var(--saffron);color:var(--saffron);}
 
-/* ── STEP INDICATOR ─────────────────────────────────────────── */
-.steps{display:flex;justify-content:center;margin-bottom:18px;}
-.sdots{display:flex;align-items:center;gap:0;}
-.sdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;border:2px solid var(--navy-b);background:var(--navy-card);color:var(--muted);
-  transition:all .3s;flex-shrink:0;}
-.sdot.active{border-color:var(--saffron);color:var(--saffron);background:rgba(255,107,0,.1);}
-.sdot.done{border-color:var(--ok);color:#fff;background:var(--ok);}
-.sline{width:36px;height:2px;background:var(--navy-b);transition:background .3s;}
-.sline.done{background:var(--ok);}
-.slabels{display:flex;justify-content:space-between;width:172px;margin-top:4px;padding:0 2px;}
-.slabel{font-size:9px;color:var(--muted);text-align:center;width:28px;}
+  /* ── PREVIEW: fill frame, no black bars ── */
+  .preview-container{margin-top:14px;border-radius:10px;overflow:hidden;display:none;position:relative;width:100%;aspect-ratio:16/9;background:#000;}
+  .preview-container img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;}
+  .preview-badge{position:absolute;top:8px;right:8px;background:var(--success);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;z-index:2;}
+  .scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,15,30,0.88);border-radius:10px;flex-direction:column;gap:10px;z-index:5;}
+  .scan-overlay.active{display:flex;}
+  .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:scan 1.5s ease-in-out infinite;box-shadow:0 0 10px var(--saffron);}
+  @keyframes scan{0%{top:10%}50%{top:85%}100%{top:10%}}
+  .scan-text{font-size:12px;color:var(--saffron);font-weight:600;font-family:'JetBrains Mono',monospace;}
 
-/* ── CARD ─────────────────────────────────────────────────────── */
-.card{background:var(--navy-card);border:1px solid var(--navy-b);border-radius:16px;padding:18px;
-  margin-bottom:14px;display:none;}
-.card.on{display:block;animation:fadeUp .38s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.ctitle{font-size:15px;font-weight:700;margin-bottom:4px;}
-.csub{font-size:11px;color:var(--muted);margin-bottom:13px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;width:100%;}
+  .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 18px rgba(255,107,0,0.3);margin-top:16px;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,107,0,0.45);}
+  .btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:transparent;color:var(--text-muted);border:1px solid var(--navy-border);margin-top:10px;}
+  .btn-secondary:hover{border-color:var(--text-muted);color:var(--text);}
+  .status-msg{padding:11px 15px;border-radius:10px;font-size:13px;font-weight:500;margin-top:12px;display:none;}
+  .status-msg.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;}
+  .status-msg.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86EFAC;}
+  .status-msg.info{background:rgba(255,107,0,0.1);border:1px solid rgba(255,107,0,0.3);color:#FED7AA;}
+  .results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .result-item{background:rgba(255,255,255,0.03);border:1px solid var(--navy-border);border-radius:10px;padding:11px 13px;}
+  .result-item.full{grid-column:1/-1;}
+  .result-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+  .result-value.aadhaar{color:var(--saffron);letter-spacing:3px;font-size:18px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .privacy-note{display:flex;align-items:flex-start;gap:10px;background:rgba(19,136,8,0.06);border:1px solid rgba(19,136,8,0.2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-muted);margin-top:16px;}
+  .success-state{text-align:center;padding:16px 0;}
+  .success-icon{width:70px;height:70px;background:linear-gradient(135deg,var(--success),#16A34A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px;box-shadow:0 0 28px rgba(34,197,94,0.3);animation:pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes pop-in{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+  .masked-badge{background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:8px 18px;display:inline-block;font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:3px;color:var(--saffron);margin:10px 0;}
+  .loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .edit-field{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,0,0.25);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;outline:none;transition:border-color 0.2s,background 0.2s;}
+  .edit-field:focus{border-color:var(--saffron);background:rgba(255,107,0,0.07);}
+  .edit-field::placeholder{color:var(--text-muted);font-weight:400;font-size:12px;}
+  @media(max-width:480px){.results-grid{grid-template-columns:1fr;}.result-item.full{grid-column:1;}.card{padding:18px;}.upload-options{grid-template-columns:1fr;}}
 
-/* ── LANGUAGE SELECTOR ──────────────────────────────────────── */
-.lang-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px;}
-.lbtn{padding:6px 13px;border-radius:20px;border:1.5px solid var(--navy-b);background:transparent;
-  color:var(--muted);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
-.lbtn.sel{border-color:var(--saffron);color:var(--saffron);background:rgba(255,107,0,.08);}
-
-/* ── CONSENT BOX ─────────────────────────────────────────────── */
-.cbox{background:rgba(255,255,255,.025);border:1px solid var(--navy-b);border-radius:10px;
-  padding:14px;max-height:260px;overflow-y:auto;font-size:12.5px;line-height:1.75;margin-bottom:13px;}
-.cbox::-webkit-scrollbar{width:4px;}
-.cbox::-webkit-scrollbar-thumb{background:var(--saffron);border-radius:4px;}
-.cbox h3{font-size:13px;font-weight:700;color:var(--saffron);margin-bottom:9px;}
-.cbox p{margin-bottom:7px;}
-.cbox ul{padding-left:18px;margin-bottom:8px;}
-.cbox li{margin-bottom:4px;}
-
-/* ── CHECKBOX ROW ────────────────────────────────────────────── */
-.chkrow{display:flex;align-items:flex-start;gap:10px;background:rgba(255,107,0,.05);
-  border:1px solid rgba(255,107,0,.22);border-radius:10px;padding:11px 12px;cursor:pointer;margin-bottom:12px;}
-.chkrow input[type=checkbox]{width:18px;height:18px;flex-shrink:0;accent-color:var(--saffron);cursor:pointer;margin-top:2px;}
-.chkrow span{font-size:12px;line-height:1.5;}
-
-/* ── SIGNATURE ───────────────────────────────────────────────── */
-.siglbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
-.sigwrap{position:relative;border:2px dashed rgba(255,107,0,.4);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.02);}
-#sigCanvas{display:block;width:100%;height:120px;touch-action:none;cursor:crosshair;}
-.sigclear{position:absolute;top:6px;right:8px;background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.4);
-  color:#FCA5A5;font-size:10px;font-weight:600;padding:3px 10px;border-radius:14px;cursor:pointer;}
-.sighint{font-size:10px;color:var(--muted);margin-top:5px;margin-bottom:11px;}
-
-/* ── CAMERA MODAL ────────────────────────────────────────────── */
-.cammodal{display:none;position:fixed;inset:0;z-index:1000;background:#000;flex-direction:column;}
-.cammodal.open{display:flex;}
-#camVid{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.camov{position:absolute;inset:0;pointer-events:none;}
-.camframe{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88%;max-width:420px;
-  aspect-ratio:1.586/1;border:3px solid var(--saffron);border-radius:12px;
-  box-shadow:0 0 0 9999px rgba(0,0,0,.62);z-index:2;}
-.camframe::before,.camframe::after{content:'';position:absolute;width:22px;height:22px;border-color:#fff;border-style:solid;}
-.camframe::before{top:-3px;left:-3px;border-width:4px 0 0 4px;border-radius:6px 0 0 0;}
-.camframe::after{top:-3px;right:-3px;border-width:4px 4px 0 0;border-radius:0 6px 0 0;}
-.cfbl,.cfbr{position:absolute;width:22px;height:22px;border-color:#fff;border-style:solid;}
-.cfbl{bottom:-3px;left:-3px;border-width:0 0 4px 4px;border-radius:0 0 0 6px;}
-.cfbr{bottom:-3px;right:-3px;border-width:0 4px 4px 0;border-radius:0 0 6px 0;}
-.camscan{position:absolute;left:3px;right:3px;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);
-  animation:camsw 2s ease-in-out infinite;box-shadow:0 0 8px var(--saffron);}
-@keyframes camsw{0%{top:8px;opacity:.7}50%{opacity:1}100%{top:calc(100% - 8px);opacity:.7}}
-.camtop{position:absolute;top:calc(50% - min(88vw,420px)*.63/2 - 36px);left:0;right:0;
-  text-align:center;color:rgba(255,255,255,.85);font-size:11px;z-index:3;padding:0 14px;}
-.cambot{position:absolute;bottom:calc(50% - min(88vw,420px)*.63/2 - 44px);left:0;right:0;
-  text-align:center;color:#fff;font-size:12px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.8);z-index:3;}
-.camctrl{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:18px 24px 34px;
-  display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);}
-.camclose{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);color:#fff;font-size:19px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.camshut{width:66px;height:66px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(255,107,0,.5);}
-.camshut-in{width:48px;height:48px;border-radius:50%;background:var(--saffron);}
-.camflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:20;transition:opacity .05s;}
-.camflash.f{opacity:.9;}
-.camgal{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;line-height:1.2;}
-
-/* ── UPLOAD BUTTONS ─────────────────────────────────────────── */
-.uprow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px;}
-.ubtn{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;border-radius:11px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all .2s;}
-.ubtn-cam{background:linear-gradient(135deg,var(--saffron),var(--saffron-lt));color:#fff;box-shadow:0 4px 14px rgba(255,107,0,.28);}
-.ubtn-gal{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--navy-b);}
-.ubtn-cam:hover{transform:translateY(-1px);}
-.ubtn-gal:hover{border-color:var(--saffron);color:var(--saffron);}
-
-/* ── PREVIEW + SCAN OVERLAY ─────────────────────────────────── */
-.prev{margin-top:12px;border-radius:10px;overflow:hidden;display:none;position:relative;width:100%;aspect-ratio:16/10;background:#111;}
-.prev img{width:100%;height:100%;object-fit:contain;display:block;}
-.pbadge{position:absolute;top:7px;right:7px;background:var(--ok);color:#fff;font-size:10px;font-weight:600;padding:3px 9px;border-radius:18px;z-index:2;}
-.scanow{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(8,16,30,.88);border-radius:10px;flex-direction:column;gap:8px;z-index:5;}
-.scanow.on{display:flex;}
-.scanline{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:scanmove 1.5s ease-in-out infinite;box-shadow:0 0 10px var(--saffron);}
-@keyframes scanmove{0%{top:10%}50%{top:85%}100%{top:10%}}
-.scantxt{font-size:12px;color:var(--saffron);font-weight:600;font-family:'JetBrains Mono',monospace;}
-.scantimer{font-size:10px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
-
-/* ── BUTTONS ─────────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 20px;border-radius:11px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;width:100%;}
-.btn-p{background:linear-gradient(135deg,var(--saffron),var(--saffron-lt));color:#fff;box-shadow:0 4px 16px rgba(255,107,0,.28);margin-top:12px;}
-.btn-p:hover{transform:translateY(-2px);}
-.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none;}
-.btn-s{background:transparent;color:var(--muted);border:1px solid var(--navy-b);margin-top:8px;}
-.btn-r{background:rgba(255,107,0,.1);color:var(--saffron);border:1px solid rgba(255,107,0,.35);margin-top:8px;display:none;}
-.btn-r.show{display:inline-flex;}
-
-/* ── STATUS MESSAGES ─────────────────────────────────────────── */
-.msg{padding:9px 13px;border-radius:9px;font-size:12px;font-weight:500;margin-top:9px;display:none;}
-.msg.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;}
-.msg.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86EFAC;}
-.msg.info{background:rgba(255,107,0,.1);border:1px solid rgba(255,107,0,.3);color:#FED7AA;}
-
-/* ── RESULTS GRID ────────────────────────────────────────────── */
-.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
-.ri{background:rgba(255,255,255,.03);border:1px solid var(--navy-b);border-radius:9px;padding:9px 11px;}
-.ri.full{grid-column:1/-1;}
-.rlbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
-.raanum{color:var(--saffron);letter-spacing:3px;font-size:16px;font-family:'JetBrains Mono',monospace;font-weight:700;padding:4px 0;display:block;}
-.ef{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,107,0,.22);border-radius:7px;padding:6px 9px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;outline:none;transition:border-color .2s,background .2s;}
-.ef:focus{border-color:var(--saffron);background:rgba(255,107,0,.07);}
-.ef::placeholder{color:var(--muted);font-weight:400;font-size:11px;}
-
-/* ── PRIVACY NOTE ────────────────────────────────────────────── */
-.privnote{display:flex;align-items:flex-start;gap:9px;background:rgba(19,136,8,.06);border:1px solid rgba(19,136,8,.2);border-radius:9px;padding:10px 12px;font-size:11px;color:var(--muted);margin-top:12px;}
-
-/* ── SUCCESS ─────────────────────────────────────────────────── */
-.succ{text-align:center;padding:10px 0;}
-.succ-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--ok),#16A34A);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px;box-shadow:0 0 26px rgba(34,197,94,.3);animation:popin .5s cubic-bezier(.34,1.56,.64,1);}
-@keyframes popin{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.aadbadge{background:var(--navy);border:1px solid var(--navy-b);border-radius:8px;padding:6px 14px;display:inline-block;font-family:'JetBrains Mono',monospace;font-size:16px;letter-spacing:3px;color:var(--saffron);margin:7px 0;}
-.loader{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── RESPONSIVE ──────────────────────────────────────────────── */
-@media(max-width:420px){
-  .rgrid{grid-template-columns:1fr;}
-  .ri.full{grid-column:1;}
-  .card{padding:14px;}
-  .uprow{grid-template-columns:1fr 1fr;}
-}
+  /* ── CONSENT CARD ── */
+  .lang-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .lang-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--navy-border);background:transparent;color:var(--text-muted);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+  .lang-btn.active{border-color:var(--saffron);color:var(--saffron);background:var(--saffron-glow);}
+  .consent-scroll{background:rgba(255,255,255,0.03);border:1px solid var(--navy-border);border-radius:10px;padding:14px;max-height:240px;overflow-y:auto;font-size:12.5px;line-height:1.8;margin-bottom:14px;}
+  .consent-scroll::-webkit-scrollbar{width:4px;}
+  .consent-scroll::-webkit-scrollbar-thumb{background:var(--saffron);border-radius:4px;}
+  .consent-scroll h3{font-size:13px;font-weight:700;color:var(--saffron);margin-bottom:8px;}
+  .consent-scroll p{margin-bottom:7px;}
+  .consent-scroll ul{padding-left:18px;margin-bottom:8px;}
+  .consent-scroll li{margin-bottom:4px;}
+  .consent-check-row{display:flex;align-items:flex-start;gap:11px;background:rgba(255,107,0,0.05);border:1px solid rgba(255,107,0,0.2);border-radius:10px;padding:12px 13px;cursor:pointer;margin-bottom:14px;}
+  .consent-check-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;accent-color:var(--saffron);cursor:pointer;margin-top:2px;}
+  .consent-check-row span{font-size:12px;line-height:1.55;}
+  .sig-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;}
+  .sig-wrap{position:relative;border:2px dashed rgba(255,107,0,0.4);border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.02);}
+  #sigCanvas{display:block;width:100%;height:120px;touch-action:none;cursor:crosshair;}
+  .sig-clear-btn{position:absolute;top:7px;right:9px;background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;font-size:10px;font-weight:600;padding:3px 11px;border-radius:14px;cursor:pointer;}
+  .sig-hint{font-size:10px;color:var(--text-muted);margin-top:5px;margin-bottom:12px;}
 </style>
 </head>
 <body>
+<div class="container">
 
-<!-- ══ CAMERA MODAL ════════════════════════════════════════════ -->
-<div class="cammodal" id="camModal">
-  <video id="camVid" autoplay playsinline muted></video>
-  <div class="camov">
-    <div class="camframe" id="camFrame">
-      <div class="cfbl"></div><div class="cfbr"></div>
-      <div class="camscan"></div>
-    </div>
-    <div class="camtop" id="camHintTop">📷 Align Aadhaar card inside the frame</div>
-    <div class="cambot">Keep card flat · Good lighting · Fill the frame</div>
-  </div>
-  <div class="camflash" id="camFlash"></div>
-  <div class="camctrl">
-    <div class="camclose" onclick="closeCamera()">✕</div>
-    <div class="camshut" onclick="capturePhoto()"><div class="camshut-in"></div></div>
-    <label class="camgal" for="galFallback">📁<br>Gallery</label>
-    <input type="file" id="galFallback" accept="image/*" style="display:none"/>
-  </div>
-</div>
-
-<!-- ══ MAIN PAGE ════════════════════════════════════════════════ -->
-<div class="wrap">
-
-  <!-- HEADER -->
-  <div class="hdr">
-    <div class="emblem">🇮🇳</div>
-    <h1>Aadhaar Demographic Data<br>Capture Portal</h1>
-    <div class="tribar"><span></span><span></span><span></span></div>
+  <div class="header">
+    <div class="emblem">&#127470;&#127475;</div>
+    <h1>Aadhaar Verification Portal</h1>
+    <div class="tricolor-bar"><span></span><span></span><span></span></div>
   </div>
 
-  <!-- URL CONFIG -->
-  <div class="cfg">
+  <div class="config-box">
     <label>Apps Script Web App URL</label>
-    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"/>
-    <p class="cfg-hint">Paste your deployed Apps Script URL above.</p>
+    <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"/>
+    <p class="config-hint">Paste your deployed Apps Script URL here.</p>
   </div>
 
-  <!-- STEP DOTS: 0=Consent 1=Front 2=Back 3=Review 4=Success -->
-  <div class="steps">
-    <div>
-      <div class="sdots">
-        <div class="sdot on" id="sd0">1</div>
-        <div class="sline" id="sl0"></div>
-        <div class="sdot" id="sd1">2</div>
-        <div class="sline" id="sl1"></div>
-        <div class="sdot" id="sd2">3</div>
-        <div class="sline" id="sl2"></div>
-        <div class="sdot" id="sd3">4</div>
-      </div>
-      <div class="slabels" style="width:196px;">
-        <div class="slabel">Consent</div>
-        <div class="slabel">Front</div>
-        <div class="slabel">Back</div>
-        <div class="slabel">Review</div>
-      </div>
+  <div class="steps-wrapper">
+    <div class="steps-row">
+      <div class="step-dot active" id="step0dot">1</div>
+      <div class="step-line" id="line0"></div>
+      <div class="step-dot" id="step1dot">2</div>
+      <div class="step-line" id="line1"></div>
+      <div class="step-dot" id="step2dot">3</div>
+      <div class="step-line" id="line2"></div>
+      <div class="step-dot" id="step3dot">4</div>
     </div>
   </div>
 
-  <!-- ══ CARD 0 — CONSENT ══════════════════════════════════════ -->
-  <div class="card on" id="card0">
-    <div class="ctitle">🛡️ Aadhaar Consent Statement</div>
-    <div class="csub">Please read, select your language, and sign before proceeding</div>
-
-    <!-- Language buttons -->
-    <div class="lang-row">
-      <button class="lbtn sel" id="lb-en" onclick="setLang('en')">English</button>
-      <button class="lbtn" id="lb-hi" onclick="setLang('hi')">हिन्दी</button>
-      <button class="lbtn" id="lb-ta" onclick="setLang('ta')">தமிழ்</button>
-      <button class="lbtn" id="lb-ml" onclick="setLang('ml')">മലയാളം</button>
-      <button class="lbtn" id="lb-te" onclick="setLang('te')">తెలుగు</button>
+  <!-- CONSENT CARD -->
+  <div class="card active" id="card0">
+    <div class="card-title">&#128737; Consent Statement</div>
+    <div class="card-sub">Select your language, read carefully, then sign to proceed</div>
+    <div class="lang-selector">
+      <button class="lang-btn active" id="lb-en" onclick="setLang('en')">English</button>
+      <button class="lang-btn" id="lb-hi" onclick="setLang('hi')">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</button>
+      <button class="lang-btn" id="lb-ta" onclick="setLang('ta')">&#2980;&#2990;&#3007;&#2996;&#3021;</button>
+      <button class="lang-btn" id="lb-ml" onclick="setLang('ml')">&#3374;&#3378;&#3375;&#3390;&#3379;&#3330;</button>
+      <button class="lang-btn" id="lb-te" onclick="setLang('te')">&#3108;&#3142;&#3122;&#3137;&#3095;&#3137;</button>
     </div>
-
-    <!-- Scrollable consent text -->
-    <div class="cbox" id="consentBody"></div>
-
-    <!-- Agreement checkbox -->
-    <label class="chkrow">
-      <input type="checkbox" id="agreeChk" onchange="updateConsentBtn()"/>
-      <span id="agreeLabel">I have read and understood the above consent statement and voluntarily agree to provide my Aadhaar details for demographic data capture as described.</span>
+    <div class="consent-scroll" id="consentBody"></div>
+    <label class="consent-check-row">
+      <input type="checkbox" id="consentChk" onchange="updateConsentBtn()"/>
+      <span id="consentChkLabel">I have read and understood the above consent statement and voluntarily agree to provide my Aadhaar details for demographic data capture as described.</span>
     </label>
-
-    <!-- Signature canvas -->
-    <div class="siglbl">✍️ Digital Signature <span style="font-weight:400;color:var(--muted);font-size:9px;">(required)</span></div>
-    <div class="sigwrap">
-      <canvas id="sigCanvas" width="640" height="120"></canvas>
-      <button class="sigclear" onclick="clearSig()">Clear</button>
+    <div class="sig-label">&#9997; Digital Signature (required)</div>
+    <div class="sig-wrap">
+      <canvas id="sigCanvas"></canvas>
+      <button class="sig-clear-btn" onclick="clearSig()">Clear</button>
     </div>
-    <p class="sighint" id="sigHint">Sign above using your finger or mouse to confirm consent</p>
-
-    <div class="msg" id="consentMsg"></div>
-    <button class="btn btn-p" id="consentBtn" disabled onclick="acceptConsent()">
-      ✅ &nbsp;Accept &amp; Proceed to Scan
-    </button>
+    <p class="sig-hint" id="sigHint">Sign above using your finger or mouse to confirm consent</p>
+    <div class="status-msg" id="consentStatus"></div>
+    <button class="btn btn-primary" id="consentBtn" type="button" disabled onclick="doConsent()">&#10003;&nbsp; I Accept &amp; Proceed</button>
   </div>
 
-  <!-- ══ CARD 1 — FRONT ════════════════════════════════════════ -->
+  <!-- STEP 1 -->
   <div class="card" id="card1">
-    <div class="ctitle">📷 Step 2 — Aadhaar Front Side</div>
-    <div class="csub">Name · Date of Birth · Gender · Aadhaar Number</div>
-    <input type="file" id="galFront" accept="image/*" style="display:none"/>
-    <div class="uprow">
-      <button class="ubtn ubtn-cam" onclick="openCamera('front')">📸 Take Photo</button>
-      <button class="ubtn ubtn-gal" onclick="document.getElementById('galFront').click()">🖼 Gallery</button>
+    <div class="card-title">&#128247; Step 1 — Aadhaar Front Side</div>
+    <div class="card-sub">Front contains Name, DOB, Gender and Aadhaar number.</div>
+    <div class="camera-guide">
+      <span class="icon">&#128161;</span>
+      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
     </div>
-    <div class="prev" id="prevFront">
-      <img id="imgFront" src="" alt="Front"/>
-      <div class="pbadge">✓ Captured</div>
-      <div class="scanow" id="soFront">
-        <div class="scanline"></div>
-        <div class="scantxt">Reading Aadhaar...</div>
-        <div class="scantimer" id="tmFront"></div>
+    <input type="file" id="frontCamera" accept="image/*" style="display:none"/>
+    <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
+    <div class="upload-options">
+      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('frontCamera').click()">&#128248; Take Photo</button>
+      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('frontGallery').click()">&#128444; From Gallery</button>
+    </div>
+    <div class="preview-container" id="frontPreview">
+      <img id="frontImg" src="" alt="Front"/>
+      <div class="preview-badge">&#10003; Front</div>
+      <div class="scan-overlay" id="frontScanOverlay">
+        <div class="scan-line"></div>
+        <div class="scan-text">Reading card...</div>
       </div>
     </div>
-    <div class="msg" id="msgFront"></div>
-    <button class="btn btn-r" id="retryFront" onclick="retryOcr('front')">↻ Retry Scan</button>
-    <button class="btn btn-p" id="nextFront" disabled>Continue to Back Side →</button>
+    <div class="status-msg" id="frontStatus"></div>
+    <button class="btn btn-primary" type="button" id="frontNext" disabled>Continue to Back Side &#8594;</button>
   </div>
 
-  <!-- ══ CARD 2 — BACK ════════════════════════════════════════ -->
+  <!-- STEP 2 -->
   <div class="card" id="card2">
-    <div class="ctitle">📋 Step 3 — Aadhaar Back Side</div>
-    <div class="csub">Relation · Full Address · District · State · Pincode</div>
-    <input type="file" id="galBack" accept="image/*" style="display:none"/>
-    <div class="uprow">
-      <button class="ubtn ubtn-cam" onclick="openCamera('back')">📸 Take Photo</button>
-      <button class="ubtn ubtn-gal" onclick="document.getElementById('galBack').click()">🖼 Gallery</button>
+    <div class="card-title">&#128203; Step 2 — Aadhaar Back Side</div>
+    <div class="card-sub">Back contains Relation, Address, District, State and Pincode.</div>
+    <div class="camera-guide">
+      <span class="icon">&#128161;</span>
+      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
     </div>
-    <div class="prev" id="prevBack">
-      <img id="imgBack" src="" alt="Back"/>
-      <div class="pbadge">✓ Captured</div>
-      <div class="scanow" id="soBack">
-        <div class="scanline"></div>
-        <div class="scantxt">Reading Aadhaar...</div>
-        <div class="scantimer" id="tmBack"></div>
+    <input type="file" id="backCamera" accept="image/*" style="display:none"/>
+    <input type="file" id="backGallery" accept="image/*" style="display:none"/>
+    <div class="upload-options">
+      <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('backCamera').click()">&#128248; Take Photo</button>
+      <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('backGallery').click()">&#128444; From Gallery</button>
+    </div>
+    <div class="preview-container" id="backPreview">
+      <img id="backImg" src="" alt="Back"/>
+      <div class="preview-badge">&#10003; Back</div>
+      <div class="scan-overlay" id="backScanOverlay">
+        <div class="scan-line"></div>
+        <div class="scan-text">Reading card...</div>
       </div>
     </div>
-    <div class="msg" id="msgBack"></div>
-    <button class="btn btn-r" id="retryBack" onclick="retryOcr('back')">↻ Retry Scan</button>
-    <button class="btn btn-p" id="nextBack" disabled>Review Extracted Data →</button>
-    <button class="btn btn-s" onclick="goStep(1)">← Back</button>
+    <div class="status-msg" id="backStatus"></div>
+    <button class="btn btn-primary" type="button" id="backNext" disabled>Review Extracted Data &#8594;</button>
+    <button class="btn btn-secondary" type="button" onclick="goToStep(1)">&#8592; Back</button>
   </div>
 
-  <!-- ══ CARD 3 — REVIEW ══════════════════════════════════════ -->
+  <!-- STEP 3 -->
   <div class="card" id="card3">
-    <div class="ctitle">✅ Step 4 — Review &amp; Save</div>
-    <div class="csub">Auto-filled from Aadhaar card. Tap any field to correct if needed.</div>
-    <div id="reviewGrid"></div>
-    <div class="privnote">
-      <span style="font-size:15px;flex-shrink:0;">🛡</span>
-      <span>Card <strong>images are NOT stored</strong>. Only text is saved. Last 8 digits of Aadhaar used as unique identifier as per government guidelines.</span>
+    <div class="card-title">&#10003; Step 3 — Review and Save</div>
+    <div class="card-sub">Auto-filled from Aadhaar. Edit any field only if incorrect.</div>
+    <div id="extractedResults"></div>
+    <div class="privacy-note">
+      <span style="font-size:18px;flex-shrink:0;">&#128737;</span>
+      <span>Aadhaar <strong>images are NOT stored</strong>. Only text data is saved. Last 8 digits of Aadhaar shown.</span>
     </div>
-    <div class="msg" id="msgSave"></div>
-    <button class="btn btn-p" id="saveBtn" onclick="saveToSheet()">💾 Save to Google Sheet</button>
-    <button class="btn btn-s" onclick="resetAll()">↩ Start Over</button>
+    <div class="status-msg" id="submitStatus"></div>
+    <button class="btn btn-primary" type="button" id="submitBtn" onclick="saveToSheet()">&#128190; Save to Google Sheet</button>
+    <button class="btn btn-secondary" type="button" onclick="resetAll()">&#8617; Start Over</button>
   </div>
 
-  <!-- ══ CARD 4 — SUCCESS ═════════════════════════════════════ -->
+  <!-- STEP 4 -->
   <div class="card" id="card4">
-    <div class="succ">
-      <div class="succ-icon">✓</div>
-      <h2 style="font-size:19px;margin-bottom:6px;">Saved Successfully!</h2>
-      <p style="color:var(--muted);font-size:12px;margin-bottom:10px;">Consent recorded · Demographic data saved to Google Sheet</p>
-      <div class="aadbadge" id="maskedOut">---- ----</div>
-      <p style="color:var(--muted);font-size:11px;margin-top:4px;">Aadhaar Unique ID (Last 8 Digits)</p>
+    <div class="success-state">
+      <div class="success-icon">&#10003;</div>
+      <h2 style="font-size:21px;margin-bottom:8px;">Saved Successfully!</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Data saved to your Google Sheet.</p>
+      <div class="masked-badge" id="maskedDisplay">---- ----</div>
+      <p style="color:var(--text-muted);font-size:12px;">Aadhaar Last 8 Digits</p>
     </div>
-    <button class="btn btn-p" style="margin-top:18px;" onclick="resetAll()">🔄 Capture Another Card</button>
+    <button class="btn btn-primary" type="button" style="margin-top:20px;" onclick="resetAll()">&#128260; Verify Another Card</button>
   </div>
 
-</div><!-- /wrap -->
-
+</div>
 <script>
-"use strict";
 
-// ═══════════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════════
-let extracted = {};
-let saving    = false;
-let stream    = null;
-let camSide   = null;
-let lang      = "en";
-let sigDirty  = false;
-let consentTs = "";
+// ════════════════════════════════════════
+// CONSENT STATE
+// ════════════════════════════════════════
+let currentLang = 'en';
+let sigHasMark  = false;
+let sigCtx      = null;
+let sigDrawing  = false;
 
-const lastB64 = { front: null, back: null };
-const timers  = { front: null, back: null };
-
-// ═══════════════════════════════════════════════════════════════
-// CONSENT CONTENT — 5 languages
-// ═══════════════════════════════════════════════════════════════
-const CT = {
-en: {
-  body: `<h3>Aadhaar Consent Statement</h3>
-<p>As per the <strong>Aadhaar (Targeted Delivery of Financial and Other Subsidies, Benefits and Services) Act, 2016</strong> and guidelines issued by the <strong>Unique Identification Authority of India (UIDAI)</strong>, I hereby provide my informed and voluntary consent for collection and use of my Aadhaar-based demographic data.</p>
-<p><strong>I understand and agree to the following:</strong></p>
+const CONSENT_TEXTS = {
+  en: {
+    body: `<h3>Aadhaar Consent Statement</h3>
+<p>As per the <strong>Aadhaar Act, 2016</strong> and <strong>UIDAI</strong> guidelines, I hereby provide my informed and voluntary consent for collection and use of my Aadhaar-based demographic data.</p>
+<p><strong>I understand and agree:</strong></p>
 <ul>
-  <li>My Aadhaar number will <strong>NOT be stored in full</strong>. Only the <strong>last 8 digits</strong> of my Aadhaar number will be retained as a <strong>unique identifier</strong> for this programme's data capture and record-keeping purposes, as permitted under government guidelines.</li>
-  <li>My Aadhaar information (name, date of birth, gender, address) will be collected <strong>solely for demographic data capture</strong> as part of this programme.</li>
-  <li>My Aadhaar details will <strong>NOT be used</strong> for any other purpose, including authentication, financial transactions, or sharing with third parties, without my explicit consent.</li>
-  <li>My Aadhaar card <strong>image will NOT be stored</strong>. Only extracted text data will be recorded.</li>
-  <li>This consent is <strong>entirely voluntary</strong>. If I do not provide consent, the data capture process will not proceed.</li>
-  <li>I have the right to withdraw this consent at any time by contacting the data controller.</li>
+  <li>My Aadhaar number will <strong>NOT be stored in full</strong>. Only the <strong>last 8 digits</strong> will be retained as a unique identifier, as permitted under government guidelines.</li>
+  <li>My Aadhaar information (name, DOB, gender, address) is collected <strong>solely for demographic data capture</strong> for this programme.</li>
+  <li>My details will <strong>NOT be used</strong> for any other purpose — no authentication, financial transactions, or third-party sharing without explicit consent.</li>
+  <li>My Aadhaar card <strong>image will NOT be stored</strong>. Only extracted text is recorded.</li>
+  <li>This consent is <strong>entirely voluntary</strong>. If I do not consent, data capture will not proceed.</li>
+  <li>I may withdraw this consent at any time by contacting the data controller.</li>
 </ul>
-<p>By signing below, I confirm that I have read and understood this statement and voluntarily agree to the terms above.</p>`,
-  check: "I have read and understood the above consent statement and voluntarily agree to provide my Aadhaar details for demographic data capture as described.",
-  sig: "Sign using your finger or mouse to confirm consent"
-},
-hi: {
-  body: `<h3>आधार सहमति वक्तव्य</h3>
-<p><strong>आधार अधिनियम, 2016</strong> और <strong>UIDAI</strong> के दिशा-निर्देशों के अनुसार, मैं अपनी आधार-आधारित जनसांख्यिकीय जानकारी के संग्रह और उपयोग के लिए सूचित एवं स्वैच्छिक सहमति प्रदान करता/करती हूँ।</p>
-<p><strong>मैं निम्नलिखित को समझता/समझती हूँ और सहमत हूँ:</strong></p>
+<p>By signing below I confirm I have read, understood, and voluntarily agree to the above.</p>`,
+    check: 'I have read and understood the above consent statement and voluntarily agree to provide my Aadhaar details for demographic data capture as described.',
+    sig: 'Sign using your finger or mouse to confirm consent'
+  },
+  hi: {
+    body: `<h3>&#2310;&#2343;&#2366;&#2352; &#2360;&#2361;&#2350;&#2340;&#2367; &#2357;&#2325;&#2381;&#2340;&#2357;&#2381;&#2351;</h3>
+<p><strong>&#2310;&#2343;&#2366;&#2352; &#2309;&#2343;&#2367;&#2344;&#2367;&#2351;&#2350;, 2016</strong> &#2324;&#2352; <strong>UIDAI</strong> &#2342;&#2367;&#2358;&#2366;-&#2344;&#2367;&#2352;&#2381;&#2342;&#2375;&#2358;&#2379;&#2306; &#2325;&#2375; &#2309;&#2344;&#2369;&#2360;&#2366;&#2352;, &#2350;&#2376;&#2306; &#2310;&#2343;&#2366;&#2352; &#2310;&#2343;&#2366;&#2352;&#2367;&#2340; &#2332;&#2344;&#2360;&#2366;&#2306;&#2326;&#2381;&#2351;&#2367;&#2325;&#2368; &#2332;&#2366;&#2344;&#2325;&#2366;&#2352;&#2368; &#2325;&#2375; &#2360;&#2306;&#2327;&#2381;&#2352;&#2361; &#2324;&#2352; &#2313;&#2346;&#2351;&#2379;&#2327; &#2325;&#2375; &#2354;&#2367;&#2319; &#2360;&#2381;&#2357;&#2376;&#2331;&#2367;&#2325; &#2360;&#2361;&#2350;&#2340;&#2367; &#2342;&#2375;&#2340;&#2366; / &#2342;&#2375;&#2340;&#2368; &#2361;&#2370;&#2306;&#2404;</p>
 <ul>
-  <li>मेरा आधार नंबर पूर्ण रूप से संग्रहित <strong>नहीं</strong> किया जाएगा। सरकारी दिशा-निर्देशों के अनुसार, केवल मेरे आधार नंबर के <strong>अंतिम 8 अंक</strong> एक <strong>विशिष्ट पहचान</strong> के रूप में रखे जाएंगे।</li>
-  <li>मेरी आधार जानकारी (नाम, जन्म तिथि, लिंग, पता) केवल इस कार्यक्रम के <strong>जनसांख्यिकीय डेटा संग्रह</strong> के लिए उपयोग की जाएगी।</li>
-  <li>मेरी आधार जानकारी किसी <strong>अन्य उद्देश्य</strong> के लिए उपयोग नहीं की जाएगी।</li>
-  <li>मेरे आधार कार्ड की छवि <strong>संग्रहित नहीं</strong> की जाएगी।</li>
-  <li>यह सहमति पूर्णतः <strong>स्वैच्छिक</strong> है। यदि मैं सहमति नहीं देता/देती, तो डेटा संग्रह की प्रक्रिया आगे नहीं बढ़ेगी।</li>
-  <li>मैं किसी भी समय यह सहमति वापस ले सकता/सकती हूँ।</li>
-</ul>
-<p>नीचे हस्ताक्षर करके, मैं पुष्टि करता/करती हूँ कि मैंने यह वक्तव्य पढ़ा, समझा और स्वेच्छा से सहमत हूँ।</p>`,
-  check: "मैंने उपरोक्त सहमति वक्तव्य पढ़ा और समझा है। मैं स्वेच्छा से अपनी आधार जानकारी प्रदान करने के लिए सहमत हूँ।",
-  sig: "सहमति की पुष्टि के लिए नीचे हस्ताक्षर करें"
-},
-ta: {
-  body: `<h3>ஆதார் சம்மத அறிக்கை</h3>
-<p><strong>ஆதார் சட்டம், 2016</strong> மற்றும் <strong>UIDAI</strong> வழிகாட்டுதல்களின்படி, என்னுடைய ஆதார் அடிப்படையிலான புள்ளிவிவரத் தரவை சேகரிக்கவும் பயன்படுத்தவும் நான் தன்னார்வமாக சம்மதம் அளிக்கிறேன்.</p>
-<p><strong>நான் பின்வருவனவற்றை புரிந்துகொண்டு ஒப்புக்கொள்கிறேன்:</strong></p>
+  <li>&#2350;&#2375;&#2352;&#2366; &#2310;&#2343;&#2366;&#2352; &#2344;&#2306;&#2348;&#2352; &#2346;&#2370;&#2352;&#2381;&#2339; &#2352;&#2370;&#2346; &#2360;&#2375; &#2360;&#2306;&#2327;&#2381;&#2352;&#2361;&#2368;&#2340; <strong>&#2344;&#2361;&#2368;&#2306;</strong> &#2361;&#2379;&#2327;&#2366; — &#2325;&#2375;&#2357;&#2354; <strong>&#2309;&#2306;&#2340;&#2367;&#2350; 8 &#2309;&#2306;&#2325;</strong> &#2360;&#2306;&#2327;&#2381;&#2352;&#2361;&#2368;&#2340; &#2361;&#2379;&#2306;&#2327;&#2375;&#2404;</li>
+  <li>&#2350;&#2375;&#2352;&#2368; &#2332;&#2366;&#2344;&#2325;&#2366;&#2352;&#2368; &#2325;&#2375;&#2357;&#2354; <strong>&#2332;&#2344;&#2360;&#2366;&#2306;&#2326;&#2381;&#2351;&#2367;&#2325;&#2368; &#2337;&#2375;&#2335;&#2366;</strong> &#2325;&#2375; &#2354;&#2367;&#2319; &#2313;&#2346;&#2351;&#2379;&#2327; &#2361;&#2379;&#2327;&#2368;&#2404;</li>
+  <li>&#2310;&#2343;&#2366;&#2352; &#2325;&#2366;&#2352;&#2381;&#2337; &#2325;&#2368; &#2331;&#2357;&#2367; <strong>&#2360;&#2306;&#2327;&#2381;&#2352;&#2361;&#2368;&#2340; &#2344;&#2361;&#2368;&#2306;</strong> &#2361;&#2379;&#2327;&#2368;&#2404;</li>
+  <li>&#2351;&#2361; &#2360;&#2361;&#2350;&#2340;&#2367; &#2346;&#2370;&#2352;&#2381;&#2339;&#2340;&#2307; <strong>&#2360;&#2381;&#2357;&#2376;&#2331;&#2367;&#2325;</strong> &#2361;&#2376;&#2404;</li>
+</ul>`,
+    check: '&#2350;&#2376;&#2306;&#2344;&#2375; &#2313;&#2346;&#2352;&#2379;&#2325;&#2381;&#2340; &#2357;&#2325;&#2381;&#2340;&#2357;&#2381;&#2351; &#2346;&#2397;&#2364;&#2366; &#2324;&#2352; &#2360;&#2350;&#2334;&#2366;&#2404; &#2350;&#2376;&#2306; &#2360;&#2381;&#2357;&#2375;&#2332;&#2331;&#2366; &#2360;&#2375; &#2360;&#2361;&#2350;&#2340; &#2361;&#2370;&#2306;&#2404;',
+    sig: '&#2360;&#2361;&#2350;&#2340;&#2367; &#2325;&#2368; &#2346;&#2369;&#2359;&#2381;&#2335;&#2367; &#2325;&#2375; &#2354;&#2367;&#2319; &#2344;&#2368;&#2330;&#2375; &#2361;&#2360;&#2381;&#2340;&#2366;&#2325;&#2381;&#2359;&#2352; &#2325;&#2352;&#2375;&#2306;'
+  },
+  ta: {
+    body: `<h3>&#2986;&#3006;&#2980;&#3006;&#2992;&#3021; &#2970;&#2990;&#3021;&#2990;&#2980; &#2985;&#2993;&#3007;&#2980;&#3021;</h3>
+<p><strong>&#2986;&#3006;&#2980;&#3006;&#2992;&#3021; &#2970;&#2975;&#3021;&#2975;&#2990;&#3021; 2016</strong> &#2990;&#2993;&#3021;&#2993;&#3009;&#2990;&#3021; <strong>UIDAI</strong> &#2997;&#2996;&#3007;&#2965;&#3006;&#2975;&#3021;&#2975;&#2969;&#3021;&#2965;&#2995;&#3021; &#2986;&#3021;&#2986;&#2975;&#3007; &#2980;&#2985;&#3021;&#2985;&#3006;&#2992;&#3021;&#2997;&#2990;&#3006;&#2965; &#2970;&#2990;&#3021;&#2990;&#2980;&#2990;&#3021; &#2985;&#2994;&#3021;&#2965;&#3007;&#2993;&#3015;&#2985;&#3021;.</p>
 <ul>
-  <li>என்னுடைய ஆதார் எண் முழுவதுமாக சேமிக்கப்பட <strong>மாட்டாது</strong>. அரசு வழிகாட்டுதல்களின்படி, கடைசி <strong>8 இலக்கங்கள்</strong> மட்டுமே <strong>தனிப்பட்ட அடையாளமாக</strong> பயன்படுத்தப்படும்.</li>
-  <li>என்னுடைய ஆதார் தகவல்கள் (பெயர், பிறந்த தேதி, பாலினம், முகவரி) <strong>புள்ளிவிவர தரவு சேகரிப்பு</strong> மட்டுமே பயன்படுத்தப்படும்.</li>
-  <li>வேறு எந்த நோக்கத்திற்காகவும் பயன்படுத்தப்பட <strong>மாட்டாது</strong>.</li>
-  <li>என்னுடைய ஆதார் கார்டு படம் <strong>சேமிக்கப்பட மாட்டாது</strong>.</li>
-  <li>இந்த சம்மதம் <strong>தன்னார்வமானது</strong>. சம்மதம் இல்லை என்றால் தரவு சேகரிப்பு தொடராது.</li>
-</ul>
-<p>கீழே கையொப்பமிடுவதன் மூலம் இந்த அறிக்கையை படித்து புரிந்துகொண்டதாகவும், தன்னார்வமாக ஒப்புக்கொள்வதாகவும் உறுதிப்படுத்துகிறேன்.</p>`,
-  check: "மேலே உள்ள சம்மத அறிக்கையை படித்து புரிந்துகொண்டேன். என்னுடைய ஆதார் தகவல்களை வழங்க தன்னார்வமாக சம்மதிக்கிறேன்.",
-  sig: "சம்மதத்தை உறுதிப்படுத்த கீழே கையொப்பமிடுங்கள்"
-},
-ml: {
-  body: `<h3>ആധാർ സമ്മത പ്രസ്താവന</h3>
-<p><strong>ആധാർ ആക്ട്, 2016</strong> ഉം <strong>UIDAI</strong> മാർഗ്ഗനിർദ്ദേശങ്ങളും അനുസരിച്ച്, എന്റെ ആധാർ അടിസ്ഥാനത്തിലുള്ള ജനസംഖ്യാ ഡേറ്റ ശേഖരിക്കാനും ഉപയോഗിക്കാനും ഞാൻ സ്വമേധയാ സമ്മതം നൽകുന്നു.</p>
-<p><strong>ഞാൻ ഇനിപ്പറയുന്നവ മനസ്സിലാക്കുകയും സമ്മതിക്കുകയും ചെയ്യുന്നു:</strong></p>
+  <li>&#2965;&#2975;&#3016;&#2970;&#3007; <strong>8 &#2951;&#2994;&#2965;&#3021;&#2965;&#2969;&#3021;&#2965;&#2995;&#3021;</strong> &#2990;&#2975;&#3021;&#2975;&#3009;&#2990;&#3021; &#2980;&#2985;&#3007;&#2986;&#3021;&#2986;&#2975;&#3021;&#2975; &#2985;&#2990;&#3021;&#2986;&#2992;&#3006;&#2965; &#2986;&#2991;&#2985;&#3021;&#2986;&#2975;&#3009;&#2980;&#3021;&#2980;&#2986;&#3021;&#2986;&#2975;&#3009;&#2990;&#3021;.</li>
+  <li>&#2980;&#2965;&#2997;&#2994;&#3021;&#2965;&#2995;&#3021; <strong>&#2987;&#2996;&#3021; &#2986;&#3007;&#2993;&#2985;&#3021;&#2980; &#2980;&#3006;&#2996;&#3021; &#2970;&#3015;&#2965;&#2992;&#3007;&#2986;&#3021;&#2986;&#3009;&#2965;&#3021;&#2965;&#3009;</strong> &#2990;&#2975;&#3021;&#2975;&#3009;&#2990;&#3021; &#2986;&#2991;&#2985;&#3021;&#2986;&#2975;&#3009;&#2980;&#3021;&#2980;&#2986;&#3021;&#2986;&#2975;&#3009;&#2990;&#3021;.</li>
+  <li>&#2986;&#2975;&#2980;&#3021;&#2980;&#3016;&#2986;&#3021; &#2986;&#2975;&#2990;&#3021; <strong>&#2970;&#3015;&#2990;&#3007;&#2965;&#3021;&#2965;&#2986;&#3021;&#2986;&#2975; &#2990;&#3006;&#2975;&#3021;&#2975;&#3006;&#2980;&#3009;</strong>.</li>
+  <li>&#2951;&#2980;&#3021; &#2980;&#2985;&#3021;&#2985;&#3006;&#2992;&#3021;&#2997;&#2990;&#3006;&#2985;&#2980;&#3009;.</li>
+</ul>`,
+    check: '&#2990;&#3015;&#2994;&#3015; &#2985;&#2993;&#3007;&#2980;&#3021;&#2980;&#3016; &#2986;&#2975;&#3007;&#2980;&#3021;&#2980;&#3009; &#2980;&#2985;&#3021;&#2985;&#3006;&#2992;&#3021;&#2997;&#2990;&#3006;&#2965; &#2970;&#2990;&#3021;&#2990;&#2980;&#3007;&#2965;&#3021;&#2965;&#3007;&#2993;&#3015;&#2985;&#3021;.',
+    sig: '&#2970;&#2990;&#3021;&#2990;&#2980;&#2980;&#3021;&#2980;&#3016; &#2953;&#2993;&#3009;&#2980;&#3007;&#2986;&#3021;&#2986;&#2975;&#3009;&#2980;&#3021;&#2980; &#2965;&#3016;&#2991;&#3011;&#2986;&#3021;&#2986;&#2990;&#3007;&#2975;&#3009;&#2969;&#3021;&#2965;&#2995;&#3021;'
+  },
+  ml: {
+    body: `<h3>&#3310;&#3330;&#3343;&#3366;&#3345;&#3021; &#3366;&#3374;&#3381;&#3374;&#3372; &#3354;&#3374;&#3358;&#3390;&#3357;&#3394;</h3>
+<p><strong>&#3310;&#3330;&#3343;&#3366;&#3345;&#3021; &#3310;&#3334;&#3021;&#3335;&#3330; 2016</strong>, <strong>UIDAI</strong> &#3374;&#3390;&#3326;&#3404;&#3327;&#3394;&#3376;&#3349;&#3389;&#3376;&#3354;&#3349;&#3405; &#3315;&#3351;&#3330; &#3310;&#3330;&#3343;&#3366;&#3345;&#3021; &#3342;&#3330;&#3327;&#3394; &#3358;&#3381;&#3325;&#3330;&#3382;&#3368;&#3391;&#3356;&#3390;&#3344; &#3366;&#3374;&#3381;&#3374;&#3372;&#3330; &#3340;&#3354;&#3381;&#3349;&#3405;&#3344;&#3405;&#3344;&#3405;.</p>
 <ul>
-  <li>സർക്കാർ മാർഗ്ഗനിർദ്ദേശങ്ങൾ പ്രകാരം, എന്റെ ആധാർ നമ്പർ പൂർണ്ണമായി സംഭരിക്കില്ല. <strong>അവസാനത്തെ 8 അക്കങ്കൾ</strong> മാത്രം <strong>അദ്വിതീയ തിരിച്ചറിയൽ</strong> ആയി ഉപയോഗിക്കും.</li>
-  <li>എന്റെ ആധാർ വിവരങ്ങൾ <strong>ജനസംഖ്യാ ഡേറ്റ ശേഖരണത്തിന്</strong> മാത്രം ഉപയോഗിക്കും.</li>
-  <li>മറ്റ് ആവശ്യങ്ങൾക്ക് ഉപയോഗിക്കില്ല.</li>
-  <li>ആധാർ കാർഡ് ചിത്രം <strong>സംഭരിക്കില്ല</strong>.</li>
-  <li>ഈ സമ്മതം <strong>സ്വമേധയാ</strong> ഉള്ളതാണ്. സമ്മതം ഇല്ലെങ്കിൽ ഡേറ്റ ശേഖരണം തുടരില്ല.</li>
-</ul>
-<p>ചുവടെ ഒപ്പിടുന്നതിലൂടെ ഈ പ്രസ്താവന വായിച്ച് മനസ്സിലാക്കിയെന്നും സ്വമേധയാ സമ്മതിക്കുന്നെന്നും സ്ഥിരീകരിക്കുന്നു.</p>`,
-  check: "മേൽ പ്രസ്താവന വായിച്ച് മനസ്സിലാക്കി. ആധാർ വിവരങ്ങൾ നൽകാൻ സ്വമേധയാ സമ്മതിക്കുന്നു.",
-  sig: "സമ്മതം ഉറപ്പിക്കാൻ ചുവടെ ഒപ്പിടുക"
-},
-te: {
-  body: `<h3>ఆధార్ సమ్మతి వాఙ్మూలం</h3>
-<p><strong>ఆధార్ చట్టం, 2016</strong> మరియు <strong>UIDAI</strong> మార్గదర్శకాల ప్రకారం, నా ఆధార్ ఆధారిత జనాభా డేటాను సేకరించడానికి మరియు ఉపయోగించడానికి నేను స్వచ్ఛందంగా సమ్మతిస్తున్నాను.</p>
-<p><strong>నేను క్రింది విషయాలను అర్థం చేసుకుని అంగీకరిస్తున్నాను:</strong></p>
+  <li>&#3321;&#3330;&#3352;&#3381;&#3352;&#3375;&#3351;&#3381;&#3351; <strong>8 &#3330;&#3325;&#3325;&#3366;&#3345;&#3021;</strong> &#3358;&#3390;&#3350;&#3376;&#3326;&#3404;&#3344; &#3340;&#3354;&#3381;&#3349;&#3405;&#3344;&#3405;.</li>
+  <li>&#3310;&#3330;&#3343;&#3366;&#3345;&#3021; &#3357;&#3391;&#3357;&#3330;&#3354;&#3330;&#3382;&#3365;&#3381; <strong>&#3332;&#3330;&#3357;&#3394;&#3350;&#3376;&#3330;&#3349;&#3400;&#3351;&#3321;&#3325;&#3405;</strong> &#3358;&#3381;&#3325;&#3330;&#3382;&#3368;&#3391;&#3356;&#3390;&#3344; &#3340;&#3354;&#3381;&#3349;&#3405;&#3344;&#3405;.</li>
+  <li>&#3325;&#3390;&#3326;&#3404;&#3376;&#3349;&#3405; <strong>&#3358;&#3381;&#3325;&#3330;&#3382;&#3368;&#3391;&#3356;&#3390;&#3344; &#3340;&#3354;&#3381;&#3349;&#3405;&#3344;&#3405;</strong>.</li>
+  <li>&#3311;&#3376;&#3349;&#3405; &#3366;&#3374;&#3381;&#3374;&#3372;&#3330; <strong>&#3358;&#3381;&#3357;&#3381;&#3332;&#3330;&#3343;&#3367;&#3405;</strong>.</li>
+</ul>`,
+    check: '&#3347;&#3349;&#3381; &#3354;&#3374;&#3358;&#3390;&#3357;&#3394; &#3357;&#3390;&#3351;&#3367;&#3374;&#3405; &#3349;&#3376;&#3349;&#3405;&#3350;&#3391;&#3344;&#3349;&#3405;. &#3310;&#3330;&#3343;&#3366;&#3345;&#3021; &#3357;&#3391;&#3357;&#3330;&#3354;&#3330;&#3382;&#3365;&#3381; &#3366;&#3374;&#3381;&#3374;&#3372;&#3391;&#3325;&#3405;&#3344;&#3405;.',
+    sig: '&#3366;&#3374;&#3381;&#3374;&#3372;&#3330; &#3340;&#3325;&#3381;&#3325;&#3390;&#3357;&#3330;&#3325;&#3381;&#3325;&#3330;&#3344;&#3405; &#3340;&#3354;&#3381;&#3349;&#3405;&#3344;&#3405;'
+  },
+  te: {
+    body: `<h3>&#3078;&#3128;&#3149;&#3099;&#3128;&#3149;&#3120;&#3149; &#3128;&#3121;&#3149;&#3121;&#3108;&#3135; &#3125;&#3134;&#3100;&#3149;&#3134;&#3116;&#3147;&#3122;&#3135;</h3>
+<p><strong>&#3078;&#3128;&#3149;&#3099;&#3128;&#3149;&#3120;&#3149; &#3098;&#3111;&#3149;&#3091;&#3149;&#3108;&#3130;&#3091;&#3149; 2016</strong> &#3108;&#3147;&#3118;&#3147; <strong>UIDAI</strong> &#3116;&#3134;&#3120;&#3149;&#3095;&#3134;&#3105;&#3128;&#3149; &#3128;&#3147;&#3093;&#3147;&#3108;&#3149;&#3108;&#3149; &#3128;&#3121;&#3149;&#3121;&#3108;&#3135;&#3128;&#3149;&#3108;&#3134;&#3116;&#3149;.</p>
 <ul>
-  <li>ప్రభుత్వ మార్గదర్శకాల ప్రకారం నా ఆధార్ నంబర్ పూర్తిగా నిల్వ చేయబడదు. <strong>చివరి 8 అంకెలు</strong> మాత్రమే <strong>ప్రత్యేక గుర్తింపుగా</strong> ఉపయోగించబడతాయి.</li>
-  <li>నా ఆధార్ సమాచారం <strong>జనాభా డేటా సేకరణకు</strong> మాత్రమే ఉపయోగించబడుతుంది.</li>
-  <li>ఇతర ప్రయోజనాలకు ఉపయోగించబడదు.</li>
-  <li>ఆధార్ కార్డు చిత్రం <strong>నిల్వ చేయబడదు</strong>.</li>
-  <li>ఈ సమ్మతి <strong>స్వచ్ఛందం</strong>. సమ్మతి ఇవ్వకపోతే డేటా సేకరణ కొనసాగదు.</li>
-</ul>
-<p>క్రింద సంతకం చేయడం ద్వారా ఈ వాఙ్మూలాన్ని చదివి అర్థం చేసుకున్నట్లు మరియు స్వచ్ఛందంగా అంగీకరిస్తున్నట్లు నిర్ధారిస్తున్నాను.</p>`,
-  check: "పై సమ్మతి వాఙ్మూలాన్ని చదివి అర్థం చేసుకున్నాను. నా ఆధార్ వివరాలు అందించడానికి స్వచ్ఛందంగా అంగీకరిస్తున్నాను.",
-  sig: "సమ్మతిని నిర్ధారించడానికి క్రింద సంతకం చేయండి"
-}
+  <li>&#3098;&#3147;&#3125;&#3134;&#3091;&#3149; 8 &#3078;&#3093;&#3149;&#3093;&#3143;&#3124;&#3149; &#3105;&#3122;&#3135;&#3116;&#3134;&#3128;&#3149; &#3134;&#3125;&#3109;&#3108;&#3135; &#3116;&#3134;&#3120;&#3149;&#3095;&#3149; &#3128;&#3147;&#3093;&#3147;&#3108;&#3149;&#3108;&#3149;.</li>
+  <li>&#3078;&#3128;&#3149;&#3099;&#3128;&#3149;&#3120;&#3149; &#3125;&#3135;&#3125;&#3120;&#3134;&#3108;&#3134;&#3124;&#3149; <strong>&#3132;&#3093;&#3116;&#3149;&#3108;&#3134;&#3116;&#3149; &#3078;&#3108;&#3134;&#3117; &#3128;&#3135;&#3098;&#3143;&#3120;&#3149;</strong> &#3128;&#3147;&#3093;&#3147;&#3108;&#3149;&#3108;&#3149;.</li>
+  <li>&#3095;&#3136;&#3121;&#3149; &#3128;&#3147;&#3093;&#3147;&#3108;&#3149;&#3108;&#3149; &#3095;&#3136;&#3121;&#3149;.</li>
+  <li>&#3011;&#3125;&#3135; &#3128;&#3121;&#3149;&#3121;&#3108;&#3135; &#3128;&#3149;&#3125;&#3099;&#3083;&#3149;&#3091;&#3134;&#3116;&#3149;.</li>
+</ul>`,
+    check: '&#3134;&#3125;&#3134;&#3091;&#3149; &#3125;&#3134;&#3100;&#3149;&#3134;&#3116;&#3147;&#3122;&#3135;&#3116;&#3149; &#3128;&#3121;&#3149;&#3121;&#3108;&#3135;&#3128;&#3149;&#3108;&#3134;&#3116;&#3149;.',
+    sig: '&#3128;&#3121;&#3149;&#3121;&#3108;&#3135; &#3116;&#3135;&#3120;&#3149;&#3116;&#3149;&#3120;&#3149;&#3095;&#3134;&#3124;&#3149; &#3128;&#3093;&#3149;&#3108;&#3149;&#3093;&#3134;&#3128;&#3149;&#3108;&#3149;&#3108;&#3149;'
+  }
 };
-const LANG_NAMES = { en:"English", hi:"Hindi", ta:"Tamil", ml:"Malayalam", te:"Telugu" };
+const LANG_NAMES = {en:'English',hi:'Hindi',ta:'Tamil',ml:'Malayalam',te:'Telugu'};
 
-// ═══════════════════════════════════════════════════════════════
-// SIGNATURE CANVAS
-// ═══════════════════════════════════════════════════════════════
-let sigCtx, sigDrawing = false;
-
-function initSig() {
-  const canvas = document.getElementById("sigCanvas");
-  const dpr    = window.devicePixelRatio || 1;
-  const w      = canvas.clientWidth  || 320;
-  canvas.width  = w * dpr;
-  canvas.height = 120 * dpr;
-  sigCtx = canvas.getContext("2d");
-  sigCtx.scale(dpr, dpr);
-  sigCtx.strokeStyle = "#FF6B00";
-  sigCtx.lineWidth   = 2.5;
-  sigCtx.lineCap     = "round";
-  sigCtx.lineJoin    = "round";
-
-  const pt = e => {
-    const r = canvas.getBoundingClientRect();
-    const s = e.touches ? e.touches[0] : e;
-    return [s.clientX - r.left, s.clientY - r.top];
-  };
-
-  canvas.addEventListener("mousedown",  e => { sigDrawing=true; sigCtx.beginPath(); const[x,y]=pt(e); sigCtx.moveTo(x,y); });
-  canvas.addEventListener("mousemove",  e => { if(!sigDrawing)return; const[x,y]=pt(e); sigCtx.lineTo(x,y); sigCtx.stroke(); sigDirty=true; updateConsentBtn(); });
-  canvas.addEventListener("mouseup",    ()=> sigDrawing=false);
-  canvas.addEventListener("mouseleave", ()=> sigDrawing=false);
-  canvas.addEventListener("touchstart", e => { e.preventDefault(); sigDrawing=true; sigCtx.beginPath(); const[x,y]=pt(e); sigCtx.moveTo(x,y); }, {passive:false});
-  canvas.addEventListener("touchmove",  e => { e.preventDefault(); if(!sigDrawing)return; const[x,y]=pt(e); sigCtx.lineTo(x,y); sigCtx.stroke(); sigDirty=true; updateConsentBtn(); }, {passive:false});
-  canvas.addEventListener("touchend",   ()=> sigDrawing=false);
-}
-
-function clearSig() {
-  sigCtx.clearRect(0, 0, 9999, 9999);
-  sigDirty = false;
-  updateConsentBtn();
-}
-
-// ═══════════════════════════════════════════════════════════════
-// LANGUAGE + CONSENT LOGIC
-// ═══════════════════════════════════════════════════════════════
 function setLang(l) {
-  lang = l;
-  document.querySelectorAll(".lbtn").forEach(b => b.classList.remove("sel"));
-  document.getElementById("lb-"+l).classList.add("sel");
-  const c = CT[l];
-  document.getElementById("consentBody").innerHTML = c.body;
-  document.getElementById("agreeLabel").textContent = c.check;
-  document.getElementById("sigHint").textContent    = c.sig;
-  document.getElementById("agreeChk").checked = false;
+  currentLang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('lb-'+l).classList.add('active');
+  const c = CONSENT_TEXTS[l];
+  document.getElementById('consentBody').innerHTML    = c.body;
+  document.getElementById('consentChkLabel').innerHTML = c.check;
+  document.getElementById('sigHint').textContent      = c.sig;
+  document.getElementById('consentChk').checked = false;
   updateConsentBtn();
 }
 
 function updateConsentBtn() {
-  const ok = document.getElementById("agreeChk").checked && sigDirty;
-  document.getElementById("consentBtn").disabled = !ok;
+  const ok = document.getElementById('consentChk').checked && sigHasMark;
+  document.getElementById('consentBtn').disabled = !ok;
 }
 
-function acceptConsent() {
-  if (!document.getElementById("agreeChk").checked || !sigDirty) {
-    showMsg("consentMsg","Please check the agreement box AND provide your signature.","err");
+function initSig() {
+  const canvas = document.getElementById('sigCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const w   = canvas.parentElement.offsetWidth || 300;
+  canvas.width  = w * dpr;
+  canvas.height = 120 * dpr;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = '120px';
+  sigCtx = canvas.getContext('2d');
+  sigCtx.scale(dpr, dpr);
+  sigCtx.strokeStyle = '#FF6B00';
+  sigCtx.lineWidth   = 2.5;
+  sigCtx.lineCap     = 'round';
+  sigCtx.lineJoin    = 'round';
+  const pos = e => {
+    const r = canvas.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return [s.clientX - r.left, s.clientY - r.top];
+  };
+  canvas.addEventListener('mousedown',  e => { sigDrawing=true; sigCtx.beginPath(); const[x,y]=pos(e); sigCtx.moveTo(x,y); });
+  canvas.addEventListener('mousemove',  e => { if(!sigDrawing)return; const[x,y]=pos(e); sigCtx.lineTo(x,y); sigCtx.stroke(); sigHasMark=true; updateConsentBtn(); });
+  canvas.addEventListener('mouseup',    () => sigDrawing=false);
+  canvas.addEventListener('mouseleave', () => sigDrawing=false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing=true; sigCtx.beginPath(); const[x,y]=pos(e); sigCtx.moveTo(x,y); }, {passive:false});
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!sigDrawing)return; const[x,y]=pos(e); sigCtx.lineTo(x,y); sigCtx.stroke(); sigHasMark=true; updateConsentBtn(); }, {passive:false});
+  canvas.addEventListener('touchend',   () => sigDrawing=false);
+}
+
+function clearSig() {
+  if (sigCtx) sigCtx.clearRect(0, 0, 9999, 9999);
+  sigHasMark = false;
+  updateConsentBtn();
+}
+
+function doConsent() {
+  if (!document.getElementById('consentChk').checked || !sigHasMark) {
+    const el = document.getElementById('consentStatus');
+    el.className = 'status-msg error'; el.textContent = 'Please tick the checkbox AND sign above.'; el.style.display='block';
     return;
   }
-  consentTs = new Date().toLocaleString("en-IN");
-  // Fire-and-forget consent log (don't block UI)
-  const url = document.getElementById("scriptUrl").value.trim();
+  // Fire-and-forget consent log
+  const url = document.getElementById('scriptUrl').value.trim();
   if (url) {
-    fetchData(url, { action:"consent", language:LANG_NAMES[lang], consented:true,
-      useragent: navigator.userAgent.substring(0,200) }, 1).catch(()=>{});
+    fetchWithRetry(url, JSON.stringify({
+      action:'consent', language:LANG_NAMES[currentLang]||currentLang,
+      consented:true, useragent:navigator.userAgent.substring(0,200)
+    }), 1).catch(()=>{});
   }
-  goStep(1);
+  goToStep(1);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// URL PERSISTENCE
-// ═══════════════════════════════════════════════════════════════
-window.addEventListener("load", () => {
-  const s = localStorage.getItem("aadhaar_url");
-  if (s) document.getElementById("scriptUrl").value = s;
-  setLang("en");
+let extractedData = {};
+let isSaving = false;
+
+// ── LOAD SAVED URL ───────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('aadhaar_script_url');
+  if (saved) document.getElementById('scriptUrl').value = saved;
+  setLang('en');
   initSig();
 });
-document.getElementById("scriptUrl").addEventListener("input", e =>
-  localStorage.setItem("aadhaar_url", e.target.value.trim())
-);
-
-// ═══════════════════════════════════════════════════════════════
-// FILE INPUTS
-// ═══════════════════════════════════════════════════════════════
-document.getElementById("galFallback").addEventListener("change", function() {
-  const f = this.files[0]; this.value = "";
-  if (f) { closeCamera(); handleFile(f, camSide); }
-});
-document.getElementById("galFront").addEventListener("change", function() {
-  const f = this.files[0]; this.value = ""; if (f) handleFile(f, "front");
-});
-document.getElementById("galBack").addEventListener("change", function() {
-  const f = this.files[0]; this.value = ""; if (f) handleFile(f, "back");
+document.getElementById('scriptUrl').addEventListener('input', e => {
+  localStorage.setItem('aadhaar_script_url', e.target.value.trim());
 });
 
-// ═══════════════════════════════════════════════════════════════
-// CAMERA
-// ═══════════════════════════════════════════════════════════════
-async function openCamera(side) {
-  camSide = side;
-  document.getElementById("camModal").classList.add("open");
-  document.getElementById("camHintTop").textContent =
-    side === "front" ? "📷 FRONT — align Aadhaar card in the frame"
-                     : "📷 BACK  — align Aadhaar card in the frame";
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode:"environment", width:{ideal:1920}, height:{ideal:1080} }, audio:false
-    });
-    document.getElementById("camVid").srcObject = stream;
-  } catch {
-    closeCamera();
-    document.getElementById(side==="front" ? "galFront" : "galBack").click();
-    alert("Camera unavailable — please use Gallery.");
-  }
+// ── STEP NAVIGATION ──────────────────────────────────────────────
+function goToStep(n) {
+  // Cards: 0=consent, 1=front, 2=back, 3=review, 4=success
+  [0,1,2,3,4].forEach(i => document.getElementById('card'+i).classList.remove('active'));
+  document.getElementById('card'+n).classList.add('active');
+  // Dots 0-3 represent Consent/Front/Back/Review
+  [0,1,2,3].forEach(i => {
+    const dot = document.getElementById('step'+i+'dot');
+    dot.classList.remove('active','done');
+    if (i < n)       { dot.classList.add('done');   dot.textContent = '\u2713'; }
+    else if (i === n){ dot.classList.add('active'); dot.textContent = i+1; }
+    else               dot.textContent = i+1;
+  });
+  if (document.getElementById('line0')) document.getElementById('line0').classList.toggle('done', n > 0);
+  document.getElementById('line1').classList.toggle('done', n > 1);
+  document.getElementById('line2').classList.toggle('done', n > 2);
+  window.scrollTo(0, 0);
 }
 
-function closeCamera() {
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  document.getElementById("camVid").srcObject = null;
-  document.getElementById("camModal").classList.remove("open");
-}
+// ================================================================
+// IMAGE PROCESSING — EXIF rotation + compress + no black bars
+// Fixes: landscape flip, portrait black bars, large file size
+// ================================================================
 
-function capturePhoto() {
-  const vid = document.getElementById("camVid");
-  if (!vid.videoWidth) return;
-
-  const flash = document.getElementById("camFlash");
-  flash.classList.add("f"); setTimeout(()=>flash.classList.remove("f"), 150);
-
-  // Crop precisely to the card frame + 5% padding
-  const frame = document.getElementById("camFrame");
-  const vr = vid.getBoundingClientRect(), fr = frame.getBoundingClientRect();
-  const sx = vid.videoWidth / vr.width, sy = vid.videoHeight / vr.height;
-  const pad = 0.05;
-  const fx = (fr.left-vr.left)*sx, fy = (fr.top-vr.top)*sy;
-  const fw = fr.width*sx, fh = fr.height*sy;
-  const px = fx-fw*pad, py = fy-fh*pad, pw = fw*(1+2*pad), ph = fh*(1+2*pad);
-
-  const TW = 900, TH = Math.round(TW*ph/pw);
-  const cv = document.createElement("canvas"); cv.width=TW; cv.height=TH;
-  const ctx = cv.getContext("2d");
-  ctx.fillStyle="#fff"; ctx.fillRect(0,0,TW,TH);
-  ctx.drawImage(vid, Math.max(0,px), Math.max(0,py),
-    Math.min(pw, vid.videoWidth-px), Math.min(ph, vid.videoHeight-py), 0, 0, TW, TH);
-
-  let du = cv.toDataURL("image/jpeg", 0.83);
-  if (du.length>650000) du = cv.toDataURL("image/jpeg", 0.72);
-  if (du.length>550000) du = cv.toDataURL("image/jpeg", 0.62);
-
-  const side = camSide; closeCamera();
-  sendOcr(du.split(",")[1], side);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// EXIF ORIENTATION + IMAGE COMPRESS
-// ═══════════════════════════════════════════════════════════════
-function readExifOrient(buf) {
-  const v = new DataView(buf);
-  if (v.getUint16(0,false) !== 0xFFD8) return 1;
-  let o = 2;
-  while (o < v.byteLength) {
-    if (v.getUint16(o,false) === 0xFFE1) {
-      o+=4; if (v.getUint32(o,false) !== 0x45786966) return 1;
-      const li = v.getUint16(o+=6,false)===0x4949;
-      o += v.getUint32(o+4,li);
-      const tags = v.getUint16(o,li); o+=2;
-      for (let i=0;i<tags;i++)
-        if (v.getUint16(o+i*12,li)===0x0112) return v.getUint16(o+i*12+8,li);
-    } else if ((v.getUint16(o,false)&0xFF00)!==0xFF00) break;
-    else o += 2+v.getUint16(o+2,false);
+// Read EXIF orientation tag from JPEG binary
+function getExifOrientation(buffer) {
+  const view = new DataView(buffer);
+  if (view.getUint16(0, false) !== 0xFFD8) return 1; // not JPEG
+  const length = view.byteLength;
+  let offset = 2;
+  while (offset < length) {
+    if (view.getUint16(offset, false) === 0xFFE1) {
+      offset += 4;
+      if (view.getUint32(offset, false) !== 0x45786966) return 1; // no Exif
+      const little = view.getUint16(offset += 6, false) === 0x4949;
+      offset += view.getUint32(offset + 4, little);
+      const tags = view.getUint16(offset, little);
+      offset += 2;
+      for (let i = 0; i < tags; i++) {
+        if (view.getUint16(offset + i * 12, little) === 0x0112) {
+          return view.getUint16(offset + i * 12 + 8, little);
+        }
+      }
+    } else if ((view.getUint16(offset, false) & 0xFF00) !== 0xFF00) {
+      break;
+    } else {
+      offset += 2 + view.getUint16(offset + 2, false);
+    }
   }
   return 1;
 }
 
-function compress(file) {
-  return new Promise((res,rej) => {
-    const rd = new FileReader();
-    rd.onload = e => {
-      const buf = e.target.result, orient = readExifOrient(buf);
-      const url = URL.createObjectURL(new Blob([buf],{type:file.type}));
-      const img = new Image();
+// Apply EXIF rotation to canvas context before drawing
+function applyExifRotation(canvas, ctx, orientation, imgW, imgH) {
+  if (orientation <= 1) return;
+  ctx.save();
+  if (orientation === 2) { ctx.translate(imgW, 0); ctx.scale(-1, 1); }
+  else if (orientation === 3) { ctx.translate(imgW, imgH); ctx.rotate(Math.PI); }
+  else if (orientation === 4) { ctx.translate(0, imgH); ctx.scale(1, -1); }
+  else if (orientation === 5) { ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1); }
+  else if (orientation === 6) { ctx.translate(imgH, 0); ctx.rotate(0.5 * Math.PI); }
+  else if (orientation === 7) { ctx.translate(imgH, imgW); ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1); }
+  else if (orientation === 8) { ctx.translate(0, imgW); ctx.rotate(-0.5 * Math.PI); }
+}
+
+// Main compress function — fixes rotation AND reduces size
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const buffer = e.target.result;
+      const orientation = getExifOrientation(buffer);
+
+      // Convert buffer to blob URL for Image
+      const blob = new Blob([buffer], { type: file.type || 'image/jpeg' });
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+
       img.onload = () => {
         URL.revokeObjectURL(url);
-        const sw = orient>=5 && orient<=8;
-        const MAX=900, srcW=img.naturalWidth, srcH=img.naturalHeight;
+
+        // Determine output dimensions after EXIF rotation
+        const swapped = orientation >= 5 && orientation <= 8;
+        let srcW = img.naturalWidth;
+        let srcH = img.naturalHeight;
+
+        // Target: max 700px on longest side (fast OCR, good quality)
+        const MAX = 700;
         let outW, outH;
-        if (sw) {
-          outW = srcH>srcW ? MAX : Math.round(srcH*MAX/srcW);
-          outH = srcW>srcH ? MAX : Math.round(srcW*MAX/srcH);
+        if (swapped) {
+          // After rotation, width and height swap
+          outH = srcW > srcH ? MAX : Math.round(srcW * MAX / srcH);
+          outW = srcH > srcW ? MAX : Math.round(srcH * MAX / srcW);
         } else {
-          if (srcW>=srcH){outW=Math.min(srcW,MAX);outH=Math.round(srcH*outW/srcW);}
-          else            {outH=Math.min(srcH,MAX);outW=Math.round(srcW*outH/srcH);}
+          if (srcW >= srcH) {
+            outW = Math.min(srcW, MAX);
+            outH = Math.round(srcH * outW / srcW);
+          } else {
+            outH = Math.min(srcH, MAX);
+            outW = Math.round(srcW * outH / srcH);
+          }
         }
-        const cv = document.createElement("canvas"); cv.width=outW; cv.height=outH;
-        const ctx = cv.getContext("2d");
-        ctx.fillStyle="#fff"; ctx.fillRect(0,0,outW,outH); ctx.save();
-        if      (orient===2){ctx.translate(outW,0);ctx.scale(-1,1);}
-        else if (orient===3){ctx.translate(outW,outH);ctx.rotate(Math.PI);}
-        else if (orient===4){ctx.translate(0,outH);ctx.scale(1,-1);}
-        else if (orient===6){ctx.translate(outW,0);ctx.rotate(.5*Math.PI);}
-        else if (orient===8){ctx.translate(0,outH);ctx.rotate(-.5*Math.PI);}
-        if (sw) ctx.drawImage(img,0,0,srcW,srcH,0,0,outH,outW);
-        else    ctx.drawImage(img,0,0,srcW,srcH,0,0,outW,outH);
+
+        const canvas = document.createElement('canvas');
+        canvas.width  = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+
+        // White background (no black bars)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, outW, outH);
+
+        // Apply EXIF rotation transform
+        ctx.save();
+        if (orientation === 2) {
+          ctx.translate(outW, 0); ctx.scale(-1, 1);
+        } else if (orientation === 3) {
+          ctx.translate(outW, outH); ctx.rotate(Math.PI);
+        } else if (orientation === 4) {
+          ctx.translate(0, outH); ctx.scale(1, -1);
+        } else if (orientation === 5) {
+          ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1);
+        } else if (orientation === 6) {
+          ctx.translate(outW, 0); ctx.rotate(0.5 * Math.PI);
+        } else if (orientation === 7) {
+          ctx.translate(outW, outH); ctx.rotate(0.5 * Math.PI); ctx.scale(1, -1);
+        } else if (orientation === 8) {
+          ctx.translate(0, outH); ctx.rotate(-0.5 * Math.PI);
+        }
+
+        // Draw image into rotated canvas
+        if (swapped) {
+          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, outH, outW);
+        } else {
+          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, outW, outH);
+        }
         ctx.restore();
-        let du = cv.toDataURL("image/jpeg",0.83);
-        if (du.length>650000) du = cv.toDataURL("image/jpeg",0.72);
-        if (du.length>550000) du = cv.toDataURL("image/jpeg",0.62);
-        res(du.split(",")[1]);
+
+        // Compress: try 0.75 quality, reduce if still too large
+        let dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        if (dataUrl.length > 600000) dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        if (dataUrl.length > 500000) dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+
+        resolve(dataUrl.split(',')[1]);
       };
-      img.onerror = ()=>rej(new Error("Image load failed"));
+
+      img.onerror = () => reject(new Error('Image load failed'));
       img.src = url;
     };
-    rd.onerror = ()=>rej(new Error("File read failed"));
-    rd.readAsArrayBuffer(file);
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsArrayBuffer(file); // Must use ArrayBuffer to read EXIF
   });
 }
 
-function handleFile(file, side) {
-  if (!file||!file.type.startsWith("image/")) {
-    showMsg(side+"Msg","Please select a valid image.","err"); return;
-  }
-  showMsg(side+"Msg","⏳ Processing image…","info");
-  compress(file).then(b64=>sendOcr(b64,side)).catch(e=>showMsg(side+"Msg","❌ "+e.message,"err"));
+// ── AADHAAR MASKING ──────────────────────────────────────────────
+function maskAadhaar(raw) {
+  const digits = (raw || '').replace(/\D/g, '');
+  if (digits.length === 12) return digits.slice(4, 8) + ' ' + digits.slice(8);
+  if (digits.length >= 8)   return digits.slice(-8);
+  return 'Not found';
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SEND OCR
-// ═══════════════════════════════════════════════════════════════
-function sendOcr(b64, side) {
-  // Always show the preview image first so user sees their photo
-  document.getElementById("prev"+cap(side)).style.display = "block";
-  document.getElementById("img"+cap(side)).src = "data:image/jpeg;base64,"+b64;
-
-  // Guard: URL must be set
-  const scriptUrl = document.getElementById("scriptUrl").value.trim();
-  if (!scriptUrl) {
-    showMsg("msg"+cap(side), "❌ Please paste your Apps Script URL in the box at the top of the page, then tap Retry Scan.", "err");
-    document.getElementById("retry"+cap(side)).classList.add("show");
-    lastB64[side] = b64;
-    return;
-  }
-
-  lastB64[side] = b64;
-  const prevEl  = document.getElementById("prev"+cap(side));
-  const imgEl   = document.getElementById("img"+cap(side));
-  const soEl    = document.getElementById("so"+cap(side));
-  const msgEl   = "msg"+cap(side);
-  const nxtEl   = document.getElementById("next"+cap(side));
-  const retEl   = document.getElementById("retry"+cap(side));
-  const tmEl    = document.getElementById("tm"+cap(side));
-
-  soEl.classList.add("on");
-  nxtEl.disabled = true;
-  retEl.classList.remove("show");
-  showMsg(msgEl,"🔍 Scanning… please wait (up to 90s)","info");
-
-  if (timers[side]) clearInterval(timers[side]);
-  let elapsed=0; tmEl.textContent="";
-  timers[side] = setInterval(()=>{ elapsed++; tmEl.textContent=elapsed+"s elapsed…"; },1000);
-
-  fetchData(scriptUrl, { action:"ocr", image:b64, side:side }, 1)
-  .then(result => {
-    clearInterval(timers[side]); tmEl.textContent="";
-    soEl.classList.remove("on");
-    if (result.error) {
-      showMsg(msgEl,"❌ "+result.error,"err");
-      retEl.classList.add("show");
-    } else {
-      Object.assign(extracted, result.data);
-      showMsg(msgEl,"✅ Scanned successfully!","ok");
-      nxtEl.disabled = false;
-    }
-  })
-  .catch(err => {
-    clearInterval(timers[side]); tmEl.textContent="";
-    soEl.classList.remove("on");
-    showMsg(msgEl,"❌ "+err.message,"err");
-    retEl.classList.add("show");
-  });
-}
-
-function retryOcr(side) {
-  if (!lastB64[side]) { showMsg("msg"+cap(side),"Please capture or upload the image again.","err"); return; }
-  document.getElementById("retry"+cap(side)).classList.remove("show");
-  sendOcr(lastB64[side], side);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// FETCH WITH RETRY — 90s timeout, auto-retry once
-// ═══════════════════════════════════════════════════════════════
-async function fetchData(url, payload, attempt) {
-  const ctrl  = new AbortController();
-  const timer = setTimeout(()=>ctrl.abort(), 90000);
+// ================================================================
+// FETCH WITH MOBILE RETRY
+// "load failed" on mobile = network timeout or CORS preflight issue
+// Fix: use text/plain content-type (skips preflight), add timeout+retry
+// ================================================================
+async function fetchWithRetry(url, body, attempt) {
+  attempt = attempt || 1;
+  const controller = new AbortController();
+  // 40 second timeout per attempt
+  const timer = setTimeout(() => controller.abort(), 40000);
   try {
     const res = await fetch(url, {
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body: JSON.stringify(payload),
-      signal: ctrl.signal
+      method: 'POST',
+      // text/plain avoids CORS preflight OPTIONS request on mobile
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: body,
+      signal: controller.signal
     });
     clearTimeout(timer);
-    if (!res.ok) throw new Error("HTTP "+res.status);
-    const txt = await res.text();
-    try { return JSON.parse(txt); } catch { throw new Error("Invalid server response"); }
-  } catch(err) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch(e) { throw new Error('Invalid response from server'); }
+  } catch (err) {
     clearTimeout(timer);
-    if (attempt<2 && (err.name==="AbortError"||/fetch|load|network/i.test(err.message))) {
-      await new Promise(r=>setTimeout(r,3000));
-      return fetchData(url, payload, attempt+1);
+    if (attempt < 2 && (err.name === 'AbortError' || err.message.includes('fetch') || err.message.includes('Load') || err.message.includes('network'))) {
+      // Auto-retry once on network errors
+      await new Promise(r => setTimeout(r, 1500));
+      return fetchWithRetry(url, body, attempt + 1);
     }
-    if (err.name==="AbortError") throw new Error("Request timed out (90s). Tap Retry Scan.");
+    if (err.name === 'AbortError') throw new Error('Request timed out. Check your internet connection and try again.');
     throw err;
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// STEP NAVIGATION
-// ═══════════════════════════════════════════════════════════════
-function goStep(n) {
-  // Cards: 0=consent, 1=front, 2=back, 3=review, 4=success
-  [0,1,2,3,4].forEach(i => document.getElementById("card"+i).classList.remove("on"));
-  document.getElementById("card"+n).classList.add("on");
-
-  // Step dots: 0→Consent=sd0, 1→Front=sd1, 2→Back=sd2, 3→Review=sd3
-  // n maps: card0→dot 0 active; card1→dot 1 active; card2→dot 2 active; card3→dot 3 active
-  const dotMap = {0:0,1:1,2:2,3:3,4:3}; // success keeps dot 3 done
-  const active = n<4 ? n : 4;
-  [0,1,2,3].forEach(i => {
-    const dot = document.getElementById("sd"+i);
-    dot.classList.remove("active","done","on");
-    if (i < n)      { dot.classList.add("done"); dot.textContent="✓"; }
-    else if (i===n) { dot.classList.add("on");   dot.textContent=i+1; }
-    else            { dot.classList.remove("on"); dot.textContent=i+1; }
-  });
-  [0,1,2].forEach(i => {
-    document.getElementById("sl"+i).classList.toggle("done", n>i);
-  });
-  window.scrollTo(0,0);
-}
-
-document.getElementById("nextFront").addEventListener("click", ()=>goStep(2));
-document.getElementById("nextBack").addEventListener("click",  ()=>{ renderReview(); goStep(3); });
-
-// ═══════════════════════════════════════════════════════════════
-// RENDER REVIEW CARD
-// ═══════════════════════════════════════════════════════════════
-function renderReview() {
-  const d = extracted;
-  const relMap = {"S/O":"Son of","D/O":"Daughter of","W/O":"Wife of","C/O":"Care of"};
-  const rel = d.relation_type_full ||
-    (d.relation_type ? (relMap[d.relation_type.toUpperCase().trim()]||d.relation_type) : "");
-  const masked = maskAadhaar(d.aadhaar_number||"");
-
-  document.getElementById("reviewGrid").innerHTML = `
-<p style="font-size:10px;color:var(--muted);margin-bottom:8px;">✎ Tap any field to correct if needed.</p>
-<div class="rgrid">
-  <div class="ri full">
-    <div class="rlbl">Full Name</div>
-    <input class="ef" id="f_name"     value="${x(d.name||'')}"          placeholder="Not extracted"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Date of Birth</div>
-    <input class="ef" id="f_dob"      value="${x(d.dob||'')}"           placeholder="DD/MM/YYYY"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Gender</div>
-    <input class="ef" id="f_gender"   value="${x(d.gender||'')}"        placeholder="Male / Female"/>
-  </div>
-  <div class="ri full">
-    <div class="rlbl">Aadhaar Unique ID — Last 8 Digits (as per government guidelines)</div>
-    <span class="raanum">${masked}</span>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Relation Type</div>
-    <input class="ef" id="f_reltype"  value="${x(rel)}"                 placeholder="Son of / Daughter of"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Relation Name</div>
-    <input class="ef" id="f_relname"  value="${x(d.relation_name||'')}" placeholder="Father / Husband name"/>
-  </div>
-  <div class="ri full">
-    <div class="rlbl">Address (House No &amp; Street)</div>
-    <input class="ef" id="f_address"  value="${x(d.address||'')}"       placeholder="House No, Street Name"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Village / Locality</div>
-    <input class="ef" id="f_village"  value="${x(d.village||'')}"       placeholder="Village / Colony / Phase"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Block / Taluk</div>
-    <input class="ef" id="f_block"    value="${x(d.block||'')}"         placeholder="Block / Taluk"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">District</div>
-    <input class="ef" id="f_district" value="${x(d.district||'')}"      placeholder="District"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">State</div>
-    <input class="ef" id="f_state"    value="${x(d.state||'')}"         placeholder="State"/>
-  </div>
-  <div class="ri">
-    <div class="rlbl">Pincode</div>
-    <input class="ef" id="f_pincode"  value="${x(d.pincode||'')}"       placeholder="6-digit pincode"/>
-  </div>
-</div>`;
-
-  saving = false;
-  const btn = document.getElementById("saveBtn");
-  btn.disabled = false; btn.innerHTML = "💾 Save to Google Sheet";
-  document.getElementById("msgSave").style.display="none";
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SAVE TO SHEET
-// ═══════════════════════════════════════════════════════════════
-async function saveToSheet() {
-  if (saving) return;
-  saving = true;
-  const btn = document.getElementById("saveBtn");
-  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Saving…';
-
-  const v  = id => { const e=document.getElementById(id); return e?e.value.trim():""; };
-  const masked = maskAadhaar(extracted.aadhaar_number||"");
+// ── PROCESS FILE ─────────────────────────────────────────────────
+async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  if (!file) return;
+  if (file.type && !file.type.startsWith('image/')) {
+    showStatus(statusId, 'Please select a valid image file.', 'error'); return;
+  }
+  showStatus(statusId, '⏳ Processing image...', 'info');
+  document.getElementById(nextBtnId).disabled = true;
 
   try {
-    const r = await fetchData(getUrl(), {
-      action       : "save",
-      name         : v("f_name"),
-      dob          : v("f_dob"),
-      gender       : v("f_gender"),
-      aadhaar_masked: masked,
-      relation_type : v("f_reltype"),
-      relation_name : v("f_relname"),
-      address       : v("f_address"),
-      village       : v("f_village"),
-      block         : v("f_block"),
-      district      : v("f_district"),
-      state         : v("f_state"),
-      pincode       : v("f_pincode"),
-      consent_lang  : LANG_NAMES[lang] || lang
-    }, 1);
+    const base64 = await compressImage(file);
 
-    if (r.success) {
-      document.getElementById("maskedOut").textContent = masked;
-      goStep(4);
-    } else throw new Error(r.error||"Save failed");
-  } catch(err) {
-    showMsg("msgSave","❌ "+err.message,"err");
-    btn.disabled=false; btn.innerHTML="💾 Save to Google Sheet"; saving=false;
+    // Show rotated/corrected preview
+    document.getElementById(previewId).style.display = 'block';
+    document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
+    document.getElementById(overlayId).classList.add('active');
+    showStatus(statusId, '🔍 Scanning... this takes ~10 seconds', 'info');
+
+    const scriptUrl = document.getElementById('scriptUrl').value.trim();
+    if (!scriptUrl) {
+      document.getElementById(overlayId).classList.remove('active');
+      showStatus(statusId, '❌ Please paste your Apps Script URL in the box at the top first.', 'error');
+      return;
+    }
+    const result = await fetchWithRetry(scriptUrl, JSON.stringify({
+      action: 'ocr', image: base64, side: side
+    }));
+
+    document.getElementById(overlayId).classList.remove('active');
+
+    if (result.error) {
+      showStatus(statusId, '❌ ' + result.error, 'error');
+    } else {
+      Object.assign(extractedData, result.data);
+      showStatus(statusId, '✅ Scanned successfully!', 'success');
+      document.getElementById(nextBtnId).disabled = false;
+    }
+  } catch (err) {
+    document.getElementById(overlayId).classList.remove('active');
+    showStatus(statusId, '❌ ' + err.message, 'error');
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════
-function maskAadhaar(raw) {
-  const d = (raw||"").replace(/\D/g,"");
-  if (d.length===12) return d.slice(4,8)+" "+d.slice(8);
-  if (d.length>=8)   return d.slice(-8);
-  return "Not found";
+// ── FILE INPUT LISTENERS ─────────────────────────────────────────
+function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.addEventListener('change', function() {
+    const file = this.files[0];
+    this.value = '';
+    if (file) processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side);
+  });
 }
-function cap(s)  { return s.charAt(0).toUpperCase()+s.slice(1); }
-function getUrl() {
-  const u = document.getElementById("scriptUrl").value.trim();
-  if (!u) throw new Error("Please paste your Apps Script URL at the top of the page.");
-  return u;
+
+setupInput('frontCamera', 'frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+setupInput('frontGallery','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+setupInput('backCamera',  'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
+setupInput('backGallery', 'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
+
+document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
+document.getElementById('backNext').addEventListener('click', () => { renderResults(); goToStep(3); });
+
+// ── RENDER STEP 3 ─────────────────────────────────────────────────
+function renderResults() {
+  const d = extractedData;
+  const relMap = {'S/O':'Son of','D/O':'Daughter of','W/O':'Wife of','C/O':'Care of'};
+  const relationDisplay = d.relation_type_full ||
+    (d.relation_type ? (relMap[d.relation_type.toUpperCase().trim()] || d.relation_type) : '');
+  const masked = maskAadhaar(d.aadhaar_number || '');
+
+  document.getElementById('extractedResults').innerHTML = `
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">&#9998; Auto-filled from Aadhaar. Click any field to correct if needed.</p>
+    <div class="results-grid">
+      <div class="result-item full">
+        <div class="result-label">Full Name</div>
+        <input class="edit-field" id="f_name" value="${esc(d.name||'')}" placeholder="Not extracted"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Date of Birth</div>
+        <input class="edit-field" id="f_dob" value="${esc(d.dob||'')}" placeholder="DD/MM/YYYY"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Gender</div>
+        <input class="edit-field" id="f_gender" value="${esc(d.gender||'')}" placeholder="Male / Female / Transgender"/>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Aadhaar Number (Last 8 Digits)</div>
+        <div class="result-value aadhaar" style="padding:8px 0;">${masked}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Relation Type</div>
+        <input class="edit-field" id="f_relation_type" value="${esc(relationDisplay)}" placeholder="Daughter of / Son of"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Relation Name</div>
+        <input class="edit-field" id="f_relation_name" value="${esc(d.relation_name||'')}" placeholder="Father / Husband name"/>
+      </div>
+      <div class="result-item full">
+        <div class="result-label">Address</div>
+        <input class="edit-field" id="f_address" value="${esc(d.address||'')}" placeholder="House No, Street"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Village / Locality</div>
+        <input class="edit-field" id="f_village" value="${esc(d.village||'')}" placeholder="Village / Area"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Block / Taluk</div>
+        <input class="edit-field" id="f_block" value="${esc(d.block||'')}" placeholder="Block / Taluk"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">District</div>
+        <input class="edit-field" id="f_district" value="${esc(d.district||'')}" placeholder="District"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">State</div>
+        <input class="edit-field" id="f_state" value="${esc(d.state||'')}" placeholder="State"/>
+      </div>
+      <div class="result-item">
+        <div class="result-label">Pincode</div>
+        <input class="edit-field" id="f_pincode" value="${esc(d.pincode||'')}" placeholder="6 digit pincode"/>
+      </div>
+    </div>`;
+
+  isSaving = false;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.innerHTML = '&#128190; Save to Google Sheet';
+  document.getElementById('submitStatus').style.display = 'none';
 }
-function showMsg(id, txt, type) {
+
+// ── SAVE TO GOOGLE SHEET — plain named function, never stacks ────
+async function saveToSheet() {
+  if (isSaving) return;
+  isSaving = true;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Saving...';
+
+  const masked = maskAadhaar(extractedData.aadhaar_number || '');
+  const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  try {
+    const data = await fetchWithRetry(getScriptUrl(), JSON.stringify({
+      action:         'save',
+      consent_lang:   LANG_NAMES[currentLang] || currentLang,
+      name:           getVal('f_name'),
+      dob:            getVal('f_dob'),
+      gender:         getVal('f_gender'),
+      aadhaar_masked: masked,
+      relation_type:  getVal('f_relation_type'),
+      relation_name:  getVal('f_relation_name'),
+      address:        getVal('f_address'),
+      village:        getVal('f_village'),
+      block:          getVal('f_block'),
+      district:       getVal('f_district'),
+      state:          getVal('f_state'),
+      pincode:        getVal('f_pincode')
+    }));
+
+    if (data.success) {
+      document.getElementById('maskedDisplay').textContent = masked;
+      goToStep(4);
+    } else {
+      throw new Error(data.error || 'Save failed');
+    }
+  } catch (err) {
+    showStatus('submitStatus', '❌ ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '&#128190; Save to Google Sheet';
+    isSaving = false;
+  }
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function getScriptUrl() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url) throw new Error('Please paste your Apps Script URL in the box at the top.');
+  return url;
+}
+function showStatus(id, msg, type) {
   const el = document.getElementById(id);
-  el.className="msg "+type; el.textContent=txt; el.style.display="block";
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
 }
-function x(s) { // HTML-escape for input values
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function resetAll() {
-  extracted = {}; saving = false;
-  lastB64.front = null; lastB64.back = null;
-  closeCamera();
-  ["galFallback","galFront","galBack"].forEach(id=>{try{document.getElementById(id).value="";}catch{}});
-  ["prevFront","prevBack"].forEach(id=>document.getElementById(id).style.display="none");
-  ["msgFront","msgBack","msgSave","consentMsg"].forEach(id=>document.getElementById(id).style.display="none");
-  ["nextFront","nextBack"].forEach(id=>document.getElementById(id).disabled=true);
-  ["retryFront","retryBack"].forEach(id=>document.getElementById(id).classList.remove("show"));
-  document.getElementById("reviewGrid").innerHTML="";
-  document.getElementById("agreeChk").checked=false;
-  clearSig(); consentTs="";
-  setLang("en"); goStep(0);
+  extractedData = {};
+  isSaving = false;
+  ['frontCamera','frontGallery','backCamera','backGallery'].forEach(id => {
+    try { document.getElementById(id).value = ''; } catch(e) {}
+  });
+  ['frontPreview','backPreview'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  ['frontStatus','backStatus','submitStatus'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  ['frontNext','backNext'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+  document.getElementById('extractedResults').innerHTML = '';
+  // Reset consent
+  document.getElementById('consentChk').checked = false;
+  document.getElementById('consentStatus').style.display = 'none';
+  clearSig();
+  sigHasMark = false;
+  setLang('en');
+  goToStep(0);
 }
 </script>
 </body>
