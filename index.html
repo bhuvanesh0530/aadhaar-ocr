@@ -38,33 +38,22 @@
   .card-title{font-size:16px;font-weight:600;margin-bottom:5px;}
   .card-sub{font-size:12px;color:var(--text-muted);margin-bottom:14px;}
 
-  /* ══════════════════════════════════════
-     CAMERA VIEWFINDER WITH CARD FRAME
-  ══════════════════════════════════════ */
+  /* ══ CAMERA VIEWFINDER ══ */
   .camera-modal{display:none;position:fixed;inset:0;z-index:1000;background:#000;flex-direction:column;}
   .camera-modal.open{display:flex;}
   #cameraVideo{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-
-  /* Dark overlay outside the card frame */
   .cam-overlay{position:absolute;inset:0;pointer-events:none;}
-  .cam-frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88%;max-width:420px;aspect-ratio:1.586/1;/* CR80 card ratio */border:3px solid var(--saffron);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,0.62);z-index:2;}
-
-  /* Animated corner brackets */
+  .cam-frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88%;max-width:420px;aspect-ratio:1.586/1;border:3px solid var(--saffron);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,0.62);z-index:2;}
   .cam-frame::before,.cam-frame::after{content:'';position:absolute;width:22px;height:22px;border-color:white;border-style:solid;}
   .cam-frame::before{top:-3px;left:-3px;border-width:4px 0 0 4px;border-radius:6px 0 0 0;}
   .cam-frame::after{top:-3px;right:-3px;border-width:4px 4px 0 0;border-radius:0 6px 0 0;}
   .cam-frame-bl,.cam-frame-br{position:absolute;width:22px;height:22px;border-color:white;border-style:solid;}
   .cam-frame-bl{bottom:-3px;left:-3px;border-width:0 0 4px 4px;border-radius:0 0 0 6px;}
   .cam-frame-br{bottom:-3px;right:-3px;border-width:0 4px 4px 0;border-radius:0 0 6px 0;}
-
-  /* Scan line inside frame */
   .cam-scan-line{position:absolute;left:3px;right:3px;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:cam-scan 2s ease-in-out infinite;box-shadow:0 0 8px var(--saffron);border-radius:2px;}
   @keyframes cam-scan{0%{top:8px;opacity:0.7;}50%{opacity:1;}100%{top:calc(100% - 8px);opacity:0.7;}}
-
   .cam-hint{position:absolute;bottom:calc(50% - (88vw * 0.63 / 2) - 46px);left:0;right:0;text-align:center;color:white;font-size:13px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,0.8);z-index:3;padding:0 16px;}
   .cam-hint-top{position:absolute;top:calc(50% - (88vw * 0.63 / 2) - 38px);left:0;right:0;text-align:center;color:rgba(255,255,255,0.85);font-size:11px;z-index:3;padding:0 16px;}
-
-  /* Bottom controls */
   .cam-controls{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:20px 24px 36px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent);}
   .cam-close{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:white;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .cam-shutter{width:68px;height:68px;border-radius:50%;background:white;border:5px solid rgba(255,255,255,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(255,107,0,0.5);}
@@ -73,9 +62,7 @@
   .cam-flash.flash{opacity:0.9;}
   .cam-gallery-mini{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:white;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;line-height:1.2;}
 
-  /* ══════════════════════════════════════
-     UPLOAD OPTION BUTTONS
-  ══════════════════════════════════════ */
+  /* ══ UPLOAD BUTTONS ══ */
   .upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;}
   .upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;border:none;transition:all 0.2s;}
   .btn-camera{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 14px rgba(255,107,0,0.3);}
@@ -91,12 +78,18 @@
   .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:scan 1.5s ease-in-out infinite;box-shadow:0 0 10px var(--saffron);}
   @keyframes scan{0%{top:10%}50%{top:85%}100%{top:10%}}
   .scan-text{font-size:12px;color:var(--saffron);font-weight:600;font-family:'JetBrains Mono',monospace;}
+  /* ── countdown timer inside scan overlay ── */
+  .scan-timer{font-size:11px;color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;margin-top:2px;}
 
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;width:100%;}
   .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 18px rgba(255,107,0,0.3);margin-top:14px;}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(255,107,0,0.45);}
   .btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
   .btn-secondary{background:transparent;color:var(--text-muted);border:1px solid var(--navy-border);margin-top:8px;}
+  /* ── retry button ── */
+  .btn-retry{background:rgba(255,107,0,0.12);color:var(--saffron);border:1px solid rgba(255,107,0,0.4);margin-top:8px;display:none;}
+  .btn-retry.show{display:inline-flex;}
+
   .status-msg{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;margin-top:10px;display:none;}
   .status-msg.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5;}
   .status-msg.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86EFAC;}
@@ -121,9 +114,7 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     LIVE CAMERA MODAL WITH CARD FRAME
-══════════════════════════════════════ -->
+<!-- ══ CAMERA MODAL ══ -->
 <div class="camera-modal" id="cameraModal">
   <video id="cameraVideo" autoplay playsinline muted></video>
   <div class="cam-overlay">
@@ -133,23 +124,20 @@
       <div class="cam-scan-line"></div>
     </div>
     <div class="cam-hint-top" id="camHintTop">📷 Align Aadhaar card inside the frame</div>
-    <div class="cam-hint" id="camHint">Keep card flat · Good lighting · Fill the frame</div>
+    <div class="cam-hint">Keep card flat · Good lighting · Fill the frame</div>
   </div>
   <div class="cam-flash" id="camFlash"></div>
   <div class="cam-controls">
     <div class="cam-close" onclick="closeCamera()">✕</div>
-    <div class="cam-shutter" onclick="capturePhoto()" id="shutterBtn">
+    <div class="cam-shutter" onclick="capturePhoto()">
       <div class="cam-shutter-inner"></div>
     </div>
-    <!-- Gallery fallback inside camera modal -->
     <label class="cam-gallery-mini" for="galleryFallback">📁<br>Gallery</label>
     <input type="file" id="galleryFallback" accept="image/*" style="display:none"/>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MAIN PAGE
-══════════════════════════════════════ -->
+<!-- ══ MAIN PAGE ══ -->
 <div class="container">
 
   <div class="header">
@@ -189,9 +177,11 @@
       <div class="scan-overlay" id="frontScanOverlay">
         <div class="scan-line"></div>
         <div class="scan-text">Reading Aadhaar...</div>
+        <div class="scan-timer" id="frontTimer"></div>
       </div>
     </div>
     <div class="status-msg" id="frontStatus"></div>
+    <button class="btn btn-retry" id="frontRetry" type="button" onclick="retryOcr('front')">&#8635; Retry Scan</button>
     <button class="btn btn-primary" type="button" id="frontNext" disabled>Continue to Back Side &#8594;</button>
   </div>
 
@@ -210,9 +200,11 @@
       <div class="scan-overlay" id="backScanOverlay">
         <div class="scan-line"></div>
         <div class="scan-text">Reading Aadhaar...</div>
+        <div class="scan-timer" id="backTimer"></div>
       </div>
     </div>
     <div class="status-msg" id="backStatus"></div>
+    <button class="btn btn-retry" id="backRetry" type="button" onclick="retryOcr('back')">&#8635; Retry Scan</button>
     <button class="btn btn-primary" type="button" id="backNext" disabled>Review Extracted Data &#8594;</button>
     <button class="btn btn-secondary" type="button" onclick="goToStep(1)">&#8592; Back</button>
   </div>
@@ -249,9 +241,15 @@
 let extractedData = {};
 let isSaving = false;
 let cameraStream = null;
-let activeSide = null; // 'front' or 'back'
+let activeSide = null;
 
-// ── LOAD SAVED URL ───────────────────────────────────────────────
+// Store last base64 per side so retry can reuse it without re-capturing
+const lastBase64 = { front: null, back: null };
+
+// Countdown timer handles
+const timerHandles = { front: null, back: null };
+
+// ── SAVED URL ────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('aadhaar_script_url');
   if (saved) document.getElementById('scriptUrl').value = saved;
@@ -262,63 +260,40 @@ document.getElementById('scriptUrl').addEventListener('input', e => {
 
 // ── GALLERY FALLBACK inside camera modal ────────────────────────
 document.getElementById('galleryFallback').addEventListener('change', function() {
-  const file = this.files[0];
-  this.value = '';
-  if (file) {
-    closeCamera();
-    const side = activeSide;
-    const map = {
-      front: ['frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext'],
-      back:  ['backPreview','backImg','backScanOverlay','backStatus','backNext']
-    };
-    processFile(file, ...map[side], side);
-  }
+  const file = this.files[0]; this.value = '';
+  if (file) { closeCamera(); handleFile(file, activeSide); }
 });
-
-// ── GALLERY inputs ───────────────────────────────────────────────
 document.getElementById('frontGallery').addEventListener('change', function() {
   const f = this.files[0]; this.value = '';
-  if (f) processFile(f,'frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
+  if (f) handleFile(f, 'front');
 });
 document.getElementById('backGallery').addEventListener('change', function() {
   const f = this.files[0]; this.value = '';
-  if (f) processFile(f,'backPreview','backImg','backScanOverlay','backStatus','backNext','back');
+  if (f) handleFile(f, 'back');
 });
 
-// ══════════════════════════════════════════
-// CAMERA VIEWFINDER
-// ══════════════════════════════════════════
+// ══ CAMERA ══════════════════════════════════════════════════════
 async function openCamera(side) {
   activeSide = side;
-  const modal = document.getElementById('cameraModal');
-  modal.classList.add('open');
+  document.getElementById('cameraModal').classList.add('open');
   document.getElementById('camHintTop').textContent =
     side === 'front' ? '📷 FRONT — Align Aadhaar card inside the frame'
-                     : '📷 BACK — Align Aadhaar card inside the frame';
+                     : '📷 BACK  — Align Aadhaar card inside the frame';
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: 'environment',
-        width:  { ideal: 1920 },
-        height: { ideal: 1080 }
-      },
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
       audio: false
     });
     document.getElementById('cameraVideo').srcObject = cameraStream;
   } catch(err) {
     closeCamera();
-    // Fallback: open gallery
-    const galleryId = side === 'front' ? 'frontGallery' : 'backGallery';
-    document.getElementById(galleryId).click();
-    alert('Camera access denied or not available. Please use Gallery to upload.');
+    document.getElementById(side === 'front' ? 'frontGallery' : 'backGallery').click();
+    alert('Camera not available. Please use Gallery.');
   }
 }
 
 function closeCamera() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(t => t.stop());
-    cameraStream = null;
-  }
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
   document.getElementById('cameraVideo').srcObject = null;
   document.getElementById('cameraModal').classList.remove('open');
 }
@@ -327,86 +302,73 @@ function capturePhoto() {
   const video = document.getElementById('cameraVideo');
   if (!video.videoWidth) return;
 
-  // Flash effect
+  // Flash
   const flash = document.getElementById('camFlash');
   flash.classList.add('flash');
   setTimeout(() => flash.classList.remove('flash'), 150);
 
-  // Get the card frame position to crop exactly the card area
+  // Crop exactly the card frame region
   const frame = document.getElementById('camFrame');
   const vRect = video.getBoundingClientRect();
   const fRect = frame.getBoundingClientRect();
-
-  // Map frame position to actual video pixel coordinates
   const scaleX = video.videoWidth  / vRect.width;
   const scaleY = video.videoHeight / vRect.height;
-
-  // Add 5% padding around frame for safety
   const pad = 0.05;
   const fx = (fRect.left - vRect.left) * scaleX;
   const fy = (fRect.top  - vRect.top)  * scaleY;
   const fw = fRect.width  * scaleX;
   const fh = fRect.height * scaleY;
-  const px = fx - fw * pad;
-  const py = fy - fh * pad;
-  const pw = fw * (1 + 2 * pad);
-  const ph = fh * (1 + 2 * pad);
+  const px = fx - fw * pad, py = fy - fh * pad;
+  const pw = fw * (1 + 2*pad), ph = fh * (1 + 2*pad);
 
-  // Target output size for OCR — 900x568 (good balance of quality vs speed)
   const TARGET_W = 900;
   const TARGET_H = Math.round(TARGET_W * (ph / pw));
-
   const canvas = document.createElement('canvas');
-  canvas.width  = TARGET_W;
-  canvas.height = TARGET_H;
+  canvas.width = TARGET_W; canvas.height = TARGET_H;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, TARGET_W, TARGET_H);
-
-  // Draw only the card frame region, scaled to fill canvas
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,TARGET_W,TARGET_H);
   ctx.drawImage(video,
-    Math.max(0, px), Math.max(0, py),
-    Math.min(pw, video.videoWidth  - px),
-    Math.min(ph, video.videoHeight - py),
+    Math.max(0,px), Math.max(0,py),
+    Math.min(pw, video.videoWidth - px), Math.min(ph, video.videoHeight - py),
     0, 0, TARGET_W, TARGET_H
   );
 
   let dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-  if (dataUrl.length > 650000) dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-  if (dataUrl.length > 550000) dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+  if (dataUrl.length > 650000) dataUrl = canvas.toDataURL('image/jpeg', 0.70);
+  if (dataUrl.length > 550000) dataUrl = canvas.toDataURL('image/jpeg', 0.60);
   const base64 = dataUrl.split(',')[1];
 
-  closeCamera();
-
-  // Process the cropped image
   const side = activeSide;
-  const configs = {
-    front: ['frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext'],
-    back:  ['backPreview','backImg','backScanOverlay','backStatus','backNext']
-  };
-  processBase64(base64, ...configs[side], side);
+  closeCamera();
+  sendForOcr(base64, side);
 }
 
-// ══════════════════════════════════════════
-// IMAGE PROCESSING — for Gallery uploads (EXIF fix + compress)
-// ══════════════════════════════════════════
+// ══ FILE HANDLING ════════════════════════════════════════════════
+function handleFile(file, side) {
+  if (!file || !file.type.startsWith('image/')) {
+    showStatus(side+'Status', 'Please select a valid image.', 'error'); return;
+  }
+  showStatus(side+'Status', '⏳ Processing image...', 'info');
+  compressImage(file).then(b64 => sendForOcr(b64, side)).catch(err => {
+    showStatus(side+'Status', '❌ '+err.message, 'error');
+  });
+}
+
+// ══ EXIF + COMPRESS ══════════════════════════════════════════════
 function getExifOrientation(buffer) {
   const view = new DataView(buffer);
   if (view.getUint16(0, false) !== 0xFFD8) return 1;
-  const length = view.byteLength;
   let offset = 2;
-  while (offset < length) {
+  while (offset < view.byteLength) {
     if (view.getUint16(offset, false) === 0xFFE1) {
       offset += 4;
       if (view.getUint32(offset, false) !== 0x45786966) return 1;
       const little = view.getUint16(offset += 6, false) === 0x4949;
       offset += view.getUint32(offset + 4, little);
-      const tags = view.getUint16(offset, little);
-      offset += 2;
-      for (let i = 0; i < tags; i++) {
-        if (view.getUint16(offset + i * 12, little) === 0x0112)
-          return view.getUint16(offset + i * 12 + 8, little);
-      }
+      const tags = view.getUint16(offset, little); offset += 2;
+      for (let i = 0; i < tags; i++)
+        if (view.getUint16(offset + i*12, little) === 0x0112)
+          return view.getUint16(offset + i*12 + 8, little);
     } else if ((view.getUint16(offset, false) & 0xFF00) !== 0xFF00) break;
     else offset += 2 + view.getUint16(offset + 2, false);
   }
@@ -416,21 +378,20 @@ function getExifOrientation(buffer) {
 function compressImage(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       const buffer = e.target.result;
       const orientation = getExifOrientation(buffer);
-      const blob = new Blob([buffer], { type: file.type });
-      const url  = URL.createObjectURL(blob);
-      const img  = new Image();
+      const url = URL.createObjectURL(new Blob([buffer], { type: file.type }));
+      const img = new Image();
       img.onload = () => {
         URL.revokeObjectURL(url);
         const swapped = orientation >= 5 && orientation <= 8;
-        let srcW = img.naturalWidth, srcH = img.naturalHeight;
         const MAX = 900;
+        let srcW = img.naturalWidth, srcH = img.naturalHeight;
         let outW, outH;
         if (swapped) {
-          outW = srcH > srcW ? MAX : Math.round(srcH * MAX / srcW);
-          outH = srcW > srcH ? MAX : Math.round(srcW * MAX / srcH);
+          outW = srcH > srcW ? MAX : Math.round(srcH*MAX/srcW);
+          outH = srcW > srcH ? MAX : Math.round(srcW*MAX/srcH);
         } else {
           if (srcW >= srcH) { outW = Math.min(srcW,MAX); outH = Math.round(srcH*outW/srcW); }
           else              { outH = Math.min(srcH,MAX); outW = Math.round(srcW*outH/srcH); }
@@ -438,8 +399,7 @@ function compressImage(file) {
         const canvas = document.createElement('canvas');
         canvas.width = outW; canvas.height = outH;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, outW, outH);
+        ctx.fillStyle = '#fff'; ctx.fillRect(0,0,outW,outH);
         ctx.save();
         if      (orientation===2){ctx.translate(outW,0);ctx.scale(-1,1);}
         else if (orientation===3){ctx.translate(outW,outH);ctx.rotate(Math.PI);}
@@ -450,8 +410,8 @@ function compressImage(file) {
         else         ctx.drawImage(img,0,0,srcW,srcH,0,0,outW,outH);
         ctx.restore();
         let dataUrl = canvas.toDataURL('image/jpeg',0.82);
-        if (dataUrl.length > 650000) dataUrl = canvas.toDataURL('image/jpeg',0.7);
-        if (dataUrl.length > 550000) dataUrl = canvas.toDataURL('image/jpeg',0.6);
+        if (dataUrl.length > 650000) dataUrl = canvas.toDataURL('image/jpeg',0.70);
+        if (dataUrl.length > 550000) dataUrl = canvas.toDataURL('image/jpeg',0.60);
         resolve(dataUrl.split(',')[1]);
       };
       img.onerror = () => reject(new Error('Image load failed'));
@@ -462,19 +422,84 @@ function compressImage(file) {
   });
 }
 
-// ── MASK ─────────────────────────────────────────────────────────
-function maskAadhaar(raw) {
-  const d = (raw||'').replace(/\D/g,'');
-  if (d.length===12) return d.slice(4,8)+' '+d.slice(8);
-  if (d.length>=8)   return d.slice(-8);
-  return 'Not found';
+// ══ SEND FOR OCR — core function ═════════════════════════════════
+function sendForOcr(base64, side) {
+  // Save base64 so retry can reuse it
+  lastBase64[side] = base64;
+
+  const previewId = side+'Preview';
+  const imgId     = side+'Img';
+  const overlayId = side+'ScanOverlay';
+  const statusId  = side+'Status';
+  const nextBtnId = side+'Next';
+  const retryId   = side+'Retry';
+  const timerId   = side+'Timer';
+
+  // Show preview image
+  document.getElementById(previewId).style.display = 'block';
+  document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
+
+  // Show scan overlay
+  document.getElementById(overlayId).classList.add('active');
+  document.getElementById(nextBtnId).disabled = true;
+  document.getElementById(retryId).classList.remove('show');
+  showStatus(statusId, '🔍 Scanning... please wait', 'info');
+
+  // ── Countdown timer display ──────────────────────────────────
+  if (timerHandles[side]) clearInterval(timerHandles[side]);
+  let elapsed = 0;
+  const timerEl = document.getElementById(timerId);
+  timerEl.textContent = '';
+  timerHandles[side] = setInterval(() => {
+    elapsed++;
+    timerEl.textContent = elapsed + 's elapsed...';
+  }, 1000);
+
+  // ── Fetch with 90s timeout + 1 auto-retry ───────────────────
+  fetchWithRetry(getScriptUrl(), JSON.stringify({
+    action: 'ocr', image: base64, side: side
+  }), 1)
+  .then(result => {
+    clearInterval(timerHandles[side]);
+    timerEl.textContent = '';
+    document.getElementById(overlayId).classList.remove('active');
+
+    if (result.error) {
+      showStatus(statusId, '❌ ' + result.error, 'error');
+      document.getElementById(retryId).classList.add('show');
+    } else {
+      Object.assign(extractedData, result.data);
+      showStatus(statusId, '✅ Scanned successfully!', 'success');
+      document.getElementById(nextBtnId).disabled = false;
+      document.getElementById(retryId).classList.remove('show');
+    }
+  })
+  .catch(err => {
+    clearInterval(timerHandles[side]);
+    timerEl.textContent = '';
+    document.getElementById(overlayId).classList.remove('active');
+    showStatus(statusId, '❌ ' + err.message, 'error');
+    // Always show Retry on any error — user can try again without re-capturing
+    document.getElementById(retryId).classList.add('show');
+  });
 }
 
-// ── FETCH WITH RETRY (mobile network fix) ────────────────────────
+// ── RETRY — reuses saved base64, no need to re-capture ───────────
+function retryOcr(side) {
+  if (!lastBase64[side]) {
+    showStatus(side+'Status', 'Please capture or upload the image again.', 'error');
+    return;
+  }
+  document.getElementById(side+'Retry').classList.remove('show');
+  sendForOcr(lastBase64[side], side);
+}
+
+// ══ FETCH WITH RETRY ═════════════════════════════════════════════
+// Timeout: 90 seconds (covers slow mobile + Apps Script cold start)
+// Auto-retries ONCE on network/timeout errors
 async function fetchWithRetry(url, body, attempt) {
-  attempt = attempt||1;
   const ctrl = new AbortController();
-  const timer = setTimeout(()=>ctrl.abort(), 45000);
+  const timer = setTimeout(() => ctrl.abort(), 90000); // 90s timeout
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -483,88 +508,55 @@ async function fetchWithRetry(url, body, attempt) {
       signal: ctrl.signal
     });
     clearTimeout(timer);
-    if (!res.ok) throw new Error('HTTP '+res.status);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
     try { return JSON.parse(text); }
     catch(e) { throw new Error('Invalid server response'); }
   } catch(err) {
     clearTimeout(timer);
-    if (attempt < 2 && (err.name==='AbortError'||/fetch|load|network/i.test(err.message))) {
-      await new Promise(r=>setTimeout(r,2000));
-      return fetchWithRetry(url, body, attempt+1);
+    if (attempt < 2 && (err.name === 'AbortError' || /fetch|load|network/i.test(err.message))) {
+      await new Promise(r => setTimeout(r, 3000)); // wait 3s before retry
+      return fetchWithRetry(url, body, attempt + 1);
     }
-    if (err.name==='AbortError') throw new Error('Request timed out. Check internet and try again.');
+    if (err.name === 'AbortError')
+      throw new Error('Request timed out (90s). Tap "Retry Scan" to try again.');
     throw err;
   }
 }
 
-// ── PROCESS BASE64 (from live camera) ────────────────────────────
-async function processBase64(base64, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  document.getElementById(previewId).style.display = 'block';
-  document.getElementById(imgId).src = 'data:image/jpeg;base64,'+base64;
-  document.getElementById(overlayId).classList.add('active');
-  showStatus(statusId, '🔍 Scanning... please wait (~10 sec)', 'info');
-  document.getElementById(nextBtnId).disabled = true;
-
-  try {
-    const result = await fetchWithRetry(getScriptUrl(), JSON.stringify({
-      action: 'ocr', image: base64, side: side
-    }));
-    document.getElementById(overlayId).classList.remove('active');
-    if (result.error) {
-      showStatus(statusId, '❌ '+result.error, 'error');
-    } else {
-      Object.assign(extractedData, result.data);
-      showStatus(statusId, '✅ Scanned successfully!', 'success');
-      document.getElementById(nextBtnId).disabled = false;
-    }
-  } catch(err) {
-    document.getElementById(overlayId).classList.remove('active');
-    showStatus(statusId, '❌ '+err.message, 'error');
-  }
+// ══ MASK ═════════════════════════════════════════════════════════
+function maskAadhaar(raw) {
+  const d = (raw||'').replace(/\D/g,'');
+  if (d.length===12) return d.slice(4,8)+' '+d.slice(8);
+  if (d.length>=8)   return d.slice(-8);
+  return 'Not found';
 }
 
-// ── PROCESS FILE (from gallery) ──────────────────────────────────
-async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
-  if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    showStatus(statusId, 'Please select a valid image.', 'error'); return;
-  }
-  showStatus(statusId, '⏳ Processing image...', 'info');
-  document.getElementById(nextBtnId).disabled = true;
-  try {
-    const base64 = await compressImage(file);
-    processBase64(base64, previewId, imgId, overlayId, statusId, nextBtnId, side);
-  } catch(err) {
-    showStatus(statusId, '❌ '+err.message, 'error');
-  }
-}
-
-// ── STEP NAVIGATION ──────────────────────────────────────────────
+// ══ STEP NAVIGATION ══════════════════════════════════════════════
 function goToStep(n) {
-  [1,2,3,4].forEach(i=>document.getElementById('card'+i).classList.remove('active'));
+  [1,2,3,4].forEach(i => document.getElementById('card'+i).classList.remove('active'));
   document.getElementById('card'+n).classList.add('active');
-  [1,2,3].forEach(i=>{
-    const dot=document.getElementById('step'+i+'dot');
+  [1,2,3].forEach(i => {
+    const dot = document.getElementById('step'+i+'dot');
     dot.classList.remove('active','done');
-    if(i<n){dot.classList.add('done');dot.textContent='\u2713';}
-    else if(i===n){dot.classList.add('active');dot.textContent=i;}
-    else dot.textContent=i;
+    if (i<n)      { dot.classList.add('done');   dot.textContent='\u2713'; }
+    else if (i===n){ dot.classList.add('active'); dot.textContent=i; }
+    else           dot.textContent=i;
   });
   document.getElementById('line1').classList.toggle('done',n>1);
   document.getElementById('line2').classList.toggle('done',n>2);
   window.scrollTo(0,0);
 }
 
-document.getElementById('frontNext').addEventListener('click',()=>goToStep(2));
-document.getElementById('backNext').addEventListener('click',()=>{renderResults();goToStep(3);});
+document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
+document.getElementById('backNext').addEventListener('click',  () => { renderResults(); goToStep(3); });
 
-// ── RENDER STEP 3 ─────────────────────────────────────────────────
+// ══ RENDER STEP 3 ═════════════════════════════════════════════════
 function renderResults() {
   const d = extractedData;
   const relMap = {'S/O':'Son of','D/O':'Daughter of','W/O':'Wife of','C/O':'Care of'};
   const rel = d.relation_type_full ||
-    (d.relation_type?(relMap[d.relation_type.toUpperCase().trim()]||d.relation_type):'');
+    (d.relation_type ? (relMap[d.relation_type.toUpperCase().trim()] || d.relation_type) : '');
   const masked = maskAadhaar(d.aadhaar_number||'');
 
   document.getElementById('extractedResults').innerHTML = `
@@ -627,7 +619,7 @@ function renderResults() {
   document.getElementById('submitStatus').style.display = 'none';
 }
 
-// ── SAVE ─────────────────────────────────────────────────────────
+// ══ SAVE ══════════════════════════════════════════════════════════
 async function saveToSheet() {
   if (isSaving) return;
   isSaving = true;
@@ -635,7 +627,7 @@ async function saveToSheet() {
   btn.disabled = true;
   btn.innerHTML = '<span class="loader"></span> Saving...';
   const masked = maskAadhaar(extractedData.aadhaar_number||'');
-  const v = (id)=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
+  const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   try {
     const data = await fetchWithRetry(getScriptUrl(), JSON.stringify({
       action:'save', name:v('f_name'), dob:v('f_dob'), gender:v('f_gender'),
@@ -643,20 +635,20 @@ async function saveToSheet() {
       relation_name:v('f_relation_name'), address:v('f_address'),
       village:v('f_village'), block:v('f_block'), district:v('f_district'),
       state:v('f_state'), pincode:v('f_pincode')
-    }));
+    }), 1);
     if (data.success) {
       document.getElementById('maskedDisplay').textContent = masked;
       goToStep(4);
-    } else throw new Error(data.error||'Save failed');
+    } else throw new Error(data.error || 'Save failed');
   } catch(err) {
-    showStatus('submitStatus','❌ '+err.message,'error');
+    showStatus('submitStatus', '❌ ' + err.message, 'error');
     btn.disabled = false;
     btn.innerHTML = '&#128190; Save to Google Sheet';
     isSaving = false;
   }
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────
+// ══ HELPERS ═══════════════════════════════════════════════════════
 function getScriptUrl() {
   const url = document.getElementById('scriptUrl').value.trim();
   if (!url) throw new Error('Please paste your Apps Script URL at the top.');
@@ -664,7 +656,7 @@ function getScriptUrl() {
 }
 function showStatus(id, msg, type) {
   const el = document.getElementById(id);
-  el.className = 'status-msg '+type;
+  el.className = 'status-msg ' + type;
   el.textContent = msg;
   el.style.display = 'block';
 }
@@ -674,14 +666,16 @@ function esc(s) {
 function resetAll() {
   extractedData = {};
   isSaving = false;
+  lastBase64.front = null; lastBase64.back = null;
   closeCamera();
-  ['frontGallery','backGallery','galleryFallback'].forEach(id=>{
-    try{document.getElementById(id).value='';}catch(e){}
+  ['frontGallery','backGallery','galleryFallback'].forEach(id => {
+    try { document.getElementById(id).value = ''; } catch(e) {}
   });
-  ['frontPreview','backPreview'].forEach(id=>document.getElementById(id).style.display='none');
-  ['frontStatus','backStatus','submitStatus'].forEach(id=>document.getElementById(id).style.display='none');
-  ['frontNext','backNext'].forEach(id=>document.getElementById(id).disabled=true);
-  document.getElementById('extractedResults').innerHTML='';
+  ['frontPreview','backPreview'].forEach(id => document.getElementById(id).style.display = 'none');
+  ['frontStatus','backStatus','submitStatus'].forEach(id => document.getElementById(id).style.display = 'none');
+  ['frontNext','backNext'].forEach(id => document.getElementById(id).disabled = true);
+  ['frontRetry','backRetry'].forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('extractedResults').innerHTML = '';
   goToStep(1);
 }
 </script>
