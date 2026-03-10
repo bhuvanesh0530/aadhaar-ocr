@@ -104,11 +104,26 @@
   .consent-check-row{display:flex;align-items:flex-start;gap:11px;background:rgba(255,107,0,0.05);border:1px solid rgba(255,107,0,0.2);border-radius:10px;padding:12px 13px;cursor:pointer;margin-bottom:14px;}
   .consent-check-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;accent-color:var(--saffron);cursor:pointer;margin-top:2px;}
   .consent-check-row span{font-size:12px;line-height:1.55;}
-  .sig-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:7px;}
+  /* ── CONSENT METHOD TABS ─────────────────────────── */
+  .consent-method-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+  .method-tabs{display:flex;gap:6px;margin-bottom:10px;}
+  .method-tab{flex:1;padding:9px 4px;border-radius:9px;border:1.5px solid var(--navy-border);background:rgba(255,255,255,0.02);color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;line-height:1.3;}
+  .method-tab .tab-icon{display:block;font-size:18px;margin-bottom:3px;}
+  .method-tab.active{border-color:var(--saffron);background:rgba(255,107,0,0.1);color:var(--saffron);}
+  .method-panel{display:none;}.method-panel.active{display:block;}
+  /* ── CANVAS (shared by sign + thumb) ────────────── */
   .sig-wrap{position:relative;border:2px dashed rgba(255,107,0,0.4);border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.02);}
-  #sigCanvas{display:block;width:100%;height:120px;touch-action:none;cursor:crosshair;}
-  .sig-clear-btn{position:absolute;top:7px;right:9px;background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;font-size:10px;font-weight:600;padding:3px 11px;border-radius:14px;cursor:pointer;}
-  .sig-hint{font-size:10px;color:var(--text-muted);margin-top:5px;margin-bottom:12px;}
+  #sigCanvas{display:block;width:100%;height:130px;touch-action:none;cursor:crosshair;}
+  .sig-clear-btn{position:absolute;top:7px;right:9px;background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;font-size:10px;font-weight:600;padding:3px 11px;border-radius:14px;cursor:pointer;z-index:2;}
+  /* thumb ghost guide */
+  .thumb-guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .3s;}
+  .thumb-guide svg{opacity:0.07;width:70px;height:70px;}
+  .sig-hint{font-size:10px;color:var(--text-muted);margin-top:5px;margin-bottom:10px;text-align:center;}
+  /* ── TAP PANEL ──────────────────────────────────── */
+  .tap-confirm-btn{width:100%;padding:16px 12px;border-radius:12px;border:2px dashed rgba(255,107,0,0.4);background:rgba(255,107,0,0.06);color:var(--saffron);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:0.2px;}
+  .tap-confirm-btn.tapped{background:rgba(255,107,0,0.18);border-style:solid;border-color:var(--saffron);color:#fff;}
+  .tap-sub{font-size:10px;color:var(--text-muted);margin-top:6px;text-align:center;}
+  .tap-confirm-btn.tapped::after{content:" ✓";color:#22C55E;}
 </style>
 </head>
 <body>
@@ -154,12 +169,57 @@
       <input type="checkbox" id="consentChk" onchange="updateConsentBtn()"/>
       <span id="consentChkLabel">I have read and understood the above consent statement and voluntarily agree to provide my Aadhaar details for demographic data capture as described.</span>
     </label>
-    <div class="sig-label">&#9997; Digital Signature (required)</div>
-    <div class="sig-wrap">
-      <canvas id="sigCanvas"></canvas>
-      <button class="sig-clear-btn" onclick="clearSig()">Clear</button>
+    <div class="consent-method-label">&#9997; Confirm Your Consent — Choose One</div>
+
+    <!-- Tab switcher -->
+    <div class="method-tabs">
+      <button class="method-tab active" id="tabSign"  type="button" onclick="switchMethod('sign')">
+        <span class="tab-icon">&#9997;&#65039;</span>Signature
+      </button>
+      <button class="method-tab" id="tabThumb" type="button" onclick="switchMethod('thumb')">
+        <span class="tab-icon">&#128405;</span>Thumb<br>Impression
+      </button>
+      <button class="method-tab" id="tabTap"   type="button" onclick="switchMethod('tap')">
+        <span class="tab-icon">&#128076;</span>Tap to<br>Confirm
+      </button>
     </div>
-    <p class="sig-hint" id="sigHint">Sign above using your finger or mouse to confirm consent</p>
+
+    <!-- Panel 1: Signature -->
+    <div class="method-panel active" id="panelSign">
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+        <button class="sig-clear-btn" type="button" onclick="clearSig()">Clear</button>
+      </div>
+      <p class="sig-hint" id="sigHint">Draw your signature above using finger or stylus</p>
+    </div>
+
+    <!-- Panel 2: Thumb Impression -->
+    <div class="method-panel" id="panelThumb">
+      <div class="sig-wrap">
+        <canvas id="thumbCanvas"></canvas>
+        <button class="sig-clear-btn" type="button" onclick="clearThumb()">Clear</button>
+        <!-- Ghost thumbprint guide shown until user draws -->
+        <div class="thumb-guide" id="thumbGuide">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="50" cy="38" rx="22" ry="28" stroke="#FF6B00" stroke-width="3"/>
+            <path d="M34 55 Q28 75 30 88" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M66 55 Q72 75 70 88" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M38 30 Q50 22 62 30" stroke="#FF6B00" stroke-width="2" stroke-linecap="round"/>
+            <path d="M36 40 Q50 33 64 40" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M35 50 Q50 44 65 50" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <p class="sig-hint">Press your <strong>thumb or any finger</strong> firmly on the box above and drag slowly to leave an impression</p>
+    </div>
+
+    <!-- Panel 3: Tap to Confirm -->
+    <div class="method-panel" id="panelTap">
+      <button class="tap-confirm-btn" id="tapConfirmBtn" type="button" onclick="tapConfirm()">
+        &#128076;&nbsp; Tap Here to Give Consent
+      </button>
+      <p class="tap-sub">For beneficiaries who cannot sign or use a thumb impression — a single tap records your agreement</p>
+    </div>
     <div class="status-msg" id="consentStatus"></div>
     <button class="btn btn-primary" id="consentBtn" type="button" disabled onclick="doConsent()">&#10003;&nbsp; I Accept &amp; Proceed</button>
   </div>
@@ -250,7 +310,12 @@
 // CONSENT STATE
 // ════════════════════════════════════════
 let currentLang = 'en';
-let sigHasMark  = false;
+let sigHasMark   = false;
+let thumbHasMark = false;
+let thumbCtx     = null;
+let thumbDrawing = false;
+let activeMethod = 'sign';  // 'sign' | 'thumb' | 'tap'
+let tapConfirmed = false;
 let sigCtx      = null;
 let sigDrawing  = false;
 
@@ -335,18 +400,47 @@ function setLang(l) {
 }
 
 function updateConsentBtn() {
-  const ok = document.getElementById('consentChk').checked && sigHasMark;
+  const methodOk = (activeMethod === 'sign'  && sigHasMark)
+                || (activeMethod === 'thumb' && thumbHasMark)
+                || (activeMethod === 'tap'   && tapConfirmed);
+  const ok = document.getElementById('consentChk').checked && methodOk;
   document.getElementById('consentBtn').disabled = !ok;
+}
+
+function switchMethod(method) {
+  activeMethod = method;
+  // Tab highlight
+  ['sign','thumb','tap'].forEach(m => {
+    document.getElementById('tab'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active', m===method);
+    document.getElementById('panel'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active', m===method);
+  });
+  updateConsentBtn();
+}
+
+function initCanvas(canvasId, doneFlag, ctxVar, drawingVar, onMark) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+  const dpr = window.devicePixelRatio || 1;
+  const w   = canvas.parentElement.offsetWidth || 300;
+  const h   = parseInt(canvas.style.height || '130');
+  canvas.width  = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return ctx;
 }
 
 function initSig() {
   const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
   const w   = canvas.parentElement.offsetWidth || 300;
   canvas.width  = w * dpr;
-  canvas.height = 120 * dpr;
+  canvas.height = 130 * dpr;
   canvas.style.width  = w + 'px';
-  canvas.style.height = '120px';
+  canvas.style.height = '130px';
   sigCtx = canvas.getContext('2d');
   sigCtx.scale(dpr, dpr);
   sigCtx.strokeStyle = '#FF6B00';
@@ -367,16 +461,69 @@ function initSig() {
   canvas.addEventListener('touchend',   () => sigDrawing=false);
 }
 
+function initThumb() {
+  const canvas = document.getElementById('thumbCanvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w   = canvas.parentElement.offsetWidth || 300;
+  canvas.width  = w * dpr;
+  canvas.height = 130 * dpr;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = '130px';
+  thumbCtx = canvas.getContext('2d');
+  thumbCtx.scale(dpr, dpr);
+  // Thick, soft brush for finger impression effect
+  thumbCtx.strokeStyle = 'rgba(30,20,10,0.75)';
+  thumbCtx.fillStyle   = 'rgba(30,20,10,0.75)';
+  thumbCtx.lineWidth   = 18;
+  thumbCtx.lineCap     = 'round';
+  thumbCtx.lineJoin    = 'round';
+  const pos = e => {
+    const r = canvas.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return [s.clientX - r.left, s.clientY - r.top];
+  };
+  const markDone = () => {
+    thumbHasMark = true;
+    // Hide the ghost guide once user draws
+    const guide = document.getElementById('thumbGuide');
+    if (guide) guide.style.opacity = '0';
+    updateConsentBtn();
+  };
+  canvas.addEventListener('mousedown',  e => { thumbDrawing=true; thumbCtx.beginPath(); const[x,y]=pos(e); thumbCtx.moveTo(x,y); });
+  canvas.addEventListener('mousemove',  e => { if(!thumbDrawing)return; const[x,y]=pos(e); thumbCtx.lineTo(x,y); thumbCtx.stroke(); markDone(); });
+  canvas.addEventListener('mouseup',    e => { thumbDrawing=false; /* dot for single tap */ const[x,y]=pos(e); thumbCtx.beginPath(); thumbCtx.arc(x,y,9,0,Math.PI*2); thumbCtx.fill(); markDone(); });
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); thumbDrawing=true; thumbCtx.beginPath(); const[x,y]=pos(e); thumbCtx.moveTo(x,y); }, {passive:false});
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!thumbDrawing)return; const[x,y]=pos(e); thumbCtx.lineTo(x,y); thumbCtx.stroke(); markDone(); }, {passive:false});
+  canvas.addEventListener('touchend',   e => { e.preventDefault(); thumbDrawing=false; const[x,y]=pos(e); thumbCtx.beginPath(); thumbCtx.arc(x,y,9,0,Math.PI*2); thumbCtx.fill(); markDone(); }, {passive:false});
+}
+
 function clearSig() {
   if (sigCtx) sigCtx.clearRect(0, 0, 9999, 9999);
   sigHasMark = false;
   updateConsentBtn();
 }
 
+function clearThumb() {
+  if (thumbCtx) thumbCtx.clearRect(0, 0, 9999, 9999);
+  thumbHasMark = false;
+  const guide = document.getElementById('thumbGuide');
+  if (guide) guide.style.opacity = '1';
+  updateConsentBtn();
+}
+
+function tapConfirm() {
+  tapConfirmed = true;
+  const btn = document.getElementById('tapConfirmBtn');
+  btn.classList.add('tapped');
+  btn.textContent = '👍 Confirmed — I Agree to the Consent Statement';
+  updateConsentBtn();
+}
+
 function doConsent() {
-  if (!document.getElementById('consentChk').checked || !sigHasMark) {
+  if (!document.getElementById('consentChk').checked || (!sigHasMark && !tapConfirmed)) {
     const el = document.getElementById('consentStatus');
-    el.className = 'status-msg error'; el.textContent = 'Please tick the checkbox AND sign above.'; el.style.display='block';
+    el.className = 'status-msg error'; el.textContent = 'Please tick the checkbox AND provide your signature, thumb impression, or tap to confirm.'; el.style.display='block';
     return;
   }
   // Fire-and-forget consent log
@@ -399,6 +546,7 @@ window.addEventListener('load', () => {
   if (saved) document.getElementById('scriptUrl').value = saved;
   setLang('en');
   initSig();
+  initThumb();
 });
 document.getElementById('scriptUrl').addEventListener('input', e => {
   localStorage.setItem('aadhaar_script_url', e.target.value.trim());
@@ -811,7 +959,12 @@ function resetAll() {
   document.getElementById('consentChk').checked = false;
   document.getElementById('consentStatus').style.display = 'none';
   clearSig();
-  sigHasMark = false;
+  clearThumb();
+  switchMethod('sign');
+  sigHasMark   = false;
+  tapConfirmed = false;
+  const tapBtn = document.getElementById('tapConfirmBtn');
+  if (tapBtn) { tapBtn.classList.remove('tapped'); tapBtn.textContent = '\u{1F44C} I Cannot Sign — Tap Here to Confirm'; }
   setLang('en');
   goToStep(0);
 }
