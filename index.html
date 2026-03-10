@@ -210,7 +210,7 @@
           </svg>
         </div>
       </div>
-      <p class="sig-hint">Press your <strong>thumb or any finger</strong> firmly on the box above and drag slowly to leave an impression</p>
+      <p class="sig-hint">&#128405; Press your <strong>thumb firmly</strong> on the box and drag slowly — the darker the better</p>
     </div>
 
     <!-- Panel 3: Tap to Confirm -->
@@ -467,35 +467,88 @@ function initThumb() {
   const dpr = window.devicePixelRatio || 1;
   const w   = canvas.parentElement.offsetWidth || 300;
   canvas.width  = w * dpr;
-  canvas.height = 130 * dpr;
+  canvas.height = 160 * dpr;
   canvas.style.width  = w + 'px';
-  canvas.style.height = '130px';
+  canvas.style.height = '160px';
   thumbCtx = canvas.getContext('2d');
   thumbCtx.scale(dpr, dpr);
-  // Thick, soft brush for finger impression effect
-  thumbCtx.strokeStyle = 'rgba(30,20,10,0.75)';
-  thumbCtx.fillStyle   = 'rgba(30,20,10,0.75)';
-  thumbCtx.lineWidth   = 18;
-  thumbCtx.lineCap     = 'round';
-  thumbCtx.lineJoin    = 'round';
+
+  // Paint a soft ink blob at (x,y) — simulates real thumb pressure
+  function inkBlob(x, y, r) {
+    // Outer soft halo
+    const g = thumbCtx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0,   'rgba(15,10,5,0.82)');
+    g.addColorStop(0.45,'rgba(15,10,5,0.65)');
+    g.addColorStop(0.75,'rgba(15,10,5,0.30)');
+    g.addColorStop(1,   'rgba(15,10,5,0)');
+    thumbCtx.fillStyle = g;
+    thumbCtx.beginPath();
+    thumbCtx.arc(x, y, r, 0, Math.PI * 2);
+    thumbCtx.fill();
+  }
+
+  // Interpolate blobs between two points so there are no gaps
+  function blobLine(x0, y0, x1, y1, r) {
+    const dx = x1 - x0, dy = y1 - y0;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const step = Math.max(r * 0.35, 2);
+    const steps = Math.ceil(dist / step);
+    for (let i = 0; i <= steps; i++) {
+      const t = steps === 0 ? 0 : i / steps;
+      inkBlob(x0 + dx*t, y0 + dy*t, r);
+    }
+  }
+
+  let lastX = 0, lastY = 0;
+  const BLOB_R = 28; // radius — feels like a real thumb
+
   const pos = e => {
     const r = canvas.getBoundingClientRect();
     const s = e.touches ? e.touches[0] : e;
     return [s.clientX - r.left, s.clientY - r.top];
   };
+
   const markDone = () => {
     thumbHasMark = true;
-    // Hide the ghost guide once user draws
     const guide = document.getElementById('thumbGuide');
     if (guide) guide.style.opacity = '0';
     updateConsentBtn();
   };
-  canvas.addEventListener('mousedown',  e => { thumbDrawing=true; thumbCtx.beginPath(); const[x,y]=pos(e); thumbCtx.moveTo(x,y); });
-  canvas.addEventListener('mousemove',  e => { if(!thumbDrawing)return; const[x,y]=pos(e); thumbCtx.lineTo(x,y); thumbCtx.stroke(); markDone(); });
-  canvas.addEventListener('mouseup',    e => { thumbDrawing=false; /* dot for single tap */ const[x,y]=pos(e); thumbCtx.beginPath(); thumbCtx.arc(x,y,9,0,Math.PI*2); thumbCtx.fill(); markDone(); });
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); thumbDrawing=true; thumbCtx.beginPath(); const[x,y]=pos(e); thumbCtx.moveTo(x,y); }, {passive:false});
-  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!thumbDrawing)return; const[x,y]=pos(e); thumbCtx.lineTo(x,y); thumbCtx.stroke(); markDone(); }, {passive:false});
-  canvas.addEventListener('touchend',   e => { e.preventDefault(); thumbDrawing=false; const[x,y]=pos(e); thumbCtx.beginPath(); thumbCtx.arc(x,y,9,0,Math.PI*2); thumbCtx.fill(); markDone(); }, {passive:false});
+
+  canvas.addEventListener('mousedown', e => {
+    thumbDrawing = true;
+    [lastX, lastY] = pos(e);
+    inkBlob(lastX, lastY, BLOB_R);
+    markDone();
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!thumbDrawing) return;
+    const [x, y] = pos(e);
+    blobLine(lastX, lastY, x, y, BLOB_R);
+    [lastX, lastY] = [x, y];
+    markDone();
+  });
+  canvas.addEventListener('mouseup', () => { thumbDrawing = false; });
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    thumbDrawing = true;
+    [lastX, lastY] = pos(e);
+    inkBlob(lastX, lastY, BLOB_R);
+    markDone();
+  }, {passive: false});
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!thumbDrawing) return;
+    const [x, y] = pos(e);
+    blobLine(lastX, lastY, x, y, BLOB_R);
+    [lastX, lastY] = [x, y];
+    markDone();
+  }, {passive: false});
+  canvas.addEventListener('touchend', e => {
+    e.preventDefault();
+    thumbDrawing = false;
+  }, {passive: false});
 }
 
 function clearSig() {
