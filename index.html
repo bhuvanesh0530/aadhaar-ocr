@@ -53,15 +53,7 @@
   .btn-camera:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,0,0.4);}
   .btn-gallery:hover{border-color:var(--saffron);color:var(--saffron);}
 
-  /* ── PREVIEW: fill frame, no black bars ── */
-  .preview-container{margin-top:14px;border-radius:10px;overflow:hidden;display:none;position:relative;width:100%;aspect-ratio:16/9;background:#000;}
-  .preview-container img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;}
-  .preview-badge{position:absolute;top:8px;right:8px;background:var(--success);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;z-index:2;}
-  .scan-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,15,30,0.88);border-radius:10px;flex-direction:column;gap:10px;z-index:5;}
-  .scan-overlay.active{display:flex;}
-  .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--saffron),transparent);animation:scan 1.5s ease-in-out infinite;box-shadow:0 0 10px var(--saffron);}
-  @keyframes scan{0%{top:10%}50%{top:85%}100%{top:10%}}
-  .scan-text{font-size:12px;color:var(--saffron);font-weight:600;font-family:'JetBrains Mono',monospace;}
+  /* preview-container removed — now using .card-capture-box */
 
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all 0.2s;width:100%;}
   .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--saffron-light));color:white;box-shadow:0 4px 18px rgba(255,107,0,0.3);margin-top:16px;}
@@ -230,21 +222,33 @@
     <div class="card-sub">Front contains Name, DOB, Gender and Aadhaar number.</div>
     <div class="camera-guide">
       <span class="icon">&#128161;</span>
-      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
+      <span>Place card <strong>flat in good light</strong> and make it <strong>fill the entire box</strong> below — no tilting, no shadows.</span>
     </div>
     <input type="file" id="frontCamera" accept="image/*" style="display:none"/>
     <input type="file" id="frontGallery" accept="image/*" style="display:none"/>
+
+    <!-- Aadhaar card capture box — 85.6×54mm = 1.585:1 ratio -->
+    <div class="card-capture-wrap">
+      <div class="card-capture-box" id="frontCaptureBox"
+           onclick="document.getElementById('frontGallery').click()">
+        <div class="corner-tr"></div><div class="corner-bl"></div>
+        <div class="capture-placeholder" id="frontPlaceholder">
+          <span class="cp-icon">&#128247;</span>
+          <span class="cp-text">Tap here or use buttons below</span>
+          <span class="cp-sub">Aadhaar FRONT — card must fill this box</span>
+        </div>
+        <img id="frontImg" class="card-preview-img" src="" alt="Front"/>
+        <div class="preview-badge" id="frontBadge">&#10003; Front Captured</div>
+        <div class="scan-overlay" id="frontScanOverlay">
+          <div class="scan-line"></div>
+          <div class="scan-text">&#128269; Reading card...</div>
+        </div>
+      </div>
+    </div>
+
     <div class="upload-options">
       <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('frontCamera').click()">&#128248; Take Photo</button>
       <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('frontGallery').click()">&#128444; From Gallery</button>
-    </div>
-    <div class="preview-container" id="frontPreview">
-      <img id="frontImg" src="" alt="Front"/>
-      <div class="preview-badge">&#10003; Front</div>
-      <div class="scan-overlay" id="frontScanOverlay">
-        <div class="scan-line"></div>
-        <div class="scan-text">Reading card...</div>
-      </div>
     </div>
     <div class="status-msg" id="frontStatus"></div>
     <button class="btn btn-primary" type="button" id="frontNext" disabled>Continue to Back Side &#8594;</button>
@@ -256,21 +260,33 @@
     <div class="card-sub">Back contains Relation, Address, District, State and Pincode.</div>
     <div class="camera-guide">
       <span class="icon">&#128161;</span>
-      <span>Hold phone <strong>horizontally (landscape)</strong>. Place card flat in good light. Card should fill the frame.</span>
+      <span>Place card <strong>flat in good light</strong> and make it <strong>fill the entire box</strong> below — no tilting, no shadows.</span>
     </div>
     <input type="file" id="backCamera" accept="image/*" style="display:none"/>
     <input type="file" id="backGallery" accept="image/*" style="display:none"/>
+
+    <!-- Aadhaar card capture box — 85.6×54mm = 1.585:1 ratio -->
+    <div class="card-capture-wrap">
+      <div class="card-capture-box" id="backCaptureBox"
+           onclick="document.getElementById('backGallery').click()">
+        <div class="corner-tr"></div><div class="corner-bl"></div>
+        <div class="capture-placeholder" id="backPlaceholder">
+          <span class="cp-icon">&#128203;</span>
+          <span class="cp-text">Tap here or use buttons below</span>
+          <span class="cp-sub">Aadhaar BACK — card must fill this box</span>
+        </div>
+        <img id="backImg" class="card-preview-img" src="" alt="Back"/>
+        <div class="preview-badge" id="backBadge">&#10003; Back Captured</div>
+        <div class="scan-overlay" id="backScanOverlay">
+          <div class="scan-line"></div>
+          <div class="scan-text">&#128269; Reading card...</div>
+        </div>
+      </div>
+    </div>
+
     <div class="upload-options">
       <button class="upload-btn btn-camera" type="button" onclick="document.getElementById('backCamera').click()">&#128248; Take Photo</button>
       <button class="upload-btn btn-gallery" type="button" onclick="document.getElementById('backGallery').click()">&#128444; From Gallery</button>
-    </div>
-    <div class="preview-container" id="backPreview">
-      <img id="backImg" src="" alt="Back"/>
-      <div class="preview-badge">&#10003; Back</div>
-      <div class="scan-overlay" id="backScanOverlay">
-        <div class="scan-line"></div>
-        <div class="scan-text">Reading card...</div>
-      </div>
     </div>
     <div class="status-msg" id="backStatus"></div>
     <button class="btn btn-primary" type="button" id="backNext" disabled>Review Extracted Data &#8594;</button>
@@ -691,8 +707,8 @@ function compressImage(file) {
         let srcW = img.naturalWidth;
         let srcH = img.naturalHeight;
 
-        // Target: max 700px on longest side (fast OCR, good quality)
-        const MAX = 700;
+        // Target: max 1600px on longest side — higher res = much better OCR accuracy
+        const MAX = 1600;
         let outW, outH;
         if (swapped) {
           // After rotation, width and height swap
@@ -744,9 +760,10 @@ function compressImage(file) {
         ctx.restore();
 
         // Compress: try 0.75 quality, reduce if still too large
-        let dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-        if (dataUrl.length > 600000) dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-        if (dataUrl.length > 500000) dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        // Higher quality = sharper text = better OCR
+        let dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+        if (dataUrl.length > 1400000) dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        if (dataUrl.length > 1100000) dataUrl = canvas.toDataURL('image/jpeg', 0.78);
 
         resolve(dataUrl.split(',')[1]);
       };
@@ -803,7 +820,7 @@ async function fetchWithRetry(url, body, attempt) {
 }
 
 // ── PROCESS FILE ─────────────────────────────────────────────────
-async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+async function processFile(file, boxId, imgId, overlayId, statusId, nextBtnId, side, placeholderId, badgeId) {
   if (!file) return;
   if (file.type && !file.type.startsWith('image/')) {
     showStatus(statusId, 'Please select a valid image file.', 'error'); return;
@@ -814,9 +831,16 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
   try {
     const base64 = await compressImage(file);
 
-    // Show rotated/corrected preview
-    document.getElementById(previewId).style.display = 'block';
-    document.getElementById(imgId).src = 'data:image/jpeg;base64,' + base64;
+    // Show image inside capture box, hide placeholder, show badge
+    const imgEl = document.getElementById(imgId);
+    imgEl.src = 'data:image/jpeg;base64,' + base64;
+    imgEl.classList.add('visible');
+    const box = document.getElementById(boxId);
+    if (box) box.classList.add('has-image');
+    const ph = document.getElementById(placeholderId);
+    if (ph) ph.style.display = 'none';
+    const badge = document.getElementById(badgeId);
+    if (badge) badge.classList.add('visible');
     document.getElementById(overlayId).classList.add('active');
     showStatus(statusId, '🔍 Scanning... this takes ~10 seconds', 'info');
 
@@ -846,20 +870,20 @@ async function processFile(file, previewId, imgId, overlayId, statusId, nextBtnI
 }
 
 // ── FILE INPUT LISTENERS ─────────────────────────────────────────
-function setupInput(inputId, previewId, imgId, overlayId, statusId, nextBtnId, side) {
+function setupInput(inputId, boxId, imgId, overlayId, statusId, nextBtnId, side, placeholderId, badgeId) {
   const el = document.getElementById(inputId);
   if (!el) return;
   el.addEventListener('change', function() {
     const file = this.files[0];
     this.value = '';
-    if (file) processFile(file, previewId, imgId, overlayId, statusId, nextBtnId, side);
+    if (file) processFile(file, boxId, imgId, overlayId, statusId, nextBtnId, side, placeholderId, badgeId);
   });
 }
 
-setupInput('frontCamera', 'frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
-setupInput('frontGallery','frontPreview','frontImg','frontScanOverlay','frontStatus','frontNext','front');
-setupInput('backCamera',  'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
-setupInput('backGallery', 'backPreview', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back');
+setupInput('frontCamera', 'frontCaptureBox','frontImg','frontScanOverlay','frontStatus','frontNext','front','frontPlaceholder','frontBadge');
+setupInput('frontGallery','frontCaptureBox','frontImg','frontScanOverlay','frontStatus','frontNext','front','frontPlaceholder','frontBadge');
+setupInput('backCamera',  'backCaptureBox', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back','backPlaceholder','backBadge');
+setupInput('backGallery', 'backCaptureBox', 'backImg', 'backScanOverlay', 'backStatus', 'backNext', 'back','backPlaceholder','backBadge');
 
 document.getElementById('frontNext').addEventListener('click', () => goToStep(2));
 document.getElementById('backNext').addEventListener('click', () => { renderResults(); goToStep(3); });
@@ -998,7 +1022,7 @@ function resetAll() {
   ['frontCamera','frontGallery','backCamera','backGallery'].forEach(id => {
     try { document.getElementById(id).value = ''; } catch(e) {}
   });
-  ['frontPreview','backPreview'].forEach(id => {
+  ['frontCaptureBox','backCaptureBox'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
   ['frontStatus','backStatus','submitStatus'].forEach(id => {
