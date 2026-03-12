@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Training Attendance — Aadhaar Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:          #f4f8f6;
+  --bg-card:     #ffffff;
+  --bg-deep:     #eff8ed;
+  --border:      #bde2b6;
+  --border-lt:   #def0db;
+  --accent:      #ff006e;
+  --accent-lt:   #ff338b;
+  --accent-dark: #cc0058;
+  --accent-glow: rgba(255,0,110,0.15);
+  --green:       #49923a;
+  --green-lt:    #a8be74;
+  --green-dark:  #376d2c;
+  --cel:         #5bb649;
+  --cel-lt:      #9dd392;
+  --olive:       #6f8e3e;
+  --olive-lt:    #b9d095;
+  --text:        #231110;
+  --muted:       #8b4541;
+  --muted-lt:    #ce9a97;
+  --ok:          #49923a;
+  --ok-lt:       #e9efdc;
+  --err:         #cc0058;
+  --err-lt:      #ffcce2;
+  --success:     #5bb649;
+  --warn:        #7f9900;
+  --warn-lt:     #f6ffcc;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 50% at 12% 0%, rgba(255,0,110,0.06), transparent 55%),
+             radial-gradient(ellipse 55% 40% at 88% 90%, rgba(91,182,73,0.07), transparent 55%);}
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:28px 16px 72px;}
+
+/* ── HEADER ── */
+.hdr{text-align:center;margin-bottom:22px;}
+.emblem{width:54px;height:54px;margin:0 auto 10px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--cel));
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  box-shadow:0 0 28px rgba(91,182,73,0.25);animation:pglow 3s ease-in-out infinite;}
+@keyframes pglow{0%,100%{box-shadow:0 0 24px rgba(91,182,73,0.22);}50%{box-shadow:0 0 44px rgba(91,182,73,0.38);}}
+.hdr h1{font-size:clamp(15px,4.2vw,22px);font-weight:700;
+  background:linear-gradient(90deg,var(--green-dark),var(--green),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hdr p{font-size:12px;color:var(--muted);margin-top:5px;}
+.tribar{display:flex;height:3px;width:90px;margin:9px auto 0;border-radius:2px;overflow:hidden;}
+.tribar span{flex:1;}
+.tribar span:nth-child(1){background:var(--accent);}
+.tribar span:nth-child(2){background:var(--olive-lt);}
+.tribar span:nth-child(3){background:var(--cel);}
+
+/* ── URL BOX ── */
+.cfg{background:rgba(73,146,58,0.05);border:1px dashed rgba(73,146,58,0.3);border-radius:14px;padding:14px;margin-bottom:16px;}
+.cfg label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px;}
+.cfg input{width:100%;background:#fafaf8;border:1px solid var(--border);border-radius:8px;padding:9px 12px;
+  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border-color .2s;}
+.cfg input:focus{border-color:var(--green);}
+.cfg-hint{font-size:10px;color:var(--muted);margin-top:5px;}
+
+/* ── CARDS ── */
+.card{background:var(--bg-card);border:1px solid var(--border-lt);border-radius:18px;padding:22px;margin-bottom:14px;
+  display:none;box-shadow:0 2px 16px rgba(91,182,73,0.07);}
+.card.on{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card-title{font-size:15px;font-weight:700;margin-bottom:4px;color:var(--text);}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;
+  border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;border:none;
+  cursor:pointer;transition:all .2s;width:100%;}
+.btn-p{background:linear-gradient(135deg,var(--green),var(--cel));color:#fff;
+  box-shadow:0 4px 16px rgba(73,146,58,0.25);margin-top:14px;}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(73,146,58,0.35);}
+.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-acc{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;
+  box-shadow:0 4px 16px var(--accent-glow);margin-top:14px;}
+.btn-acc:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,0,110,0.3);}
+.btn-s{background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:9px;}
+.btn-s:hover{border-color:var(--green);color:var(--green);}
+
+/* ── MESSAGES ── */
+.msg{padding:10px 14px;border-radius:10px;font-size:12.5px;font-weight:500;margin-top:11px;display:none;}
+.msg.err{background:var(--err-lt);border:1px solid rgba(204,0,88,0.3);color:var(--err);}
+.msg.ok{background:var(--ok-lt);border:1px solid rgba(73,146,58,0.3);color:var(--green-dark);}
+.msg.info{background:rgba(73,146,58,0.08);border:1px solid rgba(73,146,58,0.25);color:var(--green-dark);}
+.msg.warn{background:var(--warn-lt);border:1px solid rgba(127,153,0,0.35);color:var(--warn);}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:6px;}
+.field input,.field select{width:100%;background:#fff;border:1px solid rgba(73,146,58,0.28);border-radius:9px;
+  padding:11px 13px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;font-weight:500;
+  outline:none;transition:border-color .2s,background .2s;}
+.field input:focus,.field select:focus{border-color:var(--green);background:#f9fdf8;}
+.field input::placeholder{color:var(--muted);font-weight:400;font-size:12px;}
+
+/* ── BENEFICIARY RESULT CARD ── */
+.ben-card{background:var(--ok-lt);border:1.5px solid rgba(73,146,58,0.35);border-radius:12px;
+  padding:14px 16px;margin-top:12px;display:none;}
+.ben-card.show{display:block;}
+.ben-name{font-size:18px;font-weight:700;color:var(--green-dark);margin-bottom:4px;}
+.ben-meta{font-size:11.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;}
+.ben-tag{background:#fff;border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;}
+
+/* ── QR SCANNER ── */
+.qr-wrap{border:2px dashed rgba(73,146,58,0.4);border-radius:12px;overflow:hidden;position:relative;
+  background:rgba(73,146,58,0.02);margin-bottom:10px;}
+.qr-video{width:100%;display:block;max-height:280px;object-fit:cover;}
+.qr-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+.qr-frame{width:60%;aspect-ratio:1;border:2.5px solid rgba(91,182,73,0.85);border-radius:8px;position:relative;}
+.qr-frame::before,.qr-frame::after,.qf-tr,.qf-bl{
+  content:'';position:absolute;width:20px;height:20px;border-color:#5bb649;border-style:solid;}
+.qr-frame::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:3px 0 0 0;}
+.qr-frame::after{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 3px 0;}
+.qf-tr{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 3px 0 0;}
+.qf-bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;border-radius:0 0 0 3px;}
+.qr-scan-line{position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--cel),transparent);
+  animation:qrscan 1.6s ease-in-out infinite;box-shadow:0 0 8px var(--cel);}
+@keyframes qrscan{0%{top:5%}50%{top:90%}100%{top:5%}}
+.qr-hint{font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;}
+.qr-result{background:var(--ok-lt);border:1.5px solid rgba(73,146,58,0.4);border-radius:10px;
+  padding:11px 14px;font-size:13px;font-weight:600;color:var(--green-dark);display:none;margin-bottom:10px;}
+.qr-result.show{display:flex;align-items:center;gap:10px;}
+
+/* ── GPS STATUS ── */
+.gps-row{display:flex;align-items:center;gap:10px;background:rgba(73,146,58,0.06);
+  border:1px solid rgba(73,146,58,0.2);border-radius:10px;padding:11px 13px;margin-bottom:12px;}
+.gps-dot{width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background .3s;}
+.gps-dot.on{background:var(--cel);box-shadow:0 0 8px rgba(91,182,73,0.5);}
+.gps-dot.err{background:var(--err);}
+.gps-txt{font-size:12px;color:var(--muted);}
+
+/* ── PHOTO CAPTURE ── */
+.photo-area{border:2px dashed rgba(73,146,58,0.35);border-radius:12px;
+  background:rgba(73,146,58,0.02);overflow:hidden;margin-bottom:10px;position:relative;}
+.photo-preview{width:100%;max-height:240px;object-fit:cover;display:none;}
+.photo-preview.show{display:block;}
+.photo-ph{display:flex;flex-direction:column;align-items:center;gap:8px;padding:28px;cursor:pointer;}
+.photo-ph-icon{font-size:38px;opacity:.35;}
+.photo-ph-txt{font-size:12.5px;color:var(--muted);font-weight:600;}
+.photo-taken-badge{position:absolute;top:9px;right:9px;background:var(--cel);color:#fff;
+  font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+/* ── SUCCESS ── */
+.suc-wrap{text-align:center;padding:20px 0;}
+.suc-icon{width:72px;height:72px;background:linear-gradient(135deg,var(--cel),var(--green));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;
+  margin:0 auto 16px;box-shadow:0 0 28px rgba(91,182,73,0.35);animation:pop .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.suc-msg{background:var(--ok-lt);border:1px solid rgba(73,146,58,0.3);border-radius:12px;
+  padding:14px 16px;font-size:14px;font-weight:600;color:var(--green-dark);margin:12px 0;}
+
+.loader{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,0.25);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.card{padding:16px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div class="emblem">&#127979;</div>
+  <h1>Training Attendance</h1>
+  <p>Scan QR · Verify Aadhaar · Capture GPS &amp; Photo</p>
+  <div class="tribar"><span></span><span></span><span></span></div>
+</div>
+
+<div class="cfg">
+  <label>Apps Script Web App URL</label>
+  <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"/>
+  <p class="cfg-hint">Same URL used for Beneficiary Registration.</p>
+</div>
+
+<!-- ══ STEP A: SEARCH BENEFICIARY ══ -->
+<div class="card on" id="cardA">
+  <div class="card-title">&#128269; Step 1 — Find Beneficiary</div>
+  <div class="card-sub">Enter the last 8 digits of the beneficiary's Aadhaar number</div>
+  <div class="field">
+    <label>Aadhaar Last 8 Digits <span style="color:var(--err)">*</span></label>
+    <input type="text" id="aadhaarSearch" maxlength="8" inputmode="numeric" pattern="[0-9]*"
+      placeholder="Enter 8-digit Aadhaar ID"
+      oninput="this.value=this.value.replace(/\D/g,'');searchChanged()"/>
+  </div>
+
+  <div class="ben-card" id="benCard">
+    <div class="ben-name" id="benName">—</div>
+    <div class="ben-meta">
+      <span class="ben-tag" id="benCLN"></span>
+      <span class="ben-tag" id="benSHG"></span>
+      <span class="ben-tag" id="benMobile"></span>
+    </div>
+  </div>
+
+  <div class="msg" id="searchMsg"></div>
+  <button class="btn btn-p" id="searchBtn" onclick="searchBeneficiary()">&#128269; Find Beneficiary</button>
+  <button class="btn btn-p" id="proceedBtn" style="display:none;background:linear-gradient(135deg,var(--green),var(--cel));" onclick="goCardB()">
+    Continue to Training &#8594;
+  </button>
+</div>
+
+<!-- ══ STEP B: SCAN QR + GPS + PHOTO ══ -->
+<div class="card" id="cardB">
+  <div class="card-title">&#127979; Step 2 — Record Attendance</div>
+  <div class="card-sub" id="cardBSub">Training attendance for <strong id="attBenName"></strong></div>
+
+  <!-- QR Scanner -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">
+      &#128248; Scan Training QR Code
+    </div>
+    <p class="qr-hint">Point camera at the training QR code — it will be detected automatically</p>
+    <div class="qr-wrap" id="qrWrap" style="display:none;">
+      <video id="qrVideo" class="qr-video" autoplay muted playsinline></video>
+      <div class="qr-overlay">
+        <div class="qr-frame">
+          <div class="qf-tr"></div><div class="qf-bl"></div>
+          <div class="qr-scan-line"></div>
+        </div>
+      </div>
+    </div>
+    <div class="qr-result" id="qrResult">
+      <span style="font-size:20px;">&#9989;</span>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px;">Training</div>
+        <div id="qrTrainingName" style="font-size:14px;font-weight:700;color:var(--green-dark);">—</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-p" id="startQRBtn" style="margin-top:0;flex:1;background:linear-gradient(135deg,var(--green),var(--cel));"
+        onclick="startQR()">&#128248; Open QR Scanner</button>
+      <button class="btn btn-s" id="stopQRBtn" style="margin-top:0;flex:1;display:none;"
+        onclick="stopQR()">&#9632; Stop Scanner</button>
+    </div>
+    <div class="msg" id="qrMsg"></div>
+  </div>
+
+  <!-- GPS -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">
+      &#127759; GPS Location
+    </div>
+    <div class="gps-row">
+      <div class="gps-dot" id="gpsDot"></div>
+      <div class="gps-txt" id="gpsTxt">Tap "Get Location" to capture GPS coordinates</div>
+    </div>
+    <button class="btn btn-p" style="margin-top:0;background:linear-gradient(135deg,var(--green),var(--cel));" onclick="getGPS()">
+      &#127759; Get GPS Location
+    </button>
+    <div class="msg" id="gpsMsg"></div>
+  </div>
+
+  <!-- Photo -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">
+      &#128247; Beneficiary Photo
+    </div>
+    <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none"/>
+    <div class="photo-area" id="photoArea">
+      <img id="photoPreview" class="photo-preview" src="" alt="Photo"/>
+      <div class="photo-ph" id="photoPh" onclick="document.getElementById('photoInput').click()">
+        <span class="photo-ph-icon">&#128247;</span>
+        <span class="photo-ph-txt">Tap to take beneficiary photo (optional)</span>
+      </div>
+      <div class="photo-taken-badge" id="photoBadge" style="display:none;">&#10003; Photo Taken</div>
+    </div>
+    <button class="btn btn-s" style="margin-top:0;" onclick="document.getElementById('photoInput').click()">
+      &#128247; Take / Retake Photo
+    </button>
+  </div>
+
+  <div class="msg" id="attMsg"></div>
+  <button class="btn btn-acc" id="submitAttBtn" onclick="submitAttendance()">
+    &#9989; Submit Attendance
+  </button>
+  <button class="btn btn-s" onclick="resetAttendance()">&#8592; Search Again</button>
+</div>
+
+<!-- ══ STEP C: SUCCESS ══ -->
+<div class="card" id="cardC">
+  <div class="suc-wrap">
+    <div class="suc-icon">&#9989;</div>
+    <h2 style="font-size:20px;margin-bottom:8px;">Attendance Captured!</h2>
+    <div class="suc-msg" id="sucMsg"></div>
+    <p style="color:var(--muted);font-size:12px;margin-top:8px;">Record saved to Google Sheet.</p>
+  </div>
+  <button class="btn btn-p" style="margin-top:16px;" onclick="resetAttendance()">
+    &#128260; Record Another Attendance
+  </button>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let currentBen   = null; // {name, cln, shg, mobile, aadhaar}
+let trainingName = '';
+let gpsData      = null; // {lat, lng, accuracy}
+let hasPhoto     = false;
+let qrStream     = null;
+let qrTimer      = null;
+let submitting   = false;
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.addEventListener('load',()=>{
+  const saved = localStorage.getItem('aadhr_url');
+  if(saved) document.getElementById('scriptUrl').value = saved;
+});
+document.getElementById('scriptUrl').addEventListener('input', e=>{
+  localStorage.setItem('aadhr_url', e.target.value.trim());
+});
+document.getElementById('photoInput').addEventListener('change', function(){
+  const f = this.files[0]; if(!f) return;
+  const url = URL.createObjectURL(f);
+  const prev = document.getElementById('photoPreview');
+  prev.src = url; prev.classList.add('show');
+  document.getElementById('photoPh').style.display='none';
+  document.getElementById('photoBadge').style.display='block';
+  hasPhoto = true;
+  this.value='';
+});
+
+// ════════════════════════════════════════
+// SEARCH BENEFICIARY
+// ════════════════════════════════════════
+function searchChanged(){
+  const v = document.getElementById('aadhaarSearch').value;
+  document.getElementById('benCard').classList.remove('show');
+  document.getElementById('proceedBtn').style.display='none';
+  document.getElementById('searchMsg').style.display='none';
+  document.getElementById('searchBtn').style.display='';
+}
+
+async function searchBeneficiary(){
+  const id = document.getElementById('aadhaarSearch').value.trim();
+  if(id.length < 8){ showMsg('searchMsg','Please enter all 8 digits of the Aadhaar ID.','err'); return; }
+  const url = document.getElementById('scriptUrl').value.trim();
+  if(!url){ showMsg('searchMsg','Please enter the Apps Script URL above.','err'); return; }
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Searching…';
+  showMsg('searchMsg','🔍 Looking up beneficiary…','info');
+
+  try{
+    const r = await fetchData(url,{action:'lookupAadhaar', aadhaar_masked:id},1);
+    if(r.found){
+      currentBen = {name:r.name, cln:r.cln, shg:r.shg, mobile:r.mobile, aadhaar:id};
+      document.getElementById('benName').textContent     = r.name;
+      document.getElementById('benCLN').textContent      = '&#128101; '+r.cln;
+      document.getElementById('benSHG').textContent      = '&#128106; '+r.shg;
+      document.getElementById('benMobile').textContent   = '&#128222; '+r.mobile;
+      document.getElementById('benCLN').innerHTML        = '&#128101; '+esc(r.cln);
+      document.getElementById('benSHG').innerHTML        = '&#128106; '+esc(r.shg);
+      document.getElementById('benMobile').innerHTML     = '&#128222; '+esc(r.mobile);
+      document.getElementById('benCard').classList.add('show');
+      document.getElementById('searchMsg').style.display='none';
+      document.getElementById('searchBtn').style.display='none';
+      document.getElementById('proceedBtn').style.display='';
+    } else {
+      showMsg('searchMsg','❌ '+(r.message||'No beneficiary found with this Aadhaar ID. Please register first.'),'err');
+    }
+  }catch(e){
+    showMsg('searchMsg','❌ '+e.message,'err');
+  }
+  btn.disabled=false; btn.innerHTML='&#128269; Find Beneficiary';
+}
+
+function goCardB(){
+  if(!currentBen) return;
+  document.getElementById('attBenName').textContent = currentBen.name;
+  showCard('cardB');
+}
+
+// ════════════════════════════════════════
+// QR CODE SCANNER (jsQR library)
+// ════════════════════════════════════════
+async function startQR(){
+  const wrap = document.getElementById('qrWrap');
+  const vid  = document.getElementById('qrVideo');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    showMsg('qrMsg','Camera not available on this device. Please enter the training name manually.','warn');
+    addManualTrainingInput(); return;
+  }
+  try{
+    qrStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    vid.srcObject = qrStream;
+    wrap.style.display='block';
+    document.getElementById('startQRBtn').style.display='none';
+    document.getElementById('stopQRBtn').style.display='';
+    showMsg('qrMsg','&#128248; Camera open — point at QR code…','info');
+    scanQR();
+  }catch(e){
+    showMsg('qrMsg','Camera access denied. Please enter the training name manually.','warn');
+    addManualTrainingInput();
+  }
+}
+
+function stopQR(){
+  if(qrStream){ qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
+  if(qrTimer){ clearTimeout(qrTimer); qrTimer=null; }
+  document.getElementById('qrWrap').style.display='none';
+  document.getElementById('startQRBtn').style.display='';
+  document.getElementById('stopQRBtn').style.display='none';
+  document.getElementById('qrMsg').style.display='none';
+}
+
+function scanQR(){
+  const vid = document.getElementById('qrVideo');
+  if(!vid.videoWidth || !qrStream){ return; }
+
+  const cv = document.createElement('canvas');
+  cv.width=vid.videoWidth; cv.height=vid.videoHeight;
+  cv.getContext('2d').drawImage(vid,0,0);
+  const imgData = cv.getContext('2d').getImageData(0,0,cv.width,cv.height);
+
+  // Use jsQR if loaded, else fallback to BarcodeDetector API
+  if(typeof jsQR !== 'undefined'){
+    const code = jsQR(imgData.data, imgData.width, imgData.height);
+    if(code){ onQRDetected(code.data); return; }
+  } else if('BarcodeDetector' in window){
+    const bd = new BarcodeDetector({formats:['qr_code']});
+    bd.detect(vid).then(codes=>{
+      if(codes.length>0) onQRDetected(codes[0].rawValue);
+    }).catch(()=>{});
+  }
+  qrTimer = setTimeout(scanQR, 200);
+}
+
+function onQRDetected(data){
+  stopQR();
+  trainingName = data.trim();
+  document.getElementById('qrTrainingName').textContent = trainingName;
+  document.getElementById('qrResult').classList.add('show');
+  showMsg('qrMsg','✅ Training QR scanned: '+esc(trainingName),'ok');
+}
+
+function addManualTrainingInput(){
+  const qrSection = document.getElementById('qrMsg').parentElement;
+  if(document.getElementById('manualTraining')) return;
+  const div = document.createElement('div');
+  div.innerHTML = `<div class="field" style="margin-top:10px;" id="manualTraining">
+    <label>Training Name (Manual Entry)</label>
+    <input type="text" id="manualTrainingInput" placeholder="Enter training name manually"
+      oninput="trainingName=this.value.trim()"/>
+  </div>`;
+  qrSection.parentElement.insertBefore(div, qrSection.nextSibling);
+}
+
+// ════════════════════════════════════════
+// GPS
+// ════════════════════════════════════════
+function getGPS(){
+  const dot = document.getElementById('gpsDot');
+  const txt = document.getElementById('gpsTxt');
+  dot.className='gps-dot'; txt.textContent='Getting location…';
+  showMsg('gpsMsg','&#127759; Fetching GPS coordinates…','info');
+
+  if(!navigator.geolocation){
+    dot.classList.add('err'); txt.textContent='GPS not available on this device.';
+    showMsg('gpsMsg','Geolocation is not supported by this browser.','err'); return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      gpsData={lat:pos.coords.latitude.toFixed(6), lng:pos.coords.longitude.toFixed(6), accuracy:Math.round(pos.coords.accuracy)};
+      dot.classList.add('on');
+      txt.textContent=`📍 ${gpsData.lat}, ${gpsData.lng}  (±${gpsData.accuracy}m)`;
+      showMsg('gpsMsg','✅ Location captured — accuracy ±'+gpsData.accuracy+'m','ok');
+    },
+    err=>{
+      dot.classList.add('err');
+      const msgs={1:'Location permission denied.',2:'Location unavailable.',3:'Timed out getting location.'};
+      txt.textContent=msgs[err.code]||'Failed to get location.';
+      showMsg('gpsMsg','⚠️ '+txt.textContent+' You can still submit without GPS.','warn');
+    },
+    {enableHighAccuracy:true, timeout:12000, maximumAge:0}
+  );
+}
+
+// ════════════════════════════════════════
+// SUBMIT ATTENDANCE
+// ════════════════════════════════════════
+async function submitAttendance(){
+  if(submitting) return;
+  if(!currentBen){ showMsg('attMsg','Please search for a beneficiary first.','err'); return; }
+  if(!trainingName){ showMsg('attMsg','Please scan the training QR code first.','err'); return; }
+
+  submitting=true;
+  const btn=document.getElementById('submitAttBtn');
+  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Submitting…';
+
+  const url=document.getElementById('scriptUrl').value.trim();
+  if(!url){ showMsg('attMsg','Please enter the Apps Script URL.','err'); btn.disabled=false; btn.innerHTML='&#9989; Submit Attendance'; submitting=false; return; }
+
+  try{
+    const r=await fetchData(url,{
+      action:           'attendance',
+      training_name:    trainingName,
+      aadhaar_masked:   currentBen.aadhaar,
+      beneficiary_name: currentBen.name,
+      cln:              currentBen.cln,
+      shg:              currentBen.shg,
+      mobile:           currentBen.mobile,
+      gps_lat:          gpsData?gpsData.lat:'',
+      gps_lng:          gpsData?gpsData.lng:'',
+      gps_accuracy:     gpsData?gpsData.accuracy:'',
+      has_photo:        hasPhoto
+    },1);
+
+    if(r.success){
+      document.getElementById('sucMsg').innerHTML =
+        `Attendance for <strong>${esc(currentBen.name)}</strong> has been successfully captured for <strong>${esc(trainingName)}</strong>.`;
+      showCard('cardC');
+    } else {
+      throw new Error(r.error||'Submission failed.');
+    }
+  }catch(e){
+    showMsg('attMsg','❌ '+e.message,'err');
+    btn.disabled=false; btn.innerHTML='&#9989; Submit Attendance'; submitting=false;
+  }
+}
+
+// ════════════════════════════════════════
+// RESET
+// ════════════════════════════════════════
+function resetAttendance(){
+  currentBen=null; trainingName=''; gpsData=null; hasPhoto=false; submitting=false;
+  stopQR();
+  document.getElementById('aadhaarSearch').value='';
+  document.getElementById('benCard').classList.remove('show');
+  document.getElementById('proceedBtn').style.display='none';
+  document.getElementById('searchBtn').style.display='';
+  ['searchMsg','qrMsg','gpsMsg','attMsg'].forEach(id=>{document.getElementById(id).style.display='none';});
+  document.getElementById('qrResult').classList.remove('show');
+  document.getElementById('trainingName') && (document.getElementById('trainingName').value='');
+  const manual = document.getElementById('manualTraining'); if(manual) manual.remove();
+  const pp=document.getElementById('photoPreview'); pp.src=''; pp.classList.remove('show');
+  document.getElementById('photoPh').style.display='';
+  document.getElementById('photoBadge').style.display='none';
+  document.getElementById('gpsDot').className='gps-dot';
+  document.getElementById('gpsTxt').textContent='Tap "Get Location" to capture GPS coordinates';
+  document.getElementById('submitAttBtn').disabled=false;
+  document.getElementById('submitAttBtn').innerHTML='&#9989; Submit Attendance';
+  showCard('cardA');
+}
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+function showCard(id){
+  ['cardA','cardB','cardC'].forEach(c=>document.getElementById(c).classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function showMsg(id,txt,type){
+  const el=document.getElementById(id); if(!el) return;
+  el.className='msg '+type; el.innerHTML=txt; el.style.display='block';
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function fetchData(url,payload,attempt){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),45000);
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload),signal:ctrl.signal});
+    clearTimeout(t);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    try{return JSON.parse(txt);}catch{throw new Error('Invalid server response');}
+  }catch(e){
+    clearTimeout(t);
+    if(attempt<2&&(e.name==='AbortError'||/fetch|load|network/i.test(e.message))){
+      await new Promise(r=>setTimeout(r,2000));
+      return fetchData(url,payload,attempt+1);
+    }
+    if(e.name==='AbortError') throw new Error('Timed out (45s). Check connection and try again.');
+    throw e;
+  }
+}
+</script>
+
+<!-- jsQR library for QR decoding -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+</body>
+</html>
