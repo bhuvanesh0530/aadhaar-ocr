@@ -219,32 +219,63 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <!-- QR Scanner -->
   <div style="margin-bottom:16px;">
     <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">
-      &#128248; Scan Training QR Code
+      &#128248; Training QR Code
     </div>
-    <p class="qr-hint">Point camera at the training QR code — it will be detected automatically</p>
+
+    <!-- Success result — shown after scan or manual entry -->
+    <div class="qr-result" id="qrResult">
+      <span style="font-size:20px;">&#9989;</span>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px;">Training Confirmed</div>
+        <div id="qrTrainingName" style="font-size:14px;font-weight:700;color:var(--green-dark);">—</div>
+      </div>
+      <button onclick="resetQR()" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);cursor:pointer;">Change</button>
+    </div>
+
+    <!-- Camera viewfinder -->
     <div class="qr-wrap" id="qrWrap" style="display:none;">
-      <video id="qrVideo" class="qr-video" autoplay muted playsinline></video>
+      <video id="qrVideo" class="qr-video" autoplay muted playsinline webkit-playsinline></video>
+      <canvas id="qrCanvas" style="display:none;"></canvas>
       <div class="qr-overlay">
         <div class="qr-frame">
           <div class="qf-tr"></div><div class="qf-bl"></div>
           <div class="qr-scan-line"></div>
         </div>
       </div>
-    </div>
-    <div class="qr-result" id="qrResult">
-      <span style="font-size:20px;">&#9989;</span>
-      <div>
-        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px;">Training</div>
-        <div id="qrTrainingName" style="font-size:14px;font-weight:700;color:var(--green-dark);">—</div>
+      <div id="qrStatus" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;
+        font-size:12px;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.7);">
+        🔍 Scanning…
       </div>
     </div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-p" id="startQRBtn" style="margin-top:0;flex:1;background:linear-gradient(135deg,var(--green),var(--cel));"
-        onclick="startQR()">&#128248; Open QR Scanner</button>
+
+    <!-- Scan button row -->
+    <div style="display:flex;gap:8px;" id="qrBtnRow">
+      <button class="btn btn-p" id="startQRBtn"
+        style="margin-top:0;flex:1;background:linear-gradient(135deg,var(--green),var(--cel));"
+        onclick="startQR()">&#128248; Scan QR Code</button>
       <button class="btn btn-s" id="stopQRBtn" style="margin-top:0;flex:1;display:none;"
-        onclick="stopQR()">&#9632; Stop Scanner</button>
+        onclick="stopQR()">&#9632; Stop</button>
     </div>
     <div class="msg" id="qrMsg"></div>
+
+    <!-- Manual entry — always available as fallback -->
+    <div id="manualSection" style="margin-top:12px;">
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:8px;">
+        — or type the training name manually —
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="manualTrainingInput"
+          style="flex:1;background:#fff;border:1px solid var(--border);border-radius:9px;
+            padding:10px 13px;font-family:'Sora',sans-serif;font-size:13px;color:var(--text);outline:none;"
+          placeholder="Type training name here…"
+          oninput="manualTrainingChanged(this.value)"/>
+        <button onclick="confirmManual()"
+          style="background:var(--green);color:#fff;border:none;border-radius:9px;
+            padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">
+          ✓ Confirm
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- GPS -->
@@ -312,7 +343,6 @@ let trainingName = '';
 let gpsData      = null; // {lat, lng, accuracy}
 let hasPhoto     = false;
 let qrStream     = null;
-let qrTimer      = null;
 let submitting   = false;
 
 // ════════════════════════════════════════
@@ -388,78 +418,132 @@ function goCardB(){
 }
 
 // ════════════════════════════════════════
-// QR CODE SCANNER (jsQR library)
+// QR CODE SCANNER — requestAnimationFrame based (mobile reliable)
 // ════════════════════════════════════════
+let qrAnimFrame = null;
+
 async function startQR(){
-  const wrap = document.getElementById('qrWrap');
   const vid  = document.getElementById('qrVideo');
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    showMsg('qrMsg','Camera not available on this device. Please enter the training name manually.','warn');
-    addManualTrainingInput(); return;
+  const wrap = document.getElementById('qrWrap');
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    showMsg('qrMsg','⚠️ Camera not available. Please type the training name below.','warn');
+    return;
   }
   try{
-    qrStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    // Stop any existing stream first
+    if(qrStream) qrStream.getTracks().forEach(t=>t.stop());
+
+    // Request rear camera, fallback to any camera
+    try{
+      qrStream = await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:{exact:'environment'}, width:{ideal:1280}, height:{ideal:720} }
+      });
+    } catch(e){
+      qrStream = await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+      });
+    }
+
     vid.srcObject = qrStream;
-    wrap.style.display='block';
-    document.getElementById('startQRBtn').style.display='none';
-    document.getElementById('stopQRBtn').style.display='';
-    showMsg('qrMsg','&#128248; Camera open — point at QR code…','info');
-    scanQR();
-  }catch(e){
-    showMsg('qrMsg','Camera access denied. Please enter the training name manually.','warn');
-    addManualTrainingInput();
+    wrap.style.display = 'block';
+    document.getElementById('startQRBtn').style.display = 'none';
+    document.getElementById('stopQRBtn').style.display  = '';
+    document.getElementById('qrStatus').textContent = '🔍 Scanning…';
+    showMsg('qrMsg','📷 Camera open — point at the QR code on the printout','info');
+
+    // Wait for video to actually be playing before scanning
+    vid.onplaying = () => {
+      document.getElementById('qrStatus').textContent = '🔍 Scanning…';
+      scanLoopQR();
+    };
+    // Fallback if onplaying doesn't fire
+    setTimeout(()=>{ if(!qrAnimFrame) scanLoopQR(); }, 1500);
+
+  } catch(err){
+    showMsg('qrMsg','⚠️ Camera access denied. Please type the training name below.','warn');
   }
+}
+
+function scanLoopQR(){
+  const vid = document.getElementById('qrVideo');
+  const cv  = document.getElementById('qrCanvas');
+
+  if(!qrStream || !vid){ qrAnimFrame=null; return; }
+
+  // Only scan if video has actual dimensions
+  if(vid.readyState >= 2 && vid.videoWidth > 0){
+    cv.width  = vid.videoWidth;
+    cv.height = vid.videoHeight;
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(vid, 0, 0, cv.width, cv.height);
+
+    const imgData = ctx.getImageData(0, 0, cv.width, cv.height);
+
+    // Try jsQR first
+    if(typeof jsQR !== 'undefined'){
+      const code = jsQR(imgData.data, imgData.width, imgData.height, {
+        inversionAttempts: 'dontInvert'
+      });
+      if(code && code.data){
+        onQRDetected(code.data);
+        return;
+      }
+    }
+
+    // Try native BarcodeDetector API (supported on Chrome Android 83+)
+    if('BarcodeDetector' in window){
+      const bd = new BarcodeDetector({formats:['qr_code']});
+      bd.detect(vid).then(codes=>{
+        if(codes.length > 0){ onQRDetected(codes[0].rawValue); }
+      }).catch(()=>{});
+    }
+  }
+
+  // Continue scanning loop
+  qrAnimFrame = requestAnimationFrame(scanLoopQR);
 }
 
 function stopQR(){
+  if(qrAnimFrame){ cancelAnimationFrame(qrAnimFrame); qrAnimFrame=null; }
   if(qrStream){ qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
-  if(qrTimer){ clearTimeout(qrTimer); qrTimer=null; }
-  document.getElementById('qrWrap').style.display='none';
-  document.getElementById('startQRBtn').style.display='';
-  document.getElementById('stopQRBtn').style.display='none';
-  document.getElementById('qrMsg').style.display='none';
-}
-
-function scanQR(){
-  const vid = document.getElementById('qrVideo');
-  if(!vid.videoWidth || !qrStream){ return; }
-
-  const cv = document.createElement('canvas');
-  cv.width=vid.videoWidth; cv.height=vid.videoHeight;
-  cv.getContext('2d').drawImage(vid,0,0);
-  const imgData = cv.getContext('2d').getImageData(0,0,cv.width,cv.height);
-
-  // Use jsQR if loaded, else fallback to BarcodeDetector API
-  if(typeof jsQR !== 'undefined'){
-    const code = jsQR(imgData.data, imgData.width, imgData.height);
-    if(code){ onQRDetected(code.data); return; }
-  } else if('BarcodeDetector' in window){
-    const bd = new BarcodeDetector({formats:['qr_code']});
-    bd.detect(vid).then(codes=>{
-      if(codes.length>0) onQRDetected(codes[0].rawValue);
-    }).catch(()=>{});
-  }
-  qrTimer = setTimeout(scanQR, 200);
+  document.getElementById('qrWrap').style.display   = 'none';
+  document.getElementById('startQRBtn').style.display = '';
+  document.getElementById('stopQRBtn').style.display  = 'none';
+  document.getElementById('qrMsg').style.display = 'none';
 }
 
 function onQRDetected(data){
+  if(!data || !data.trim()) return;
   stopQR();
   trainingName = data.trim();
   document.getElementById('qrTrainingName').textContent = trainingName;
   document.getElementById('qrResult').classList.add('show');
-  showMsg('qrMsg','✅ Training QR scanned: '+esc(trainingName),'ok');
+  document.getElementById('qrBtnRow').style.display    = 'none';
+  document.getElementById('manualSection').style.display = 'none';
+  document.getElementById('qrMsg').style.display = 'none';
+  // Auto-fill manual input too for reference
+  const mi = document.getElementById('manualTrainingInput');
+  if(mi) mi.value = trainingName;
 }
 
-function addManualTrainingInput(){
-  const qrSection = document.getElementById('qrMsg').parentElement;
-  if(document.getElementById('manualTraining')) return;
-  const div = document.createElement('div');
-  div.innerHTML = `<div class="field" style="margin-top:10px;" id="manualTraining">
-    <label>Training Name (Manual Entry)</label>
-    <input type="text" id="manualTrainingInput" placeholder="Enter training name manually"
-      oninput="trainingName=this.value.trim()"/>
-  </div>`;
-  qrSection.parentElement.insertBefore(div, qrSection.nextSibling);
+function resetQR(){
+  trainingName = '';
+  document.getElementById('qrResult').classList.remove('show');
+  document.getElementById('qrBtnRow').style.display    = '';
+  document.getElementById('manualSection').style.display = '';
+  const mi = document.getElementById('manualTrainingInput');
+  if(mi) mi.value = '';
+}
+
+// Manual entry fallback
+function manualTrainingChanged(val){
+  // live preview — don't confirm yet
+}
+function confirmManual(){
+  const val = (document.getElementById('manualTrainingInput')?.value||'').trim();
+  if(!val){ showMsg('qrMsg','Please type the training name first.','err'); return; }
+  onQRDetected(val);
 }
 
 // ════════════════════════════════════════
@@ -546,12 +630,16 @@ function resetAttendance(){
   document.getElementById('proceedBtn').style.display='none';
   document.getElementById('searchBtn').style.display='';
   ['searchMsg','qrMsg','gpsMsg','attMsg'].forEach(id=>{document.getElementById(id).style.display='none';});
-  document.getElementById('qrResult').classList.remove('show');
-  document.getElementById('trainingName') && (document.getElementById('trainingName').value='');
-  const manual = document.getElementById('manualTraining'); if(manual) manual.remove();
+  // Reset QR section
+  resetQR();
+  document.getElementById('qrBtnRow').style.display='';
+  document.getElementById('manualSection').style.display='';
+  const mi=document.getElementById('manualTrainingInput'); if(mi) mi.value='';
+  // Reset photo
   const pp=document.getElementById('photoPreview'); pp.src=''; pp.classList.remove('show');
   document.getElementById('photoPh').style.display='';
   document.getElementById('photoBadge').style.display='none';
+  // Reset GPS
   document.getElementById('gpsDot').className='gps-dot';
   document.getElementById('gpsTxt').textContent='Tap "Get Location" to capture GPS coordinates';
   document.getElementById('submitAttBtn').disabled=false;
