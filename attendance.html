@@ -418,23 +418,20 @@ function goCardB(){
 }
 
 // ════════════════════════════════════════
-// QR CODE SCANNER — requestAnimationFrame based (mobile reliable)
+// QR CODE SCANNER — proven setInterval approach with BarcodeDetector + jsQR fallback
 // ════════════════════════════════════════
-let qrAnimFrame = null;
+let scanInterval  = null;
+let scannerActive = false;
 
 async function startQR(){
-  const vid  = document.getElementById('qrVideo');
-  const wrap = document.getElementById('qrWrap');
+  if(scannerActive) return;
+  const btn = document.getElementById('startQRBtn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Starting…';
+  document.getElementById('qrMsg').style.display = 'none';
 
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    showMsg('qrMsg','⚠️ Camera not available. Please type the training name below.','warn');
-    return;
-  }
+  // Get camera stream — try exact rear camera first, fallback to any
   try{
-    // Stop any existing stream first
-    if(qrStream) qrStream.getTracks().forEach(t=>t.stop());
-
-    // Request rear camera, fallback to any camera
     try{
       qrStream = await navigator.mediaDevices.getUserMedia({
         video:{ facingMode:{exact:'environment'}, width:{ideal:1280}, height:{ideal:720} }
@@ -444,73 +441,84 @@ async function startQR(){
         video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
       });
     }
-
-    vid.srcObject = qrStream;
-    wrap.style.display = 'block';
-    document.getElementById('startQRBtn').style.display = 'none';
-    document.getElementById('stopQRBtn').style.display  = '';
-    document.getElementById('qrStatus').textContent = '🔍 Scanning…';
-    showMsg('qrMsg','📷 Camera open — point at the QR code on the printout','info');
-
-    // Wait for video to actually be playing before scanning
-    vid.onplaying = () => {
-      document.getElementById('qrStatus').textContent = '🔍 Scanning…';
-      scanLoopQR();
-    };
-    // Fallback if onplaying doesn't fire
-    setTimeout(()=>{ if(!qrAnimFrame) scanLoopQR(); }, 1500);
-
   } catch(err){
-    showMsg('qrMsg','⚠️ Camera access denied. Please type the training name below.','warn');
+    btn.disabled = false;
+    btn.innerHTML = '📷 Scan QR Code';
+    showMsg('qrMsg','⚠️ Camera permission denied. Please allow camera and try again, or type the training name below.','warn');
+    return;
   }
+
+  const vid = document.getElementById('qrVideo');
+  vid.srcObject = qrStream;
+
+  // Wait for metadata + play before starting decode loop
+  await new Promise(resolve => {
+    vid.onloadedmetadata = () => vid.play().then(resolve).catch(resolve);
+  });
+
+  document.getElementById('qrWrap').style.display   = 'block';
+  document.getElementById('stopQRBtn').style.display = '';
+  btn.innerHTML = '🔍 Scanning…';
+  document.getElementById('qrStatus').textContent = '🔍 Hold QR code steady inside the frame…';
+  scannerActive = true;
+
+  // Use native BarcodeDetector if available (fastest on Android Chrome)
+  if(typeof BarcodeDetector !== 'undefined'){
+    try{
+      const detector = new BarcodeDetector({formats:['qr_code']});
+      scanInterval = setInterval(() => nativeQRDecode(vid, detector), 300);
+      return;
+    } catch(e){ /* fall through to jsQR */ }
+  }
+  // Load jsQR dynamically and start interval
+  loadJsQR(() => {
+    scanInterval = setInterval(() => jsQRDecode(vid), 300);
+  });
 }
 
-function scanLoopQR(){
-  const vid = document.getElementById('qrVideo');
+// BarcodeDetector decode (Chrome Android 83+, fast & native)
+async function nativeQRDecode(vid, detector){
+  if(!scannerActive || vid.readyState < 2) return;
+  try{
+    const codes = await detector.detect(vid);
+    if(codes.length > 0 && codes[0].rawValue) onQRDetected(codes[0].rawValue);
+  } catch(e){}
+}
+
+// jsQR canvas decode (universal fallback)
+function jsQRDecode(vid){
+  if(!scannerActive || vid.readyState < 2 || !window.jsQR) return;
   const cv  = document.getElementById('qrCanvas');
+  const ctx = cv.getContext('2d');
+  const w   = vid.videoWidth  || 640;
+  const h   = vid.videoHeight || 480;
+  if(cv.width !== w)  cv.width  = w;
+  if(cv.height !== h) cv.height = h;
+  ctx.drawImage(vid, 0, 0, w, h);
+  const img  = ctx.getImageData(0, 0, w, h);
+  const code = window.jsQR(img.data, w, h, {inversionAttempts:'dontInvert'});
+  if(code && code.data) onQRDetected(code.data);
+}
 
-  if(!qrStream || !vid){ qrAnimFrame=null; return; }
-
-  // Only scan if video has actual dimensions
-  if(vid.readyState >= 2 && vid.videoWidth > 0){
-    cv.width  = vid.videoWidth;
-    cv.height = vid.videoHeight;
-    const ctx = cv.getContext('2d');
-    ctx.drawImage(vid, 0, 0, cv.width, cv.height);
-
-    const imgData = ctx.getImageData(0, 0, cv.width, cv.height);
-
-    // Try jsQR first
-    if(typeof jsQR !== 'undefined'){
-      const code = jsQR(imgData.data, imgData.width, imgData.height, {
-        inversionAttempts: 'dontInvert'
-      });
-      if(code && code.data){
-        onQRDetected(code.data);
-        return;
-      }
-    }
-
-    // Try native BarcodeDetector API (supported on Chrome Android 83+)
-    if('BarcodeDetector' in window){
-      const bd = new BarcodeDetector({formats:['qr_code']});
-      bd.detect(vid).then(codes=>{
-        if(codes.length > 0){ onQRDetected(codes[0].rawValue); }
-      }).catch(()=>{});
-    }
-  }
-
-  // Continue scanning loop
-  qrAnimFrame = requestAnimationFrame(scanLoopQR);
+// Lazy-load jsQR from CDN
+function loadJsQR(cb){
+  if(window.jsQR){ cb(); return; }
+  const s   = document.createElement('script');
+  s.src     = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+  s.onload  = cb;
+  s.onerror = () => showMsg('qrMsg','⚠️ QR library failed to load. Please type the training name below.','warn');
+  document.head.appendChild(s);
 }
 
 function stopQR(){
-  if(qrAnimFrame){ cancelAnimationFrame(qrAnimFrame); qrAnimFrame=null; }
+  scannerActive = false;
+  if(scanInterval){ clearInterval(scanInterval); scanInterval=null; }
   if(qrStream){ qrStream.getTracks().forEach(t=>t.stop()); qrStream=null; }
-  document.getElementById('qrWrap').style.display   = 'none';
+  document.getElementById('qrWrap').style.display    = 'none';
   document.getElementById('startQRBtn').style.display = '';
   document.getElementById('stopQRBtn').style.display  = 'none';
-  document.getElementById('qrMsg').style.display = 'none';
+  document.getElementById('startQRBtn').disabled      = false;
+  document.getElementById('startQRBtn').innerHTML     = '📷 Scan QR Code';
 }
 
 function onQRDetected(data){
@@ -519,10 +527,9 @@ function onQRDetected(data){
   trainingName = data.trim();
   document.getElementById('qrTrainingName').textContent = trainingName;
   document.getElementById('qrResult').classList.add('show');
-  document.getElementById('qrBtnRow').style.display    = 'none';
+  document.getElementById('qrBtnRow').style.display     = 'none';
   document.getElementById('manualSection').style.display = 'none';
-  document.getElementById('qrMsg').style.display = 'none';
-  // Auto-fill manual input too for reference
+  document.getElementById('qrMsg').style.display        = 'none';
   const mi = document.getElementById('manualTrainingInput');
   if(mi) mi.value = trainingName;
 }
@@ -530,16 +537,13 @@ function onQRDetected(data){
 function resetQR(){
   trainingName = '';
   document.getElementById('qrResult').classList.remove('show');
-  document.getElementById('qrBtnRow').style.display    = '';
+  document.getElementById('qrBtnRow').style.display     = '';
   document.getElementById('manualSection').style.display = '';
   const mi = document.getElementById('manualTrainingInput');
   if(mi) mi.value = '';
 }
 
 // Manual entry fallback
-function manualTrainingChanged(val){
-  // live preview — don't confirm yet
-}
 function confirmManual(){
   const val = (document.getElementById('manualTrainingInput')?.value||'').trim();
   if(!val){ showMsg('qrMsg','Please type the training name first.','err'); return; }
@@ -681,7 +685,5 @@ async function fetchData(url,payload,attempt){
 }
 </script>
 
-<!-- jsQR library for QR decoding -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 </body>
 </html>
